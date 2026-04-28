@@ -292,28 +292,26 @@ REDIS_URL=redis://redis:6379/0  # Optional, dùng khi bật Redis
 ## Trạng Thái Hiện Tại
 
 ### Đã hoàn thành:
-- [x] Project structure
-- [x] Docker Compose (PostgreSQL + pgAdmin)
-- [x] `main.py` — FastAPI app entry
-- [x] `core/config.py` — Settings từ .env
-- [x] `db/session.py` — AsyncSession factory + health check
-- [x] `.env.example`, `Makefile`, `pyproject.toml`, `docker-compose.yml`
-- [x] **Step 1 (M1)**: 9 SQLAlchemy models + `db/base.py` + Alembic (alembic.ini + async env.py) + `scripts/init.sql` + pyrightconfig.json
+- [x] Project structure, Docker Compose, `main.py`, `core/config.py`, `db/session.py`, `.env.example`, `Makefile`
+- [x] **M1** — Foundation Setup ✅ 2026-04-28
+  - 9 SQLAlchemy models, `db/base.py`, Alembic async, `scripts/init.sql`
+- [x] **M2** — Auth End-to-End + FE Setup ✅ 2026-04-29
+  - First migration `e55f5d666040_initial_schema`, 9 Pydantic schemas
+  - `core/security.py`, `core/deps.py` (get_current_user, require_admin, get_current_student)
+  - Auth API: `POST /register`, `POST /login`, `GET /me`
+  - Admin auto-bootstrap qua lifespan (`admin@hcmut.edu.vn / admin123`)
+  - Frontend: Next.js 14 + shadcn/ui, login/register pages, student layout + sidebar
+  - Landing page `/` với navbar VI/EN toggle + nút Đăng nhập
+  - Middleware auth guard chuẩn (exact `/`, prefix `/login` `/register`)
 
 ### Cần làm (theo thứ tự):
-- [x] **Step 1 (M1)**: Foundation Setup — __init__.py, requirements.txt, db/base.py, scripts/init.sql, Alembic (alembic.ini + async env.py) ✅ 2026-04-28
-- [ ] **Step 2 (M2)**: SQLAlchemy models (9 bảng) + First migration + Pydantic schemas + Auth API + FE Setup
-- [ ] **Step 3**: DB init_db.py + seed data + Auth API
-- [ ] **Step 4**: Student API + Admin API (CRUD cơ bản)
-- [ ] **Step 5**: Import service (Excel/CSV)
-- [ ] **Step 6**: Synthetic data generation (1,000 SV, 6 HK)
-- [ ] **Step 7**: XGBoost training + prediction API
-- [ ] **Step 8**: RAG chatbot (Gemini + pgvector)
-- [ ] **Step 9**: Warning engine + Notification service
-- [ ] **Step 10**: Frontend setup (Next.js + shadcn/ui)
-- [ ] **Step 11**: Frontend — Student pages
-- [ ] **Step 12**: Frontend — Admin pages
-- [ ] **Step 13**: Integration testing + Polish
+- [ ] **M3** (Tuần 3-4): Student Profile & Grades — GPA calculator, Student/Course API, Synthetic data 1000 SV, FE Dashboard + Grades page
+- [ ] **M4** (Tuần 5-6): AI XGBoost Prediction
+- [ ] **M5** (Tuần 7-8): AI RAG Chatbot
+- [ ] **M6** (Tuần 9-10): Warnings, Study Plan, Events
+- [ ] **M7** (Tuần 11): Admin Minimal Tools
+- [ ] **M8** (Tuần 12-13): Integration & Polish
+- [ ] **M9** (Tuần 14): Wow Features — optional
 
 ## Lệnh Thường Dùng
 

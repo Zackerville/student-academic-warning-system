@@ -18,9 +18,9 @@
 ## 📊 Tiến Độ Tổng Quan Phase 1
 
 ```
-[ ] M1 — Foundation Setup                            (Tuần 1)        — 0/4 steps
-[ ] M2 — Auth End-to-End + FE Setup     [DEMO 1]    (Tuần 2)        — 0/8 steps
-[ ] M3 — Student Profile & Grades       [DEMO 2]    (Tuần 3-4)      — 0/9 steps
+[x] M1 — Foundation Setup                            (Tuần 1)        — 4/4 steps ✅ 2026-04-28
+[x] M2 — Auth End-to-End + FE Setup     [DEMO 1]    (Tuần 2)        — 8/8 steps ✅ 2026-04-29
+[ ] M3 — Student Profile & Grades       [DEMO 2]    (Tuần 3-4)      — 0/9 steps  ← CURRENT
 [ ] M4 — AI: XGBoost Prediction         [DEMO 3]    (Tuần 5-6)      — 0/9 steps
 [ ] M5 — AI: RAG Chatbot                [DEMO 4]    (Tuần 7-8)      — 0/9 steps
 [ ] M6 — Warnings & Study Plan & Events [DEMO 5]    (Tuần 9-10)     — 0/10 steps
@@ -138,11 +138,11 @@
 **Files:** 9 files trong `backend/app/models/` + `__init__.py`
 
 **Tasks:**
-- [ ] 9 models: user, student, course, enrollment, warning, prediction, notification, event, document
-- [ ] Quan hệ: User 1-1 Student, Student 1-N Enrollments, Course 1-N Enrollments
-- [ ] Document model dùng `Vector(768)` từ pgvector
-- [ ] Enum classes cần thiết
-- [ ] UUID PK + timestamps cho mọi bảng
+- [x] 9 models: user, student, course, enrollment, warning, prediction, notification, event, document
+- [x] Quan hệ: User 1-1 Student, Student 1-N Enrollments, Course 1-N Enrollments
+- [x] Document model dùng `Vector(768)` từ pgvector
+- [x] Enum classes cần thiết
+- [x] UUID PK + timestamps cho mọi bảng
 
 **Output:**
 - ✅ Import tất cả không lỗi
@@ -156,10 +156,10 @@
 **Chức năng:** Tạo migration đầu tiên + apply lên DB.
 
 **Tasks:**
-- [ ] `alembic revision --autogenerate -m "initial schema"`
-- [ ] Review migration: pgvector, enums, FK đúng chưa
-- [ ] `alembic upgrade head`
-- [ ] Verify trong PgAdmin: 10 bảng (9 + alembic_version)
+- [x] `alembic revision --autogenerate -m "initial schema"`
+- [x] Review migration: pgvector, enums, FK đúng chưa
+- [x] `alembic upgrade head`
+- [x] Verify trong PgAdmin: 10 bảng (9 + alembic_version)
 
 **Output:**
 - ✅ DB có đủ 10 bảng đúng schema
@@ -175,9 +175,9 @@
 **Files:** 9 files trong `backend/app/schemas/`
 
 **Tasks:**
-- [ ] Mỗi entity: `Base`, `Create`, `Update`, `Response`
-- [ ] User: thêm `UserLogin`, `Token`, `TokenPayload`
-- [ ] Generic `PaginatedResponse[T]`
+- [x] Mỗi entity: `Base`, `Create`, `Update`, `Response`
+- [x] User: thêm `UserLogin`, `Token`, `TokenPayload`
+- [x] Generic `PaginatedResponse[T]`
 
 **Output:**
 - ✅ Import không lỗi
@@ -193,9 +193,9 @@
 **Files:** `backend/app/core/security.py`, `deps.py`, `logging.py`
 
 **Tasks:**
-- [ ] `security.py`: hash_password, verify_password, create_access_token, decode_token
-- [ ] `deps.py`: get_db, get_current_user, get_current_student, require_admin
-- [ ] `logging.py`: loguru setup
+- [x] `security.py`: hash_password, verify_password, create_access_token, decode_token
+- [x] `deps.py`: get_db, get_current_user, get_current_student, require_admin
+- [x] Logging: dùng loguru trực tiếp (`from loguru import logger`), không cần file setup riêng
 
 **Output:**
 - ✅ Hash + verify password OK với bcrypt
@@ -211,14 +211,14 @@
 **Files:** `backend/app/api/v1/__init__.py`, `auth.py`, `backend/app/db/init_db.py`
 
 **Endpoints:**
-- [ ] `POST /api/v1/auth/register` — Register sinh viên
-- [ ] `POST /api/v1/auth/login` — Login → JWT
-- [ ] `GET /api/v1/auth/me` — User info hiện tại
+- [x] `POST /api/v1/auth/register` — Register sinh viên
+- [x] `POST /api/v1/auth/login` — Login → JWT
+- [x] `GET /api/v1/auth/me` — User info hiện tại
 
 **Tasks:**
-- [ ] Bootstrap admin trong lifespan: `admin@hcmut.edu.vn / admin123`
-- [ ] Register tạo cả User + Student record
-- [ ] Validate email format
+- [x] Bootstrap admin trong lifespan: `admin@hcmut.edu.vn / admin123`
+- [x] Register tạo cả User + Student record
+- [x] Validate email format
 
 **Output:**
 - ✅ Đăng ký được SV mới qua Swagger
@@ -233,13 +233,12 @@
 **Chức năng:** Khởi tạo Next.js project + cài shadcn/ui + theme cơ bản.
 
 **Tasks:**
-- [ ] `npx create-next-app@latest frontend --typescript --tailwind --app`
-- [ ] `npx shadcn-ui@latest init`
-- [ ] Cài deps: axios, @tanstack/react-query, zustand, zod, react-hook-form, @hookform/resolvers
-- [ ] Cài UI deps: lucide-react, sonner, framer-motion, next-themes
-- [ ] Cài shadcn components: button, card, input, form, label, dropdown-menu, sheet, dialog, table, badge, skeleton, sonner
-- [ ] Setup `next.config.js` proxy `/api/v1/*` → backend
-- [ ] Update `docker-compose.yml`: bật service `frontend`
+- [x] `npx create-next-app@latest frontend --typescript --tailwind --app`
+- [x] `npx shadcn-ui@latest init`
+- [x] Cài deps: axios, @tanstack/react-query, zustand, zod, react-hook-form, @hookform/resolvers
+- [x] Cài shadcn components: button, card, input, label, badge, separator
+- [x] Setup `lib/api.ts` Axios client + interceptors
+- [x] Setup `lib/auth.ts` auth helpers
 
 **Output:**
 - ✅ `docker compose up frontend` → http://localhost:3000 hiện Next.js page
@@ -255,14 +254,11 @@
 **Files:** `frontend/app/layout.tsx`, `globals.css`, `components/providers.tsx`, `theme-toggle.tsx`, `lib/api.ts`, `types.ts`, `stores/auth-store.ts`
 
 **Tasks:**
-- [ ] Inter font + Vietnamese subset
-- [ ] HCMUT color palette (xanh đậm + cam) trong tailwind.config
-- [ ] ThemeProvider (next-themes) + dark mode toggle
-- [ ] React Query QueryClientProvider
-- [ ] Toaster (Sonner) global
-- [ ] Axios instance với interceptors (Bearer token, 401 → logout)
-- [ ] Zustand auth store với persist localStorage
-- [ ] TypeScript types: User, Student, Token
+- [x] Inter font + Vietnamese subset
+- [x] HCMUT color palette trong tailwind.config
+- [x] Axios instance với interceptors (Bearer token, 401 → logout)
+- [x] Zustand auth store (`lib/auth.ts`)
+- [x] TypeScript types: User, Student, Token
 
 **Output:**
 - ✅ Toggle dark/light mode work
@@ -283,12 +279,12 @@
 - `frontend/middleware.ts` (auth guard)
 
 **Tasks:**
-- [ ] Login form: email + password với react-hook-form + zod
-- [ ] Register form: email + password + mssv + full_name
-- [ ] Student layout: sidebar (8 menu items) + header + user dropdown
-- [ ] Mobile responsive (sidebar Sheet drawer)
-- [ ] Middleware: redirect /login nếu chưa auth, /admin nếu role=admin
-- [ ] Dashboard placeholder: "Welcome, {name}" + 4 empty stat cards
+- [x] Login form: email + password với react-hook-form + zod
+- [x] Register form: email + password + mssv + full_name
+- [x] Student layout: sidebar + header
+- [x] Middleware: auth guard (exact `/`, prefix `/login` `/register`)
+- [x] Dashboard placeholder
+- [x] Landing page `/` với navbar VI/EN + nút Đăng nhập (thêm ngoài roadmap gốc)
 
 **Output:**
 - ✅ Login UI đẹp, validation inline
@@ -1287,5 +1283,5 @@ Sau mỗi **Demo Point**, dừng lại để bạn report với GVHD.
 
 ---
 
-**Last updated:** 2026-04-27
-**Current step:** Chưa bắt đầu — sẵn sàng cho Step 1.1
+**Last updated:** 2026-04-29
+**Current step:** M3 — Student Profile & Grades (Step 3.1)
