@@ -1,0 +1,13 @@
+Alembic migrations cho AI Student Warning System.
+
+Tạo migration mới:
+  docker compose exec backend alembic revision --autogenerate -m "mô tả thay đổi"
+
+Apply migrations:
+  docker compose exec backend alembic upgrade head
+
+Rollback 1 bước:
+  docker compose exec backend alembic downgrade -1
+
+Xem trạng thái:
+  docker compose exec backend alembic current

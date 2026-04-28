@@ -1,0 +1,155 @@
+services:
+  # ─── PostgreSQL Database ─────────────────────────────────────
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: warning_ai_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-warning_ai_db}
+      POSTGRES_USER: ${POSTGRES_USER:-warning_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-warning_password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - warning_ai_postgres_data:/var/lib/postgresql/data
+      - ./backend/scripts/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-warning_user} -d ${POSTGRES_DB:-warning_ai_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - warning_ai_network
+
+  # ─── Redis (Cache + Celery Broker) ───────────────────────────
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: warning_ai_redis
+  #   restart: unless-stopped
+  #   ports:
+  #     - "${REDIS_PORT:-6379}:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   command: redis-server --appendonly yes
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - warning_ai_net
+
+  # ─── FastAPI Backend ─────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: warning_ai_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_SERVER: db
+      DATABASE_URL: postgresql+asyncpg://admin:zackerville2004@db:5432/warning_ai_db
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - warning_ai_network
+
+  # ─── Celery Worker ────────────────────────────────────────────
+  # celery_worker:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #     target: development
+  #   container_name: warning_ai_celery
+  #   restart: unless-stopped
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     POSTGRES_HOST: db
+  #     REDIS_HOST: redis
+  #   volumes:
+  #     - ./backend:/app
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   command: celery -A app.core.celery_app worker --loglevel=info --queues=default,ai_tasks
+  #   networks:
+  #     - warning_ai_net
+
+  # ─── Celery Beat (Scheduler) ─────────────────────────────────
+  # celery_beat:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #     target: development
+  #   container_name: warning_ai_celery_beat
+  #   restart: unless-stopped
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     POSTGRES_HOST: db
+  #     REDIS_HOST: redis
+  #   volumes:
+  #     - ./backend:/app
+  #   depends_on:
+  #     - celery_worker
+  #   command: celery -A app.core.celery_app beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+  #   networks:
+  #     - warning_ai_net
+
+  # ─── Next.js Frontend ────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: warning_ai_frontend
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    networks:
+      - warning_ai_network
+
+  # ─── PgAdmin (Database GUI) ──────────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: warning_ai_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin123}
+    ports:
+      - "5050:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - warning_ai_pgadmin_data:/var/lib/pgadmin
+    networks:
+      - warning_ai_network
+
+volumes:
+  warning_ai_postgres_data:
+  warning_ai_pgadmin_data:
+
+networks:
+  warning_ai_network:
+    driver: bridge
