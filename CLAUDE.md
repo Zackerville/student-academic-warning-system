@@ -154,12 +154,20 @@ student-academic-warning-system/
 | id | UUID PK | |
 | student_id | UUID FK | |
 | course_id | UUID FK | |
-| semester | VARCHAR | VD: 241 (HK1 2024-2025) |
+| semester | VARCHAR | VD: 241 (HK1 2024-2025), 252 (HK2 2025-2026) |
 | midterm_score | FLOAT nullable | Điểm GK |
+| lab_score | FLOAT nullable | Điểm TN (thí nghiệm) |
+| other_score | FLOAT nullable | Điểm BTL / Đồ án / Báo cáo |
 | final_score | FLOAT nullable | Điểm CK |
-| total_score | FLOAT nullable | Điểm tổng kết |
-| grade_letter | VARCHAR nullable | A+, A, B+,... F |
-| status | ENUM(enrolled, passed, failed, withdrawn) | |
+| midterm_weight | FLOAT default 0.3 | Trọng số GK (sum 4 weights = 1.0) |
+| lab_weight | FLOAT default 0.0 | Trọng số TN |
+| other_weight | FLOAT default 0.0 | Trọng số BTL / Đồ án |
+| final_weight | FLOAT default 0.7 | Trọng số CK |
+| total_score | FLOAT nullable | Điểm tổng kết (auto-compute hoặc lấy từ myBK) |
+| grade_letter | VARCHAR nullable | A+, A, B+, ..., F, RT, MT, DT |
+| status | ENUM(enrolled, passed, failed, withdrawn, exempt) | |
+| is_finalized | BOOLEAN default false | true = điểm chính thức (từ myBK), không sửa được |
+| source | VARCHAR(20) default "manual" | "manual" \| "mybk_paste" \| "admin_import" |
 | attendance_rate | FLOAT nullable | % điểm danh |
 
 ### warnings
@@ -244,6 +252,44 @@ student-academic-warning-system/
 - **Enums**: Dùng Python `Enum` class + `sa.Enum` type cho SQLAlchemy
 - **Alembic**: Mỗi lần thay đổi model phải tạo migration mới, không sửa migration cũ
 
+## Cấu trúc điểm môn học (M3 Design Decision)
+
+Mỗi enrollment có thể có nhiều cấu trúc điểm khác nhau — trọng số được lưu **per-enrollment** (không phải per-course):
+
+**Templates phổ biến HCMUT:**
+| Template | GK | TN | BTL | CK | Áp dụng |
+|----------|----|----|-----|----|----|
+| Lý thuyết thuần (default) | 30% | 0 | 0 | 70% | Phần lớn môn |
+| Lý thuyết + TN | 30% | 20% | 0 | 50% | Vật lý, Mạng MT, OS... |
+| Lý thuyết + Đồ án | 30% | 0 | 30% | 40% | Lập trình, CSDL... |
+| Đồ án thuần | 0 | 0 | 100% | 0 | Đồ án CN |
+| Báo cáo / Seminar | 0 | 0 | 0 | 100% | Sinh hoạt SV, Khởi nghiệp |
+| Tùy chỉnh | tùy | tùy | tùy | tùy | Mọi case khác |
+
+**Logic tính total_score:**
+- Khi import từ myBK: `total_score` lấy nguyên từ paste, weights đều = 0 (không cần)
+- Khi SV tự nhập: tính `total = Σ(score_i × weight_i)` chỉ khi đủ điểm cho mọi `weight > 0`
+- Thiếu điểm → `total = NULL`, hiển thị "what-if" calculator cho SV
+
+## myBK Paste Import Flow
+
+**Vấn đề:** myBK chỉ hiển thị `Điểm tổng kết` cho mỗi môn (không show điểm thành phần qua Ctrl+A copy).
+
+**Giải pháp:**
+- HK quá khứ: import qua paste → chỉ có `total_score` + `grade_letter` + `status`, set `is_finalized=true`
+- HK đang học: SV tự nhập điểm thành phần khi có (GK/TN/BTL) → AI dùng làm features
+- Re-paste cuối HK: parser detect các môn `is_finalized=false` → cập nhật total từ myBK + giữ nguyên component scores SV đã nhập
+
+**Special grade letters từ myBK:**
+| Letter | Nghĩa | Status | Xử lý điểm số |
+|--------|-------|--------|----------------|
+| A+ → D | Đạt | passed | Lưu nguyên |
+| F | Không đạt | failed | Lưu nguyên |
+| RT | Rút môn | withdrawn | Bỏ điểm số (placeholder) |
+| MT | Miễn điểm | exempt | Bỏ điểm số, đếm TC ko tính GPA |
+| DT | Điểm đạt (ko có điểm) | passed | Bỏ điểm số, ko tính GPA |
+| CT, VT, CH, KD, VP, HT | Tình trạng đặc biệt | enrolled | Skip |
+
 ## Warning Logic (Quy chế HCMUT)
 
 ```
@@ -305,7 +351,7 @@ REDIS_URL=redis://redis:6379/0  # Optional, dùng khi bật Redis
   - Middleware auth guard chuẩn (exact `/`, prefix `/login` `/register`)
 
 ### Cần làm (theo thứ tự):
-- [ ] **M3** (Tuần 3-4): Student Profile & Grades — GPA calculator, Student/Course API, Synthetic data 1000 SV, FE Dashboard + Grades page
+- [ ] **M3** (Tuần 3-4): Student Profile & Grades — GPA calculator HCMUT thang 4, Student/Course API, **myBK paste parser**, Migration thêm component weights + is_finalized + source, FE Dashboard + Grades page với 2 luồng nhập (paste myBK + tự nhập GK/TN/BTL/CK với weights). Synthetic 1000 SV để sang M4 (chỉ cần khi train AI + load test)
 - [ ] **M4** (Tuần 5-6): AI XGBoost Prediction
 - [ ] **M5** (Tuần 7-8): AI RAG Chatbot
 - [ ] **M6** (Tuần 9-10): Warnings, Study Plan, Events

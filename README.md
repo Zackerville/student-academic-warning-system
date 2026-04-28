@@ -18,13 +18,14 @@ Hệ thống AI hỗ trợ **sinh viên chủ động theo dõi tình hình họ
 
 ### 👨‍🎓 Tính năng dành cho Sinh viên (Người dùng chính)
 - 📊 **Dashboard cá nhân** – Xem GPA theo từng học kỳ, số tín chỉ tích lũy, mức cảnh báo hiện tại
+- 📥 **Cập nhật từ myBK** – Copy bảng điểm từ myBK và paste để hệ thống tự nhận
 - 🔮 **Risk Score AI** – Biết mức độ nguy cơ học vụ (0–100%) và lý do cụ thể (feature importance)
-- 🎯 **Dự đoán từng môn** – AI dự báo khả năng pass/fail cho các môn đang học
-- 💬 **Chatbot tư vấn quy chế** – Hỏi đáp RAG dựa trên quy chế đào tạo ĐHBK, được trả lời kèm trích dẫn văn bản gốc
+- 🎯 **Dự đoán từng môn** – AI dự báo khả năng pass/fail cho các môn đang học dựa trên điểm GK/TN
+- 💬 **Chatbot tư vấn quy chế** – Hỏi đáp RAG dựa trên quy chế đào tạo ĐHBK, có trích dẫn văn bản gốc
 - 📋 **Kế hoạch học tập** – Gợi ý chiến lược đăng ký môn, số TC phù hợp cho học kỳ tới
 - 🔔 **Thông báo & Sự kiện** – Nhận thông báo cảnh báo sớm, nhắc nhở deadline thi/nộp bài
 
-### 🏛️ Tính năng dành cho Văn phòng Đào tạo (Người dùng phụ)
+### 🏛️ Tính năng dành cho Văn phòng Đào tạo
 - 📥 **Import dữ liệu** – Upload Excel danh sách SV và bảng điểm hàng học kỳ
 - ⚡ **Batch Prediction** – Chạy AI đánh giá rủi ro toàn bộ sinh viên bằng một thao tác
 - 📈 **Dashboard tổng quan** – Phân bố risk level, top SV nguy cơ cao, thống kê theo khoa/ngành
@@ -36,108 +37,269 @@ Hệ thống AI hỗ trợ **sinh viên chủ động theo dõi tình hình họ
 ## 🏗️ Kiến trúc hệ thống
 
 ```
-WarningAI_system/
-├── backend/               # FastAPI + Python
+student-academic-warning-system/
+├── backend/                # FastAPI + Python 3.11
 │   ├── app/
-│   │   ├── ai/            # ML models & RAG engine
-│   │   ├── api/           # API routers (v1)
-│   │   ├── core/          # Config, security, logging
-│   │   ├── db/            # Database session & base
-│   │   ├── models/        # SQLAlchemy ORM models
-│   │   ├── schemas/       # Pydantic request/response schemas
-│   │   └── services/      # Business logic layer
-│   ├── data/              # Sample data, CSV, PDF docs
-│   ├── migrations/        # Alembic migration files
-│   └── tests/             # Unit & integration tests
-├── frontend/              # Next.js 14 (App Router)
-│   ├── app/               # Pages & layouts
-│   ├── components/        # Reusable UI components
-│   └── lib/               # API clients, utils
-├── docs/                  # Project documentation
-└── docker-compose.yml     # Local development stack
+│   │   ├── ai/             # ML models (XGBoost) & RAG engine
+│   │   ├── api/v1/         # API routers
+│   │   ├── core/           # Config, security, deps
+│   │   ├── db/             # Session, base, init_db
+│   │   ├── models/         # SQLAlchemy ORM (9 bảng)
+│   │   ├── schemas/        # Pydantic request/response
+│   │   └── services/       # Business logic (warning_engine, mybk_parser, ...)
+│   ├── data/               # Synthetic CSVs + RAG PDF docs
+│   ├── migrations/         # Alembic migrations
+│   ├── scripts/            # init.sql, seed, cleanup synthetic
+│   └── tests/              # pytest
+├── frontend/               # Next.js 14 (App Router) + TypeScript
+│   ├── app/                # Pages & layouts
+│   ├── components/         # shadcn/ui + custom
+│   └── lib/                # Axios client, auth store
+├── docs/                   # Tài liệu đồ án
+├── docker-compose.yml      # PostgreSQL + Backend + PgAdmin
+├── .env.example
+├── Makefile
+├── CLAUDE.md               # Project context cho AI assistant
+├── roadmap.md              # 9 milestones, 14 tuần
+├── feature_list.md         # 67 chức năng chi tiết
+└── implementation_plan.md  # Kế hoạch triển khai
 ```
 
 ---
 
-## 🚀 Khởi chạy nhanh (Quick Start)
+## 🚀 Cài đặt từ đầu (Lần đầu chạy project)
 
 ### Yêu cầu
-- Docker & Docker Compose v2+
-- Node.js 20+ (cho frontend dev local)
-- Python 3.11+ (cho backend dev local)
 
-### 1. Clone & cấu hình môi trường
+- **Docker Desktop** v4.20+ (kèm Docker Compose v2)
+- **Node.js** v20 LTS (để chạy frontend local)
+- **Git**
+
+> Backend chạy trong Docker — không cần cài Python/Postgres trực tiếp trên máy.
+
+### Bước 1 — Clone repo và tạo `.env`
+
 ```bash
-git clone <repo-url>
-cd WarningAI_system
+git clone https://github.com/Zackerville/student-academic-warning-system.git
+cd student-academic-warning-system
 cp .env.example .env
-# Chỉnh sửa .env với các giá trị thực của bạn
 ```
 
-### 2. Chạy toàn bộ stack với Docker
-```bash
-docker compose up -d
-```
+### Bước 2 — Sửa `.env` (BẮT BUỘC)
 
-Sau khi khởi động:
-| Service | URL |
-|---|---|
-| Frontend | http://localhost:3000 |
-| Backend API | http://localhost:8000 |
-| API Docs (Swagger) | http://localhost:8000/docs |
-| PgAdmin | http://localhost:5050 |
-
-### 3. Chạy local (development)
-```bash
-# Backend
-make dev-backend
-
-# Frontend (terminal khác)
-make dev-frontend
-```
-
----
-
-## ⚙️ Các lệnh hữu ích (Makefile)
+Mở file `.env`, **sửa 2 dòng sau** để đồng bộ credentials với `docker-compose.yml`:
 
 ```bash
-make help          # Xem tất cả lệnh
-make up            # Khởi động Docker stack
-make down          # Dừng Docker stack
-make dev-backend   # Chạy backend dev server
-make dev-frontend  # Chạy frontend dev server
-make migrate       # Chạy Alembic migrations
-make test          # Chạy toàn bộ tests
-make lint          # Kiểm tra code style
-make seed          # Seed dữ liệu mẫu vào DB
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=zackerville2004
+```
+
+> ⚠️ **Lưu ý quan trọng:** `docker-compose.yml` đang hardcode connection string với user `admin` và password `zackerville2004`. Nếu để giá trị mặc định trong `.env.example` thì backend không kết nối được DB.
+
+### Bước 3 — Khởi động database
+
+```bash
+docker compose up -d db
+```
+
+Đợi ~10 giây cho DB pass healthcheck. Verify:
+
+```bash
+docker compose ps
+# db phải có status "Up (healthy)"
+```
+
+### Bước 4 — Chạy migration tạo 9 bảng
+
+```bash
+docker compose run --rm backend alembic upgrade head
+```
+
+Lệnh này tự build image backend nếu chưa có, rồi apply migration. Sau khi chạy xong, DB sẽ có 10 bảng (9 entities + `alembic_version`).
+
+### Bước 5 — Khởi động backend
+
+```bash
+docker compose up -d backend
+```
+
+Trong lifespan, backend sẽ tự tạo admin mặc định: `admin@hcmut.edu.vn / admin123`.
+
+**Verify:**
+- Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
+- Health check: [http://localhost:8000/health](http://localhost:8000/health) → trả `{"status":"ok","database":"connected"}`
+
+### Bước 6 — Cài đặt và chạy frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend chạy ở [http://localhost:3000](http://localhost:3000)
+
+> **Chưa cài Node.js?** `winget install OpenJS.NodeJS.LTS` (Windows) hoặc tải từ [nodejs.org](https://nodejs.org) (chọn LTS v20).
+
+---
+
+## 🔄 Các lần chạy sau (đã setup rồi)
+
+```bash
+# Khởi động toàn bộ
+docker compose up -d              # db + backend
+cd frontend && npm run dev        # frontend
+
+# Dừng toàn bộ
+docker compose down
+# Ctrl+C trong terminal frontend
 ```
 
 ---
 
-## 🗓️ Kế hoạch phát triển (14 tuần)
+## 🌐 Endpoints sau khi chạy
 
-| Tuần | Mục tiêu |
-|---|---|
-| 1–2 | Thiết lập môi trường, Auth (JWT), RBAC |
-| 3–4 | CRUD Students, Courses, Grades |
-| 5–6 | AI Pipeline – ML Risk Prediction |
-| 7–8 | RAG Chatbot Engine |
-| 9–10 | Event Management & Notification |
-| 11–12 | Frontend – Student Portal & Admin Dashboard |
-| 13 | Integration Testing & Performance |
-| 14 | Deployment & Documentation |
+| Service | URL | Tài khoản |
+|---------|-----|-----------|
+| **Frontend** | [http://localhost:3000](http://localhost:3000) | Xem bảng dưới |
+| **Backend API** | [http://localhost:8000](http://localhost:8000) | — |
+| **API Docs (Swagger)** | [http://localhost:8000/docs](http://localhost:8000/docs) | — |
+| **Health Check** | [http://localhost:8000/health](http://localhost:8000/health) | — |
+| **PgAdmin** | [http://localhost:5050](http://localhost:5050) | `admin@admin.com` / `admin123` |
 
----
+### Tài khoản mặc định
 
-## 👥 Đóng góp
-
-1. Fork repository
-2. Tạo feature branch: `git checkout -b feature/ten-tinh-nang`
-3. Commit: `git commit -m "feat: mô tả ngắn gọn"`
-4. Push & mở Pull Request
+| Role | Email | Password |
+|------|-------|----------|
+| **Admin** | `admin@hcmut.edu.vn` | `admin123` |
+| **Sinh viên** | Đăng ký mới qua trang `/register` | — |
 
 ---
 
-## 📄 Giấy phép
+## ⚙️ Lệnh hữu ích
 
-MIT License – © 2025 HCMUT
+### Backend (Docker)
+
+```bash
+# Xem logs realtime
+docker compose logs -f backend
+
+# Vào shell container
+docker compose exec backend bash
+
+# Tạo migration mới sau khi sửa model
+docker compose exec backend alembic revision --autogenerate -m "your message"
+
+# Apply migration
+docker compose exec backend alembic upgrade head
+
+# Mở psql shell
+docker compose exec db psql -U admin -d warning_ai_db
+
+# Chạy tests
+docker compose exec backend pytest tests/ -v
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm run dev      # Dev server với hot reload
+npm run build    # Build production
+npm run start    # Chạy production build
+npm run lint     # Kiểm tra ESLint
+```
+
+### Reset toàn bộ database (cẩn thận!)
+
+```bash
+docker compose down -v          # Xoá containers + volumes
+docker compose up -d db         # Tạo DB mới
+docker compose run --rm backend alembic upgrade head
+docker compose up -d backend
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### Backend không start được, log báo "password authentication failed"
+
+→ Bạn quên sửa `POSTGRES_USER=admin` và `POSTGRES_PASSWORD=zackerville2004` trong `.env`.
+
+**Fix:**
+```bash
+docker compose down -v          # xoá DB volume cũ (credentials cũ)
+# Sửa .env
+docker compose up -d db
+docker compose run --rm backend alembic upgrade head
+docker compose up -d backend
+```
+
+### Frontend báo lỗi `npm: command not found`
+
+→ Chưa cài Node.js. Cài theo Bước 6 phần trên.
+
+### Port 5432, 8000, 3000, 5050 đã bị dùng
+
+→ Tắt service đang dùng port đó, hoặc đổi port trong `.env`:
+
+```bash
+POSTGRES_PORT=5433
+BACKEND_PORT=8001
+```
+
+### `docker compose run` báo lỗi network
+
+→ DB chưa healthy. Đợi thêm rồi retry:
+```bash
+docker compose ps         # check db status = "healthy"
+```
+
+---
+
+## 🗓️ Tiến độ phát triển (xem [roadmap.md](roadmap.md))
+
+| Milestone | Mục tiêu | Trạng thái |
+|-----------|----------|-----------|
+| **M1** | Foundation Setup | ✅ Done |
+| **M2** | Auth End-to-End + FE Setup | ✅ Done |
+| **M3** | Student Profile & Grades + myBK paste | 🚧 In progress |
+| **M4** | AI XGBoost Prediction | ⬜ Pending |
+| **M5** | RAG Chatbot (Gemini) | ⬜ Pending |
+| **M6** | Warnings, Study Plan, Events | ⬜ Pending |
+| **M7** | Admin Minimal Tools | ⬜ Pending |
+| **M8** | Integration & Polish | ⬜ Pending |
+| **M9** | Wow Features (optional) | ⬜ Pending |
+
+---
+
+## 📚 Tech Stack
+
+| Layer | Công nghệ | Ghi chú |
+|-------|-----------|---------|
+| Backend | FastAPI 0.111 (Python 3.11), async | Swagger tự sinh |
+| Database | PostgreSQL 16 + pgvector | Quan hệ + vector search 1 DB |
+| Cache/Scheduler | APScheduler (in-process) | Thay Celery để giảm complexity |
+| AI Prediction | XGBoost + SHAP | Risk score + feature importance |
+| AI Chatbot | LangChain + Gemini 1.5 Flash | RAG tư vấn quy chế |
+| AI Embeddings | Google `models/embedding-001` | 768 dims → pgvector |
+| Frontend | Next.js 14 (App Router) + TypeScript | shadcn/ui + Tailwind |
+| Container | Docker + Docker Compose | DB + Backend + PgAdmin |
+
+---
+
+## 📖 Tài liệu liên quan
+
+- [`CLAUDE.md`](CLAUDE.md) — Project context, schema, conventions, warning logic HCMUT
+- [`roadmap.md`](roadmap.md) — 9 milestones × 14 tuần × 6 demo points
+- [`feature_list.md`](feature_list.md) — 67 chức năng chi tiết với mức ưu tiên
+- [`implementation_plan.md`](implementation_plan.md) — Kế hoạch triển khai theo phase
+
+---
+
+## 👤 Tác giả
+
+**Zackerville** — Đồ án chuyên ngành CS, ĐH Bách Khoa TP.HCM
+
+GitHub: [@Zackerville](https://github.com/Zackerville)

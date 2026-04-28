@@ -20,8 +20,8 @@
 ```
 [x] M1 — Foundation Setup                            (Tuần 1)        — 4/4 steps ✅ 2026-04-28
 [x] M2 — Auth End-to-End + FE Setup     [DEMO 1]    (Tuần 2)        — 8/8 steps ✅ 2026-04-29
-[ ] M3 — Student Profile & Grades       [DEMO 2]    (Tuần 3-4)      — 0/9 steps  ← CURRENT
-[ ] M4 — AI: XGBoost Prediction         [DEMO 3]    (Tuần 5-6)      — 0/9 steps
+[ ] M3 — Student Profile & Grades       [DEMO 2]    (Tuần 3-4)      — 0/6 steps  ← CURRENT
+[ ] M4 — AI: XGBoost Prediction         [DEMO 3]    (Tuần 5-6)      — 0/10 steps (+ synthetic data)
 [ ] M5 — AI: RAG Chatbot                [DEMO 4]    (Tuần 7-8)      — 0/9 steps
 [ ] M6 — Warnings & Study Plan & Events [DEMO 5]    (Tuần 9-10)     — 0/10 steps
 [ ] M7 — Admin Minimal Tools            [DEMO 6]    (Tuần 11)       — 0/4 steps
@@ -312,99 +312,112 @@
 
 > **Mục tiêu:** SV xem được profile, bảng điểm, đăng ký môn, nhập điểm, GPA tự tính. Có 1,000 SV synthetic trong DB.
 
-## Step 3.1 — BE: Pandas Deps + GPA Calculator Service
+> **Thay đổi vs roadmap gốc:**
+> - **Synthetic 1000 SV** (Step 3.3, 3.4 cũ) → dời sang **M4** vì chỉ cần khi train AI + load test
+> - **Thêm myBK paste import** — flow chính để SV nhập bảng điểm (Step 3.3 mới)
+> - **Schema mới**: thêm `lab_score`, `other_score`, 4 weights, `is_finalized`, `source`, enum `exempt`
+
+## Step 3.1 — BE: GPA Calculator + Pandas Deps
 
 **Loại:** Backend
-**Chức năng:** Logic tính GPA HCMUT thang 4 + cài pandas.
+**Chức năng:** Logic tính GPA HCMUT thang 4 + cài pandas/numpy cho sau này.
 
-**Files:** `backend/requirements.txt` (thêm pandas, openpyxl, numpy), `backend/app/services/gpa_calculator.py`, `backend/tests/test_gpa_calculator.py`
+**Files:** `backend/requirements.txt`, `backend/app/services/gpa_calculator.py`, `backend/tests/test_gpa_calculator.py`
 
 **Tasks:**
 - [ ] Thêm `pandas`, `openpyxl`, `numpy` vào requirements
-- [ ] `score_to_grade_letter`, `grade_letter_to_gpa`
-- [ ] `calculate_semester_gpa`, `calculate_cumulative_gpa`
-- [ ] `calculate_gpa_trend` (slope 3 HK)
-- [ ] Unit tests 5 scenarios
+- [ ] `score_to_grade_letter(score: float) -> str` — Thang HCMUT (A+/A/B+/B/C+/C/D+/D/F)
+- [ ] `grade_letter_to_gpa(letter: str) -> float` — A+/A=4.0, B+=3.5, B=3.0, C+=2.5, C=2.0, D+=1.5, D=1.0, F=0
+- [ ] `compute_total_from_components(midterm, lab, other, final, weights) -> float | None` — Trả None nếu thiếu điểm cho weight > 0
+- [ ] `calculate_semester_gpa(enrollments: list) -> float` — Bỏ qua exempt/withdrawn/DT (credits = 0 hoặc letter đặc biệt)
+- [ ] `calculate_cumulative_gpa(student_id, db) -> float`
+- [ ] `calculate_gpa_trend(history: list[float]) -> float` — Slope 3 HK gần nhất
+- [ ] Unit tests cover: thang điểm, môn F, môn RT, môn MT, weight tùy chỉnh
 
 **Output:**
-- ✅ `pytest tests/test_gpa_calculator.py -v` → 5 passed
-- ✅ Convert đúng score 8.5 → A → GPA 4.0
+- ✅ `pytest tests/test_gpa_calculator.py -v` → all passed
+- ✅ Convert đúng: 8.5 → A → 4.0; 7.0 → B → 3.0; 4.0 → D → 1.0; 3.9 → F → 0
 
 ---
 
-## Step 3.2 — BE: Student API + Course API
+## Step 3.2 — BE: Schema Migration + Student/Course API
 
 **Loại:** Backend
-**Chức năng:** B1, C1, C2, C3, C4, C5 — endpoints cho SV.
+**Chức năng:** Migration schema mới + endpoints cho SV xem/nhập điểm.
 
-**Files:** `backend/app/api/v1/students.py`, `courses.py`
+**Files:** `backend/migrations/versions/0002_*`, `backend/app/api/v1/students.py`, `courses.py`, `backend/app/models/enrollment.py`
+
+**Migration tasks:**
+- [ ] Add columns vào `enrollments`: `lab_score`, `other_score`, `midterm_weight` (default 0.3), `lab_weight` (0), `other_weight` (0), `final_weight` (0.7), `is_finalized` (default false), `source` (default "manual")
+- [ ] Update enum `EnrollmentStatus`: thêm `exempt`
+- [ ] `alembic revision --autogenerate -m "add component weights and mybk fields"`
 
 **Endpoints (Student):**
 - [ ] `GET /students/me` — Profile
 - [ ] `GET /students/me/dashboard` — Compound: profile + GPA + warning + noti + events
-- [ ] `GET /students/me/grades` — Bảng điểm
-- [ ] `GET /students/me/grades?semester=241` — Filter
-- [ ] `POST /students/me/enrollments` — Đăng ký môn
-- [ ] `PUT /students/me/enrollments/{id}/grades` — Nhập điểm
-- [ ] `GET /students/me/gpa` — GPA tích lũy + dự kiến
-- [ ] `GET /students/me/gpa/history` — Lịch sử GPA
+- [ ] `GET /students/me/grades` — Bảng điểm grouped by semester
+- [ ] `POST /students/me/enrollments` — Đăng ký môn (với template weights hoặc tùy chỉnh)
+- [ ] `PUT /students/me/enrollments/{id}/grades` — Nhập điểm GK/TN/BTL/CK
+- [ ] `GET /students/me/gpa` — GPA tích lũy + GPA HK hiện tại + dự kiến
+- [ ] `GET /students/me/gpa/history` — Mảng `[{semester, gpa, credits}]` cho chart
 
 **Endpoints (Course):**
-- [ ] `GET /courses?search=&page=1&size=20`
+- [ ] `GET /courses?search=&page=1&size=20` — Search by code/name
 - [ ] `GET /courses/{id}`
 
-**Tasks:**
-- [ ] Sau khi nhập CK → tự tính total_score, grade_letter, update student.gpa_cumulative
-- [ ] Pagination
+**Logic tasks:**
+- [ ] Validation: `midterm_weight + lab_weight + other_weight + final_weight = 1.0` (tolerance 0.001)
+- [ ] Khi nhập điểm thành phần → re-compute `total_score` nếu đủ → re-compute `grade_letter` → update `student.gpa_cumulative` + `warning_level`
+- [ ] Block edit nếu `is_finalized=true`
 
 **Output:**
 - ✅ SV gọi `/dashboard` 1 request → đầy đủ data
-- ✅ Nhập điểm CK → GPA tự update
+- ✅ Nhập điểm CK đầy đủ → GPA tự update real-time
+- ✅ Validation reject weights không tổng 100%
 
 ---
 
-## Step 3.3 — BE: Synthetic Data Generator
+## Step 3.3 — BE: myBK Paste Parser + Import Endpoint ⭐
 
 **Loại:** Backend
-**Chức năng:** Tạo 1,000 SV với 4-8 HK lịch sử, đa dạng GPA. (≈ 1 khoa của HCMUT)
+**Chức năng:** Parse text copy từ myBK → upsert enrollments + courses + recompute GPA.
 
-**Files:** `backend/scripts/generate_synthetic_data.py`, `backend/data/synthetic/*.csv`
+**Files:** `backend/app/services/mybk_parser.py`, `backend/tests/test_mybk_parser.py`, `backend/app/api/v1/students.py`
 
-**Tasks:**
-- [ ] 10 khoa, 30 ngành sát HCMUT
-- [ ] ~150 courses (CO1xxx-CO5xxx, ngoại ngữ, đại cương)
-- [ ] 1,000 SV cohorts 2021-2024 (250 SV mỗi cohort)
-- [ ] Phân bố Gaussian: 15% xuất sắc, 60% TB, 20% yếu, 5% cực yếu
-- [ ] ~10% SV có lịch sử cảnh báo (≈ 100 positive samples cho ML)
-- [ ] Output 3 CSVs: students, courses, enrollments
+**Parser tasks:**
+- [ ] `parse_mybk_text(raw: str) -> ParsedTranscript`
+  - Detect HK header: regex `Năm học (\d{4}) - (\d{4}) / Học kỳ (\d)` → semester code `YYN` (vd: 251)
+  - Match course row: regex `^\d+\t([A-Z]{2,3}\d{4})\t...` (10 tab fields)
+  - Skip lines: "Tích lũy chung/học kỳ", "Môn học chuyển điểm", header lines
+- [ ] Map letter → status:
+  - A+/A/B+/B/C+/C/D+/D → `passed`, lưu nguyên score
+  - F → `failed`, lưu nguyên score
+  - RT → `withdrawn`, **bỏ score** (placeholder)
+  - MT → `exempt`, **bỏ score**
+  - DT → `passed`, **bỏ score**, ko tính GPA
+  - CT/VT/CH/KD/VP/HT → `enrolled` (skip hoặc giữ pending)
+- [ ] Tự tạo `Course` nếu chưa có (lấy code + name từ paste)
+- [ ] Unit tests với fixture chính là sample của user (đã có)
+
+**Endpoints:**
+- [ ] `POST /students/me/grades/import-mybk` body: `{"raw_text": "...", "dry_run": true}`
+- [ ] Response (dry_run): `{"semesters": [...], "summary": {"new": N, "updated": M, "errors": [...]}, "preview_gpa": x.x}`
+- [ ] Response (commit): same + `{"finalized_count": N}`
+
+**Upsert logic:**
+- [ ] Khớp enrollment theo `(student_id, course_id, semester)`
+- [ ] Nếu `is_finalized=true` đã set → skip (không override)
+- [ ] Nếu môn cũ có component scores SV tự nhập → giữ scores, chỉ thêm `total_score` + set `is_finalized=true`
+- [ ] Source = `"mybk_paste"` cho môn mới import
 
 **Output:**
-- ✅ 1,000 students, ~150 courses, ~6,000-10,000 enrollments
-- ✅ Histogram GPA giống thực tế
-- ✅ ~100 SV warning_level >= 1 (đủ cho ML stratified split)
+- ✅ Paste sample của user (~70 môn, 9 HK) → parse đúng, không lỗi
+- ✅ Re-paste lần 2 → idempotent, không duplicate
+- ✅ GPA tính lại khớp với myBK (sai số < 0.05)
 
 ---
 
-## Step 3.4 — BE: Seed Data Script
-
-**Loại:** Backend
-**Chức năng:** Load CSV vào DB + tạo user accounts cho mỗi SV.
-
-**Files:** `backend/scripts/seed.py`
-
-**Tasks:**
-- [ ] Load 3 CSVs (idempotent)
-- [ ] User account cho mỗi SV: password mặc định `student123`
-- [ ] Tính sẵn `gpa_cumulative`, `credits_earned`, `warning_level`
-
-**Output:**
-- ✅ DB có 1 admin + 1,000 students
-- ✅ Distribution warning_level: ~90/7/2/1 (~900/70/20/10)
-- ✅ Re-run không duplicate
-
----
-
-## Step 3.5 — FE: Dashboard Page (Real Data)
+## Step 3.4 — FE: Dashboard Page
 
 **Loại:** Frontend
 **Chức năng:** B1, B2, B5, B6 — tổng quan SV với data thật.
@@ -412,73 +425,99 @@
 **Files:** `frontend/app/(student)/dashboard/page.tsx`, `components/dashboard/*.tsx`
 
 **Components:**
-- [ ] Welcome card (avatar + tên + MSSV + khoa)
+- [ ] Welcome card (avatar + tên + MSSV + khoa + ngành)
 - [ ] 4 stats cards: GPA tích lũy, TC tích lũy, Mức cảnh báo, Số môn đang học
-- [ ] GPA line chart qua các HK (Recharts) + ngưỡng warning lines
-- [ ] Notifications gần nhất 3-5 (placeholder list, full sau M6)
-- [ ] Sự kiện sắp tới 3-5 (placeholder list)
-- [ ] Skeleton loaders
+- [ ] GPA line chart qua các HK (Recharts) + ngưỡng warning 1.2/1.0/0.8
+- [ ] Notifications gần nhất 3-5 (hardcoded ở M3, real ở M6)
+- [ ] Sự kiện sắp tới 3-5 (hardcoded ở M3, real ở M6)
+- [ ] Empty state nếu chưa có data: card lớn "Chưa có dữ liệu — Cập nhật từ myBK ngay" → link sang /grades
 
 **Output:**
 - ✅ Dashboard load < 1.5s
 - ✅ Đầy đủ data từ `/students/me/dashboard`
-- ✅ Chart render đẹp
+- ✅ Chart render đẹp với ngưỡng warning
 
 ---
 
-## Step 3.6 — FE: Grades Page
+## Step 3.5 — FE: Grades Page (2 luồng nhập) ⭐
 
 **Loại:** Frontend
-**Chức năng:** C1, C2, C3 — bảng điểm + nhập điểm + đăng ký môn.
+**Chức năng:** C1-C5 — bảng điểm + import myBK + tự nhập GK/TN/BTL/CK.
 
 **Files:** `frontend/app/(student)/grades/page.tsx`, `components/grades/*.tsx`
 
-**Components:**
+**Components chính:**
 - [ ] Tabs theo HK (sắp xếp giảm dần)
-- [ ] Bảng điểm: STT, Mã môn, Tên môn, TC, GK, CK, Tổng kết, Điểm chữ, Trạng thái
-- [ ] Footer mỗi tab: GPA HK, số TC đăng ký, số TC đậu
-- [ ] Modal "Nhập điểm" cho HK hiện tại
-- [ ] Modal "Đăng ký môn mới" với search course
+- [ ] Bảng điểm: STT, Mã, Tên, TC, GK, TN, BTL, CK, Tổng kết, Điểm chữ, Trạng thái
+- [ ] Cột "Trạng thái" có icon: ✓ Đạt | ✗ Rớt | ⏳ Đang học | 🚫 Rút | 📋 Miễn
+- [ ] Footer mỗi tab: GPA HK, TC đăng ký, TC đậu
+- [ ] Nút lớn ở header: **"Cập nhật từ myBK"**
+- [ ] Nút phụ: "Đăng ký môn cho HK hiện tại"
+
+**Modal "Cập nhật từ myBK":**
+- [ ] Tab 1 — Hướng dẫn: 3 bước (mở myBK → trang bảng điểm → Ctrl+A Ctrl+C) với screenshot
+- [ ] Tab 2 — Paste & Preview: textarea lớn → click "Xem trước" → call `dry_run=true` → bảng preview group by HK
+- [ ] Tab 3 — Xác nhận: hiển thị summary (X môn mới, Y môn cập nhật, Z lỗi) → "Lưu vào hệ thống" → call `dry_run=false`
+- [ ] Toast success: "Đã import N môn từ myBK"
+
+**Modal "Đăng ký môn cho HK hiện tại":**
+- [ ] Search course (autocomplete `/courses?search=`)
+- [ ] Radio chọn template:
+  - `Lý thuyết thuần (GK 30% + CK 70%)`
+  - `Lý thuyết + TN (30+20+50)`
+  - `Lý thuyết + Đồ án (30+0+30+40)`
+  - `Đồ án thuần (BTL 100%)`
+  - `Báo cáo (CK 100%)`
+  - `Tùy chỉnh` → 4 input weight + validation tổng = 100%
+- [ ] Submit → `POST /enrollments`
+
+**Modal "Nhập điểm":**
+- [ ] Hiển thị 4 ô input GK/TN/BTL/CK theo weights đã set (component nào weight=0 thì disable)
+- [ ] Click vào điểm hiện có để sửa
+- [ ] What-if calculator: "Cần CK ≥ X.X để đạt B (7.0+)"
+- [ ] Submit → `PUT /enrollments/{id}/grades`
 
 **Output:**
-- ✅ Tabs switch HK mượt mà
-- ✅ Nhập điểm → table + GPA refresh real-time
-- ✅ Đăng ký môn → môn xuất hiện trong HK hiện tại
+- ✅ Paste myBK của bạn → bảng điểm hiện đầy đủ
+- ✅ GPA tích lũy match myBK
+- ✅ Đăng ký môn HK hiện tại + nhập GK → AI sẽ predict ở M4
 
 ---
 
-## Step 3.7 — FE: Notifications Stub + Events Stub
+## Step 3.6 — FE: Notifications Stub + Events Stub
 
 **Loại:** Frontend
-**Chức năng:** UI placeholders để dashboard không trống. Logic đầy đủ ở M6.
-
-**Files:** Update dashboard cards
+**Chức năng:** UI placeholders để dashboard không trống. Logic thật ở M6.
 
 **Tasks:**
-- [ ] Dashboard hiện 3-5 notifications hardcoded (TODO comment)
-- [ ] Dashboard hiện 3-5 events hardcoded (TODO comment)
+- [ ] Dashboard hiện 3-5 notifications hardcoded
+- [ ] Dashboard hiện 3-5 events hardcoded
+- [ ] Comment `// TODO: M6 — replace với /notifications/me` & `/events/me/upcoming`
 
 **Output:**
-- ✅ Dashboard nhìn đầy đủ, không trống
+- ✅ Dashboard nhìn đầy đủ
 
 ---
 
 ## 🎬 [DEMO POINT 2] — Cuối Tuần 4
 
-**Demo flow:**
-1. Login với SV synthetic (vd: 2110001 / student123)
-2. Dashboard hiện đầy đủ: GPA 3.2, 65 TC tích lũy, GPA chart 4 HK
-3. Vào Grades → tabs theo HK, click HK 232 thấy bảng điểm
-4. Click "Nhập điểm" → nhập GK + CK môn ABC → GPA tự update
-5. Click "Đăng ký môn" → search → chọn → môn xuất hiện HK hiện tại
+**Demo flow (with real myBK data):**
+1. SV mới đăng ký (chưa có data) → dashboard empty state
+2. Click "Cập nhật từ myBK" → dán bảng điểm thật → preview → confirm
+3. Dashboard refresh: GPA tích lũy đúng, chart 9 HK đẹp, mức cảnh báo hiển thị đúng theo quy chế HCMUT
+4. Vào Grades → tabs HK, thấy đầy đủ điểm + cột TN/BTL nếu có
+5. Đăng ký môn cho HK đang học (chọn template "Lý thuyết + TN") → môn xuất hiện
+6. Nhập điểm GK 7.5 → modal show what-if "Cần CK ≥ 6.79 để được B"
 
-**Báo cáo GVHD:** "Em đã hoàn thành chức năng quản lý điểm cho SV. Tuần sau em sẽ làm AI dự đoán risk."
+**Báo cáo GVHD:** "Em đã hoàn thành chức năng quản lý điểm với UX import từ myBK — SV không cần nhập tay từng môn. Tuần sau em làm AI dự đoán risk."
 
 ---
 
 # 🤖 MILESTONE 4: AI XGBoost Prediction (Tuần 5-6) — [DEMO 3]
 
 > **Mục tiêu:** D1, D2, D3 — SV thấy risk score AI + giải thích SHAP + dự đoán pass/fail từng môn.
+>
+> **Note:** Synthetic data 1000 SV được dời từ M3 sang đây vì chỉ cần khi train model + load test.
 
 ## Step 4.1 — BE: Cài ML Deps
 
@@ -492,6 +531,31 @@
 
 **Output:**
 - ✅ Build container OK, import `xgboost` không lỗi
+
+---
+
+## Step 4.1b — BE: Synthetic Data Generator (1000 SV)
+
+**Loại:** Backend
+**Chức năng:** Tạo 1,000 SV synthetic với MSSV pattern `SYN*` để dễ cleanup sau.
+
+**Files:** `backend/scripts/generate_synthetic_data.py`, `backend/scripts/seed_synthetic.py`, `backend/scripts/cleanup_synthetic.py`, `backend/data/synthetic/*.csv`
+
+**Tasks:**
+- [ ] 10 khoa, 30 ngành sát HCMUT
+- [ ] ~150 courses (CO1xxx-CO5xxx, ngoại ngữ, đại cương)
+- [ ] 1,000 SV với MSSV `SYN00001` → `SYN01000`, cohorts 2021-2024
+- [ ] Phân bố Gaussian: 15% xuất sắc, 60% TB, 20% yếu, 5% cực yếu
+- [ ] ~10% SV có lịch sử cảnh báo (≈ 100 positive samples cho ML)
+- [ ] Generate cả component scores + weights (để consistent với schema M3)
+- [ ] `seed_synthetic.py` — import vào DB (idempotent)
+- [ ] `cleanup_synthetic.py` — `DELETE WHERE mssv LIKE 'SYN%'` xoá toàn bộ + cascade
+
+**Output:**
+- ✅ 1,000 students, ~150 courses, ~6,000-10,000 enrollments
+- ✅ Histogram GPA giống thực tế
+- ✅ ~100 SV warning_level >= 1 (đủ cho ML stratified split)
+- ✅ Cleanup script chạy 1 lệnh xoá hết synthetic, giữ admin + SV thật
 
 ---
 
