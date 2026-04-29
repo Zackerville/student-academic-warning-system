@@ -72,3 +72,153 @@ export const authApi = {
 
   me: () => apiClient.get<UserResponse>("/auth/me"),
 };
+
+// ─── Student ─────────────────────────────────────────────────
+
+export interface StudentProfile {
+  id: string;
+  mssv: string;
+  full_name: string;
+  faculty: string;
+  major: string;
+  cohort: number;
+  gpa_cumulative: number;
+  credits_earned: number;
+  warning_level: number;
+  created_at: string;
+}
+
+export interface DashboardData {
+  student: StudentProfile;
+  current_semester: string | null;
+  credits_in_progress: number;
+  failed_courses_total: number;
+  semesters_count: number;
+}
+
+export interface EnrollmentResponse {
+  id: string;
+  student_id: string;
+  course_id: string;
+  semester: string;
+  midterm_score: number | null;
+  lab_score: number | null;
+  other_score: number | null;
+  final_score: number | null;
+  midterm_weight: number;
+  lab_weight: number;
+  other_weight: number;
+  final_weight: number;
+  total_score: number | null;
+  grade_letter: string | null;
+  status: "enrolled" | "passed" | "failed" | "withdrawn" | "exempt";
+  attendance_rate: number | null;
+  is_finalized: boolean;
+  source: string;
+  created_at: string;
+  updated_at: string;
+  course: CourseResponse;
+}
+
+export interface CourseResponse {
+  id: string;
+  course_code: string;
+  name: string;
+  credits: number;
+  faculty: string;
+  created_at: string;
+}
+
+export interface GpaPoint {
+  semester: string;
+  gpa: number;
+}
+
+export interface GpaData {
+  gpa_cumulative: number;
+  credits_earned: number;
+  warning_level: number;
+  gpa_trend: number;
+  semester_gpas: GpaPoint[];
+}
+
+export interface GpaHistoryEntry {
+  semester: string;
+  semester_gpa: number;
+  credits_taken: number;
+  courses_count: number;
+}
+
+export interface GradeUpdate {
+  midterm_score?: number | null;
+  lab_score?: number | null;
+  other_score?: number | null;
+  final_score?: number | null;
+  attendance_rate?: number | null;
+  midterm_weight?: number | null;
+  lab_weight?: number | null;
+  other_weight?: number | null;
+  final_weight?: number | null;
+}
+
+export interface EnrollmentCreate {
+  course_id: string;
+  semester: string;
+  midterm_weight?: number;
+  lab_weight?: number;
+  other_weight?: number;
+  final_weight?: number;
+}
+
+export interface ImportResult {
+  message: string;
+  semesters: string[];
+  created: number;
+  updated: number;
+  skipped: number;
+  total_courses: number;
+}
+
+export const studentApi = {
+  me: () => apiClient.get<StudentProfile>("/students/me"),
+
+  dashboard: () => apiClient.get<DashboardData>("/students/me/dashboard"),
+
+  enrollments: (semester?: string) =>
+    apiClient.get<EnrollmentResponse[]>("/students/me/enrollments", {
+      params: semester ? { semester } : undefined,
+    }),
+
+  createEnrollment: (payload: EnrollmentCreate) =>
+    apiClient.post<EnrollmentResponse>("/students/me/enrollments", payload),
+
+  updateGrades: (enrollmentId: string, payload: GradeUpdate) =>
+    apiClient.put<EnrollmentResponse>(
+      `/students/me/enrollments/${enrollmentId}/grades`,
+      payload
+    ),
+
+  deleteEnrollment: (enrollmentId: string) =>
+    apiClient.delete(`/students/me/enrollments/${enrollmentId}`),
+
+  gpa: () => apiClient.get<GpaData>("/students/me/gpa"),
+
+  gpaHistory: () => apiClient.get<GpaHistoryEntry[]>("/students/me/gpa/history"),
+
+  importMyBK: (rawText: string) =>
+    apiClient.post<ImportResult>("/students/me/grades/import-mybk", rawText, {
+      headers: { "Content-Type": "text/plain" },
+    }),
+};
+
+export const coursesApi = {
+  list: (search?: string) =>
+    apiClient.get<CourseResponse[]>("/courses", {
+      params: search ? { search } : undefined,
+    }),
+
+  get: (id: string) => apiClient.get<CourseResponse>(`/courses/${id}`),
+
+  create: (payload: Omit<CourseResponse, "id" | "created_at">) =>
+    apiClient.post<CourseResponse>("/courses", payload),
+};

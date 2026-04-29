@@ -17,10 +17,11 @@ if TYPE_CHECKING:
 
 
 class EnrollmentStatus(str, enum.Enum):
-    enrolled = "enrolled"
-    passed = "passed"
-    failed = "failed"
+    enrolled  = "enrolled"
+    passed    = "passed"
+    failed    = "failed"
     withdrawn = "withdrawn"
+    exempt    = "exempt"
 
 
 class Enrollment(Base):
@@ -44,16 +45,36 @@ class Enrollment(Base):
         nullable=False,
     )
     semester: Mapped[str] = mapped_column(sa.String(10), nullable=False)
+
+    # ─── Điểm thành phần ────────────────────────────────────
     midterm_score: Mapped[Optional[float]] = mapped_column(sa.Float, nullable=True)
-    final_score: Mapped[Optional[float]] = mapped_column(sa.Float, nullable=True)
-    total_score: Mapped[Optional[float]] = mapped_column(sa.Float, nullable=True)
-    grade_letter: Mapped[Optional[str]] = mapped_column(sa.String(3), nullable=True)
+    lab_score:     Mapped[Optional[float]] = mapped_column(sa.Float, nullable=True)
+    other_score:   Mapped[Optional[float]] = mapped_column(sa.Float, nullable=True)
+    final_score:   Mapped[Optional[float]] = mapped_column(sa.Float, nullable=True)
+
+    # ─── Trọng số (tổng = 1.0) ──────────────────────────────
+    midterm_weight: Mapped[float] = mapped_column(sa.Float, nullable=False, default=0.3)
+    lab_weight:     Mapped[float] = mapped_column(sa.Float, nullable=False, default=0.0)
+    other_weight:   Mapped[float] = mapped_column(sa.Float, nullable=False, default=0.0)
+    final_weight:   Mapped[float] = mapped_column(sa.Float, nullable=False, default=0.7)
+
+    # ─── Điểm tổng kết ──────────────────────────────────────
+    total_score:  Mapped[Optional[float]] = mapped_column(sa.Float, nullable=True)
+    grade_letter: Mapped[Optional[str]]   = mapped_column(sa.String(3), nullable=True)
+
     status: Mapped[EnrollmentStatus] = mapped_column(
         sa.Enum(EnrollmentStatus, name="enrollmentstatus"),
         nullable=False,
         default=EnrollmentStatus.enrolled,
     )
+
+    # ─── Metadata ───────────────────────────────────────────
     attendance_rate: Mapped[Optional[float]] = mapped_column(sa.Float, nullable=True)
+    is_finalized: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=False)
+    source: Mapped[str] = mapped_column(
+        sa.String(20), nullable=False, default="manual"
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()
     )
@@ -66,4 +87,4 @@ class Enrollment(Base):
 
     # ─── Relationships ───────────────────────────────────────
     student: Mapped[Student] = relationship("Student", back_populates="enrollments")
-    course: Mapped[Course] = relationship("Course", back_populates="enrollments")
+    course: Mapped[Course]   = relationship("Course", back_populates="enrollments")

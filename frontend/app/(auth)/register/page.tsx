@@ -149,6 +149,9 @@ export default function RegisterPage() {
               Đăng nhập
             </Link>
           </p>
+          <Link href="/" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+            ← Về trang chủ
+          </Link>
         </CardFooter>
       </form>
     </Card>

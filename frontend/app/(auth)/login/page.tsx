@@ -109,6 +109,9 @@ export default function LoginPage() {
               Đăng ký
             </Link>
           </p>
+          <Link href="/" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+            ← Về trang chủ
+          </Link>
         </CardFooter>
       </form>
     </Card>
