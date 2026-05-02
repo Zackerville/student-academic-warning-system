@@ -10,11 +10,32 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { GraduationCap, BookOpen, AlertTriangle, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { GraduationCap, BookOpen, AlertTriangle, TrendingUp, Bot } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { studentApi, type DashboardData, type GpaHistoryEntry } from "@/lib/api";
+import {
+  studentApi,
+  predictionsApi,
+  type DashboardData,
+  type GpaHistoryEntry,
+  type PredictionResponse,
+} from "@/lib/api";
 import { useT, type TKey } from "@/lib/i18n";
+
+const RISK_COLOR_BY_LEVEL: Record<string, string> = {
+  low:      "text-green-600",
+  medium:   "text-yellow-600",
+  high:     "text-orange-500",
+  critical: "text-destructive",
+};
+
+const RISK_LABEL_KEYS: Record<string, TKey> = {
+  low:      "predictions.riskLevel.low",
+  medium:   "predictions.riskLevel.medium",
+  high:     "predictions.riskLevel.high",
+  critical: "predictions.riskLevel.critical",
+};
 
 const WARNING_KEYS: Record<number, { labelKey: TKey; variant: "default" | "secondary" | "destructive" }> = {
   0: { labelKey: "dashboard.warning.0", variant: "default" },
@@ -58,6 +79,7 @@ export default function DashboardPage() {
   const t = useT();
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [history, setHistory] = useState<GpaHistoryEntry[]>([]);
+  const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,6 +91,9 @@ export default function DashboardPage() {
       })
       .catch(() => setError(t("dashboard.loadError")))
       .finally(() => setLoading(false));
+
+    // Prediction load — không block dashboard nếu fail (có thể chưa train model)
+    predictionsApi.me().then((r) => setPrediction(r.data)).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -107,7 +132,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         <StatCard
           icon={GraduationCap}
           title={t("dashboard.gpaCumulative")}
@@ -133,6 +158,36 @@ export default function DashboardPage() {
           value={failed_courses_total}
           color={failed_courses_total > 0 ? "text-destructive" : "text-green-600"}
         />
+        <Link href="/predictions" className="block">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">{t("dashboard.aiRisk")}</p>
+                  <p
+                    className={`text-3xl font-bold mt-1 ${
+                      prediction
+                        ? RISK_COLOR_BY_LEVEL[prediction.risk_level] ?? "text-foreground"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {prediction
+                      ? `${(prediction.risk_score * 100).toFixed(0)}%`
+                      : t("dashboard.aiRiskNotReady")}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {prediction
+                      ? t(RISK_LABEL_KEYS[prediction.risk_level])
+                      : t("dashboard.aiRiskSub")}
+                  </p>
+                </div>
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Bot className="h-5 w-5 text-primary" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* GPA Chart */}

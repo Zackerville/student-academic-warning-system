@@ -216,6 +216,52 @@ export const studentApi = {
     }),
 };
 
+// ─── Predictions ─────────────────────────────────────────────
+
+export interface RiskFactor {
+  feature: string;
+  label: string;
+  impact: number;          // 0-1 normalized
+  impact_str: string;      // "+75%" / "-12%"
+  direction: "+" | "−";
+  shap_value: number;
+  raw_value: number;
+}
+
+export interface PredictedCourse {
+  course_id: string;
+  course_code: string;
+  course_name: string;
+  credits: number;
+  pass_probability: number;
+}
+
+export interface PredictionResponse {
+  id: string;
+  semester: string;
+  risk_score: number;
+  risk_level: "low" | "medium" | "high" | "critical";
+  risk_factors: RiskFactor[];
+  predicted_courses: PredictedCourse[];
+  created_at: string | null;
+}
+
+export interface PredictionHistoryEntry {
+  created_at: string | null;
+  semester: string;
+  risk_score: number;
+  risk_level: "low" | "medium" | "high" | "critical";
+}
+
+export const predictionsApi = {
+  me: () => apiClient.get<PredictionResponse>("/predictions/me"),
+  history: (limit = 30) =>
+    apiClient.get<PredictionHistoryEntry[]>("/predictions/me/history", {
+      params: { limit },
+    }),
+  refresh: () => apiClient.post<PredictionResponse>("/predictions/me/refresh"),
+};
+
 export const coursesApi = {
   list: (search?: string) =>
     apiClient.get<CourseResponse[]>("/courses", {
