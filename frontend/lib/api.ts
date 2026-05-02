@@ -201,6 +201,11 @@ export const studentApi = {
   deleteEnrollment: (enrollmentId: string) =>
     apiClient.delete(`/students/me/enrollments/${enrollmentId}`),
 
+  deleteAllEnrollments: () =>
+    apiClient.delete<{ message: string; deleted: number }>(
+      "/students/me/enrollments"
+    ),
+
   gpa: () => apiClient.get<GpaData>("/students/me/gpa"),
 
   gpaHistory: () => apiClient.get<GpaHistoryEntry[]>("/students/me/gpa/history"),

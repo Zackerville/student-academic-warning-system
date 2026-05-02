@@ -5,20 +5,23 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/lib/auth";
+import { useT, type TKey } from "@/lib/i18n";
+import LanguageToggle from "@/components/LanguageToggle";
 
-const NAV_ITEMS = [
-  { href: "/dashboard",    label: "Tổng quan",       icon: "📊" },
-  { href: "/grades",       label: "Điểm số",         icon: "📝" },
-  { href: "/warnings",     label: "Cảnh báo",        icon: "⚠️" },
-  { href: "/predictions",  label: "Dự báo AI",       icon: "🤖" },
-  { href: "/chatbot",      label: "Tư vấn AI",       icon: "💬" },
-  { href: "/events",       label: "Sự kiện",         icon: "📅" },
+const NAV_ITEMS: { href: string; labelKey: TKey; icon: string }[] = [
+  { href: "/dashboard",   labelKey: "nav.dashboard",   icon: "📊" },
+  { href: "/grades",      labelKey: "nav.grades",      icon: "📝" },
+  { href: "/warnings",    labelKey: "nav.warnings",    icon: "⚠️" },
+  { href: "/predictions", labelKey: "nav.predictions", icon: "🤖" },
+  { href: "/chatbot",     labelKey: "nav.chatbot",     icon: "💬" },
+  { href: "/events",      labelKey: "nav.events",      icon: "📅" },
 ];
 
 export default function StudentSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, clearAuth } = useAuthStore();
+  const t = useT();
 
   const handleLogout = () => {
     clearAuth();
@@ -26,22 +29,22 @@ export default function StudentSidebar() {
   };
 
   return (
-    <aside className="flex flex-col w-64 min-h-screen bg-primary text-white">
+    <aside className="sticky top-0 flex flex-col w-64 h-screen bg-primary text-white shrink-0">
       {/* Logo */}
-      <div className="px-6 py-5 border-b border-white/10">
+      <div className="px-6 py-5 border-b border-white/10 shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center font-bold text-sm">
             BK
           </div>
           <div>
-            <p className="font-semibold text-sm leading-tight">Cảnh báo Học vụ</p>
-            <p className="text-xs text-white/60">HCMUT</p>
+            <p className="font-semibold text-sm leading-tight">{t("nav.title")}</p>
+            <p className="text-xs text-white/60">{t("nav.subtitle")}</p>
           </div>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
         {NAV_ITEMS.map((item) => (
           <Link
             key={item.href}
@@ -54,19 +57,20 @@ export default function StudentSidebar() {
             )}
           >
             <span>{item.icon}</span>
-            {item.label}
+            {t(item.labelKey)}
           </Link>
         ))}
       </nav>
 
-      {/* User info + logout */}
-      <div className="px-4 py-4 border-t border-white/10">
-        <p className="text-xs text-white/60 truncate mb-1">{user?.email}</p>
+      {/* Language toggle + User info + logout */}
+      <div className="px-4 py-4 border-t border-white/10 space-y-3 shrink-0">
+        <LanguageToggle variant="light" />
+        <p className="text-xs text-white/60 truncate">{user?.email}</p>
         <button
           onClick={handleLogout}
           className="text-sm text-white/80 hover:text-white transition-colors"
         >
-          Đăng xuất
+          {t("nav.logout")}
         </button>
       </div>
     </aside>

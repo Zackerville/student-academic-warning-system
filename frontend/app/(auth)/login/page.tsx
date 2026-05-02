@@ -12,18 +12,19 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
-
-const loginSchema = z.object({
-  email: z.string().email("Email không hợp lệ"),
-  password: z.string().min(1, "Mật khẩu không được để trống"),
-});
-
-type LoginForm = z.infer<typeof loginSchema>;
+import { useT } from "@/lib/i18n";
 
 export default function LoginPage() {
   const router = useRouter();
   const setAuth = useAuthStore((s) => s.setAuth);
+  const t = useT();
   const [error, setError] = useState<string | null>(null);
+
+  const loginSchema = z.object({
+    email: z.string().email(t("login.invalidEmail")),
+    password: z.string().min(1, t("login.passwordRequired")),
+  });
+  type LoginForm = z.infer<typeof loginSchema>;
 
   const {
     register,
@@ -48,7 +49,7 @@ export default function LoginPage() {
       }
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
-      setError(msg ?? "Đăng nhập thất bại. Vui lòng kiểm tra lại.");
+      setError(msg ?? t("login.error"));
     }
   };
 
@@ -60,8 +61,8 @@ export default function LoginPage() {
             BK
           </div>
         </div>
-        <CardTitle className="text-2xl font-bold text-primary">Đăng nhập</CardTitle>
-        <CardDescription>Hệ thống Cảnh báo Học vụ – HCMUT</CardDescription>
+        <CardTitle className="text-2xl font-bold text-primary">{t("login.title")}</CardTitle>
+        <CardDescription>{t("login.subtitle")}</CardDescription>
       </CardHeader>
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -73,7 +74,7 @@ export default function LoginPage() {
           )}
 
           <div className="space-y-1">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("login.email")}</Label>
             <Input
               id="email"
               type="email"
@@ -86,7 +87,7 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="password">Mật khẩu</Label>
+            <Label htmlFor="password">{t("login.password")}</Label>
             <Input
               id="password"
               type="password"
@@ -101,16 +102,16 @@ export default function LoginPage() {
 
         <CardFooter className="flex flex-col gap-3">
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
+            {isSubmitting ? t("login.submitting") : t("login.submit")}
           </Button>
           <p className="text-sm text-muted-foreground text-center">
-            Chưa có tài khoản?{" "}
+            {t("login.noAccount")}{" "}
             <Link href="/register" className="text-primary font-medium hover:underline">
-              Đăng ký
+              {t("login.signupLink")}
             </Link>
           </p>
           <Link href="/" className="text-xs text-muted-foreground hover:text-primary transition-colors">
-            ← Về trang chủ
+            {t("login.backHome")}
           </Link>
         </CardFooter>
       </form>
