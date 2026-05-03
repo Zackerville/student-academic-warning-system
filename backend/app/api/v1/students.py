@@ -52,6 +52,19 @@ def _enrollment_gpa_point(e: Enrollment):
     return None
 
 
+def _is_credit_bearing(e: Enrollment) -> bool:
+    """True nếu môn có tín chỉ học vụ > 0."""
+    return bool(e.course and e.course.credits > 0)
+
+
+def _count_unresolved_failed(effective_enrollments: list[Enrollment]) -> int:
+    """Đếm môn chưa đạt đang còn hiệu lực, bỏ môn 0 tín chỉ như PE/SA/Anh văn nhu cầu."""
+    return sum(
+        1 for e in effective_enrollments
+        if e.status == EnrollmentStatus.failed and _is_credit_bearing(e)
+    )
+
+
 def _effective_enrollments_per_course(enrollments: list[Enrollment]) -> list[Enrollment]:
     """
     Quy chế HCMUT — học lại / học cải thiện:
@@ -176,7 +189,7 @@ async def get_dashboard(
     # Chỉ đếm môn chưa đạt nếu điểm hiệu lực của môn đó vẫn là F.
     # F đã học lại đạt sẽ không còn được tính vào dashboard.
     effective = _effective_enrollments_per_course(enrollments)
-    failed_total = sum(1 for e in effective if e.status == EnrollmentStatus.failed)
+    failed_total = _count_unresolved_failed(effective)
     credits_in_progress = sum(
         e.course.credits for e in current_enrollments
         if e.status == EnrollmentStatus.enrolled
@@ -498,20 +511,23 @@ async def get_gpa_history(
     history = []
     for sem in sorted(semester_map.keys()):
         sem_enrollments = semester_map[sem]
+        gpa_enrollments = [e for e in sem_enrollments if e.course.credits > 0]
+        if not gpa_enrollments:
+            continue
         grades = [
             EnrollmentGrade(
                 credits=e.course.credits,
                 grade_letter=e.grade_letter,
                 total_score=e.total_score,
             )
-            for e in sem_enrollments
+            for e in gpa_enrollments
         ]
         history.append(
             GpaHistoryEntry(
                 semester=sem,
                 semester_gpa=calculate_semester_gpa(grades),
-                credits_taken=sum(e.course.credits for e in sem_enrollments),
-                courses_count=len(sem_enrollments),
+                credits_taken=sum(e.course.credits for e in gpa_enrollments),
+                courses_count=len(gpa_enrollments),
             )
         )
     return history

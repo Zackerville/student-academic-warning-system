@@ -38,6 +38,244 @@ RISK_THRESHOLDS = {
 }
 
 
+def _risk_factor(
+    feature: str,
+    label: str,
+    impact: float,
+    raw_value: float,
+) -> dict:
+    """Build a deterministic early-warning factor for the UI."""
+    impact = max(0.01, min(1.0, impact))
+    return {
+        "feature": feature,
+        "label": label,
+        "impact": impact,
+        "impact_str": f"+{impact * 100:.0f}%",
+        "direction": "+",
+        "shap_value": 0.0,
+        "raw_value": raw_value,
+    }
+
+
+def _early_warning_rules(student: Student, features: dict[str, float]) -> list[tuple[float, dict]]:
+    """
+    Product calibration for early warning.
+
+    The XGBoost model is trained to predict formal warning risk from synthetic
+    labels. This layer makes the displayed risk match the product expectation:
+    average GPA -> medium watch zone, low GPA -> high, formal-warning GPA -> critical.
+    """
+    gpa = float(student.gpa_cumulative or 0.0)
+    warning_level = int(student.warning_level or 0)
+    unresolved = int(features.get("unresolved_failed_courses", 0.0))
+    unresolved_retake = int(features.get("unresolved_failed_retake_count", 0.0))
+    recovered = int(features.get("recovered_failed_courses", 0.0))
+    low_streak = int(features.get("low_gpa_streak", 0.0))
+    pass_rate = 1.0 - float(features.get("pass_rate_deficit", 0.0))
+    recent_deficit = float(features.get("gpa_recent_deficit", 0.0))
+    recent_gpa = max(0.0, 2.0 - recent_deficit) if recent_deficit > 0 else None
+
+    rules: list[tuple[float, dict]] = []
+
+    if warning_level >= 1 or gpa < 1.2:
+        rules.append((
+            0.78,
+            _risk_factor(
+                "early_warning.formal_threshold",
+                f"GPA tích lũy {gpa:.2f} đã chạm vùng cảnh báo học vụ",
+                0.55,
+                gpa,
+            ),
+        ))
+    elif gpa < 1.6:
+        rules.append((
+            0.62,
+            _risk_factor(
+                "early_warning.very_low_gpa",
+                f"GPA tích lũy {gpa:.2f} rất gần ngưỡng cảnh báo",
+                0.45,
+                gpa,
+            ),
+        ))
+    elif gpa < 2.0:
+        rules.append((
+            0.52,
+            _risk_factor(
+                "early_warning.low_gpa",
+                f"GPA tích lũy {gpa:.2f} dưới mốc an toàn 2.0",
+                0.38,
+                gpa,
+            ),
+        ))
+    elif gpa < 2.5:
+        rules.append((
+            0.34,
+            _risk_factor(
+                "early_warning.mid_low_gpa",
+                f"GPA tích lũy {gpa:.2f} ở vùng trung bình-thấp",
+                0.26,
+                gpa,
+            ),
+        ))
+    elif gpa < 3.0 and (unresolved > 0 or recovered >= 3 or low_streak > 0):
+        rules.append((
+            0.30,
+            _risk_factor(
+                "early_warning.average_gpa_with_history",
+                f"GPA tích lũy {gpa:.2f} chưa cao và có lịch sử học vụ cần theo dõi",
+                0.22,
+                gpa,
+            ),
+        ))
+
+    if unresolved >= 3:
+        rules.append((
+            0.55,
+            _risk_factor(
+                "early_warning.unresolved_failed_courses",
+                f"Còn {unresolved} môn chưa đạt",
+                0.38,
+                float(unresolved),
+            ),
+        ))
+    elif unresolved == 2:
+        rules.append((
+            0.45,
+            _risk_factor(
+                "early_warning.unresolved_failed_courses",
+                "Còn 2 môn chưa đạt",
+                0.30,
+                2.0,
+            ),
+        ))
+    elif unresolved == 1:
+        rules.append((
+            0.34,
+            _risk_factor(
+                "early_warning.unresolved_failed_courses",
+                "Còn 1 môn chưa đạt",
+                0.24,
+                1.0,
+            ),
+        ))
+
+    if unresolved_retake > 0:
+        rules.append((
+            0.50,
+            _risk_factor(
+                "early_warning.unresolved_failed_retake",
+                f"Có {unresolved_retake} môn học lại nhưng vẫn chưa qua",
+                0.34,
+                float(unresolved_retake),
+            ),
+        ))
+
+    if low_streak >= 2:
+        rules.append((
+            0.45,
+            _risk_factor(
+                "early_warning.low_gpa_streak",
+                f"{low_streak} học kỳ liên tiếp GPA dưới 2.0",
+                0.30,
+                float(low_streak),
+            ),
+        ))
+    elif low_streak == 1:
+        rules.append((
+            0.32,
+            _risk_factor(
+                "early_warning.low_gpa_streak",
+                "HK gần nhất GPA dưới 2.0",
+                0.20,
+                1.0,
+            ),
+        ))
+
+    if recent_gpa is not None and recent_gpa < 1.6:
+        rules.append((
+            0.50,
+            _risk_factor(
+                "early_warning.recent_low_gpa",
+                f"GPA học kỳ gần nhất khoảng {recent_gpa:.2f}",
+                0.32,
+                recent_gpa,
+            ),
+        ))
+    elif recent_gpa is not None and recent_gpa < 2.0:
+        rules.append((
+            0.35,
+            _risk_factor(
+                "early_warning.recent_low_gpa",
+                f"GPA học kỳ gần nhất khoảng {recent_gpa:.2f} dưới mốc an toàn",
+                0.22,
+                recent_gpa,
+            ),
+        ))
+
+    if pass_rate < 0.85:
+        rules.append((
+            0.42,
+            _risk_factor(
+                "early_warning.low_pass_rate",
+                f"Tỉ lệ pass chỉ khoảng {pass_rate * 100:.0f}%",
+                0.28,
+                pass_rate,
+            ),
+        ))
+    elif pass_rate < 0.95 and gpa < 2.8:
+        rules.append((
+            0.32,
+            _risk_factor(
+                "early_warning.pass_rate_watch",
+                f"Tỉ lệ pass khoảng {pass_rate * 100:.0f}%, cần theo dõi",
+                0.18,
+                pass_rate,
+            ),
+        ))
+
+    if recovered >= 5 and gpa < 3.0:
+        rules.append((
+            0.36,
+            _risk_factor(
+                "early_warning.recovered_failed_history",
+                f"Từng có {recovered} môn F đã học lại/cải thiện",
+                0.24,
+                float(recovered),
+            ),
+        ))
+    elif recovered >= 3 and gpa < 3.0:
+        rules.append((
+            0.32,
+            _risk_factor(
+                "early_warning.recovered_failed_history",
+                f"Từng có {recovered} môn F đã học lại/cải thiện",
+                0.18,
+                float(recovered),
+            ),
+        ))
+
+    return rules
+
+
+def _apply_early_warning_calibration(
+    raw_score: float,
+    student: Student,
+    features: dict[str, float],
+) -> tuple[float, list[dict], float]:
+    """Return calibrated score, explanatory rule factors, and applied floor."""
+    rules = _early_warning_rules(student, features)
+    if not rules:
+        return raw_score, [], 0.0
+
+    floor = max(score for score, _ in rules)
+    calibrated = max(raw_score, floor)
+    rule_factors = [
+        factor
+        for _, factor in sorted(rules, key=lambda item: item[0], reverse=True)
+    ][:3]
+    return calibrated, rule_factors, floor
+
+
 def risk_score_to_level(score: float) -> RiskLevel:
     if score >= 0.75:
         return RiskLevel.critical
@@ -163,10 +401,16 @@ class PredictionService:
         # Predict (probability)
         import pandas as pd
         X = pd.DataFrame([features], columns=FEATURE_NAMES).astype(float)
-        proba = float(self._model.predict_proba(X)[0, 1])
+        raw_proba = float(self._model.predict_proba(X)[0, 1])
+        proba, calibration_factors, calibration_floor = _apply_early_warning_calibration(
+            raw_proba,
+            student,
+            features,
+        )
 
         # Explain
-        factors = self._explainer.explain(features, top_k=5)
+        shap_factors = self._explainer.explain(features, top_k=5)
+        factors = (calibration_factors + shap_factors)[:5]
 
         # Course-level prediction (heuristic)
         predicted_courses = self._predict_courses(enrollments, proba)
@@ -183,6 +427,10 @@ class PredictionService:
                 "feature_version": FEATURE_VERSION,
                 "factors": factors,
                 "features": features,
+                "raw_model_score": raw_proba,
+                "calibrated_score": proba,
+                "calibration_floor": calibration_floor,
+                "calibration_applied": proba > raw_proba,
             },
             predicted_courses=predicted_courses,
         )

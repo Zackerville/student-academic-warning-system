@@ -22,51 +22,51 @@ def _format_value(feature: str, value: float) -> str:
     """Format giá trị feature đẹp cho hiển thị."""
     if feature == "gpa_cumulative_deficit":
         if value <= 0:
-            return f"GPA tích lũy đạt mốc an toàn (>= {GPA_SAFE_TARGET:.1f})"
+            return f"GPA tích lũy đang trên mốc an toàn {GPA_SAFE_TARGET:.1f}"
         approx_gpa = max(0.0, GPA_SAFE_TARGET - value)
-        return f"GPA tích lũy khoảng {approx_gpa:.2f} (< {GPA_SAFE_TARGET:.1f})"
+        return f"GPA tích lũy khoảng {approx_gpa:.2f}, dưới mốc an toàn"
     if feature == "gpa_recent_deficit":
         if value <= 0:
-            return f"GPA HK gần nhất đạt mốc an toàn (>= {GPA_SAFE_TARGET:.1f})"
+            return f"GPA học kỳ gần nhất đang trên mốc an toàn {GPA_SAFE_TARGET:.1f}"
         approx_gpa = max(0.0, GPA_SAFE_TARGET - value)
-        return f"GPA HK gần nhất khoảng {approx_gpa:.2f} (< {GPA_SAFE_TARGET:.1f})"
+        return f"GPA học kỳ gần nhất khoảng {approx_gpa:.2f}, dưới mốc an toàn"
     if feature == "gpa_trend_drop":
         if value <= 0:
-            return "GPA không có xu hướng giảm trong 3 HK gần nhất"
-        return f"GPA đang giảm {value:.2f}/HK (3 HK gần nhất)"
+            return "GPA gần đây không có xu hướng giảm"
+        return f"GPA đang giảm khoảng {value:.2f} điểm mỗi học kỳ"
     if feature == "low_gpa_streak":
         if value <= 0:
-            return "Không có chuỗi HK GPA < 2.0"
-        return f"{int(value)} HK liên tiếp GPA < 2.0"
+            return "Không có chuỗi học kỳ GPA dưới 2.0"
+        return f"{int(value)} học kỳ liên tiếp GPA dưới 2.0"
     if feature == "unresolved_failed_courses":
         if value <= 0:
-            return "Không còn môn nào chưa qua"
-        return f"Còn {int(value)} môn chưa qua"
+            return "Không còn môn có tín chỉ nào chưa đạt"
+        return f"Còn {int(value)} môn có tín chỉ chưa đạt"
     if feature == "unresolved_failed_last_semester":
         if value <= 0:
-            return "HK gần nhất không còn môn F chưa xử lý"
-        return f"Còn {int(value)} môn F từ HK gần nhất chưa qua"
+            return "Học kỳ gần nhất không còn môn F có tín chỉ chưa xử lý"
+        return f"Còn {int(value)} môn F có tín chỉ từ học kỳ gần nhất"
     if feature == "unresolved_failed_retake_count":
         if value <= 0:
-            return "Không có môn học lại vẫn chưa qua"
-        return f"Có {int(value)} môn học lại nhưng vẫn chưa qua"
+            return "Không có môn học lại vẫn chưa đạt"
+        return f"Có {int(value)} môn học lại nhưng vẫn chưa đạt"
     if feature == "withdrawn_count":
         if value <= 0:
-            return "Không có môn rút"
-        return f"Đã rút {int(value)} môn"
+            return "Không có môn có tín chỉ bị rút"
+        return f"Đã rút {int(value)} môn có tín chỉ"
     if feature == "pass_rate_deficit":
         pass_rate = max(0.0, min(1.0, 1.0 - value))
-        return f"Tỉ lệ qua môn {pass_rate * 100:.0f}%"
+        return f"Tỉ lệ qua môn có tín chỉ khoảng {pass_rate * 100:.0f}%"
     if feature == "attendance_risk":
         if value <= 0:
-            return f"Điểm danh đạt ngưỡng an toàn (>= {ATTENDANCE_SAFE_MIN:.0f}%)"
+            return "Không có dấu hiệu điểm danh thấp"
         approx_attendance = ATTENDANCE_SAFE_MIN * (1.0 - value)
-        return f"Điểm danh TB khoảng {approx_attendance:.0f}% (< {ATTENDANCE_SAFE_MIN:.0f}%)"
+        return f"Điểm danh trung bình khoảng {approx_attendance:.0f}%, dưới ngưỡng an toàn"
     if feature == "recovered_failed_courses":
         if value <= 0:
-            return "Chưa có môn F nào được học lại đạt"
-        return f"Đã học lại đạt {int(value)} môn từng F"
-    return f"{feature}: {value}"
+            return "Chưa có môn F có tín chỉ nào được học lại đạt"
+        return f"Đã học lại/cải thiện thành công {int(value)} môn từng F"
+    return "Một tín hiệu học vụ khác ảnh hưởng đến dự đoán"
 
 
 def _should_skip_factor(feature: str, value: float, shap_val: float) -> bool:

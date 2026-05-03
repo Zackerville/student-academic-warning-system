@@ -20,8 +20,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.api.v1.students import (
+    _count_unresolved_failed,
     _effective_enrollments_per_course,
     _enrollment_gpa_point,
+    _is_credit_bearing,
 )
 from app.models.enrollment import Enrollment, EnrollmentStatus
 from app.models.student import Student
@@ -36,7 +38,7 @@ from app.services.gpa_calculator import (
 
 GPA_SAFE_TARGET = 2.0
 ATTENDANCE_SAFE_MIN = 75.0
-FEATURE_VERSION = "m4_v2_2026_05_04"
+FEATURE_VERSION = "m4_v4_2026_05_04_no_zero_credit_f"
 
 # Order of features (load-bearing — XGBoost requires same order in train + predict)
 FEATURE_NAMES = [
@@ -190,8 +192,11 @@ async def extract_features(
 
     # Status counts từ effective (per course unique).
     # Nếu một môn từng F nhưng đã học lại đạt, môn đó KHÔNG còn nằm ở unresolved_failed.
-    unresolved_failed = sum(1 for e in effective if e.status == EnrollmentStatus.failed)
-    withdrawn_count = sum(1 for e in effective if e.status == EnrollmentStatus.withdrawn)
+    unresolved_failed = _count_unresolved_failed(effective)
+    withdrawn_count = sum(
+        1 for e in effective
+        if e.status == EnrollmentStatus.withdrawn and _is_credit_bearing(e)
+    )
 
     # Per-semester GPA (no dedup)
     per_sem_gpa = _per_semester_gpas(enrollments)
@@ -208,6 +213,7 @@ async def extract_features(
             if (
                 e.semester == last_sem
                 and e.status == EnrollmentStatus.failed
+                and _is_credit_bearing(e)
                 and effective_status_by_course.get(e.course_id) == EnrollmentStatus.failed
             )
         )
@@ -229,10 +235,14 @@ async def extract_features(
     # Pass rate
     n_finished = sum(
         1 for e in effective
-        if e.status in (EnrollmentStatus.passed, EnrollmentStatus.failed)
+        if _is_credit_bearing(e)
+        and e.status in (EnrollmentStatus.passed, EnrollmentStatus.failed)
     )
     pass_rate = (
-        sum(1 for e in effective if e.status == EnrollmentStatus.passed) / n_finished
+        sum(
+            1 for e in effective
+            if _is_credit_bearing(e) and e.status == EnrollmentStatus.passed
+        ) / n_finished
         if n_finished > 0 else 1.0
     )
     pass_rate_deficit = 1.0 - pass_rate
