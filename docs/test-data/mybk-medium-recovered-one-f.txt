@@ -1,0 +1,87 @@
+myBk/app
+Toggle navigation
+User ImageNGO THAI MINH TIEN
+User Image
+NGO THAI MINH TIEN
+
+ Khoa Cơ khí
+Sinh viên
+Dịch vụ sinh viên
+Kết quả học tập
+Hệ thống quản lý Tra thông tin
+ Tra thông tin Kết quả học tập
+Bảng điểm môn học
+BẢNG ĐIỂM
+Năm học 2025 - 2026 / Học kỳ 1
+
+Họ và tên: NGO THAI MINH TIEN
+
+Mã sinh viên: 2252809
+
+Mã lớp: CK22CDT2
+
+Cập nhật cuối: 04/05/2026 10:25
+Các điểm đặc biệt: CT = Cấm thi, VT = Vắng thi, CH = Chưa có điểm, RT = Rút môn học, KD = Không đạt, VP = Vắng thi có phép, DT = Điểm đạt, HT = Hoãn thi, MT = Điểm miễn.
+
+Điểm hệ 4 áp dụng từ khóa 2021.
+
+Bảng điểm
+Môn học xét tương đương
+Danh mục các điểm khác
+Stt	Mã môn học	Tên môn học	Điểm tổng kết	Tín chỉ	Đạt	Tình trạng	Nhóm	Ghi chú
+Năm học 2025 - 2026 / Học kỳ 1	2.4	110	Tích lũy chung
+2.7	18	Tích lũy học kỳ
+1	ME4071	Đồ án Chuyên ngành	7.8	B	2			L05	
+2	ME3015	Kỹ thuật Robot	7.1	B	3			L01	
+3	ME3005	Thiết kế Hệ thống Cơ điện tử	6.8	C+	3			L02	
+4	ME3009	Các Quá trình Chế tạo	6.5	C+	3			L03	
+5	ME3123	Thực tập Ngoài trường	0	F	2			L49	Chưa hoàn thành báo cáo
+6	SP1037	Tư tưởng Hồ Chí Minh	7.2	B	2			DT01	
+7	SA0002	Sinh hoạt Sinh viên	8.5	A	0		Không in trên bảng điểm	L11	
+Năm học 2024 - 2025 / Học kỳ 3	2.3	92	Tích lũy chung
+1.9	11	Tích lũy học kỳ
+8	ME2091	Phương pháp số	5.2	D	3			DT01	
+9	CI2001	Sức bền Vật liệu	5.5	D+	3			DT01	
+10	ME2115	Thực tập Kỹ thuật	6.0	C	2			L06	
+11	SP1035	Chủ nghĩa Xã hội Khoa học	6.2	C	2			DT02	
+12	PE1047	Võ (Học phần 2)	8.0	B+	0			L04	
+Năm học 2024 - 2025 / Học kỳ 2	2.4	81	Tích lũy chung
+2.5	21	Tích lũy học kỳ
+13	ME2009	Kỹ thuật Điều khiển Tự động	6.8	C+	3			L01	
+14	ME2005	Trang bị Điện - Điện tử trong Máy công nghiệp	6.5	C+	4			L01	
+15	ME2019	Môi trường và Con người	7.2	B	3			L08	
+16	SP1033	Kinh tế Chính trị Mác - Lênin	7.6	B	2			DT01	
+17	ME2089	Vẽ kỹ thuật Cơ khí	6.9	C+	4			DT01	
+18	ME2007	Chi tiết máy	7.4	B	3			L04	
+19	SA0002	Sinh hoạt Sinh viên	9.0	A	0		Không in trên bảng điểm	L330	
+20	ME2087	Thực tập Cơ khí Đại cương 2	6.0	C	2			L08	
+Năm học 2024 - 2025 / Học kỳ 1	2.2	60	Tích lũy chung
+2.1	21	Tích lũy học kỳ
+21	CO1003	Nhập môn về Lập trình	6.4	C	3			L02	Học lại đạt
+22	PH1003	Vật lý 1	6.6	C+	4			DT01	Học lại đạt
+23	ME1013	Thực tập Cơ khí Đại cương 1	5.8	C	2			L02	
+24	ME1015	Nguyên lý máy	6.7	C+	4			L04	
+25	IM1027	Kinh tế Kỹ thuật	7.0	B	3			L01	
+26	IM1029	Hệ thống Sản xuất	6.3	C	3			L01	
+27	SP1031	Triết học Mác - Lênin	6.6	C+	3			L10	
+28	SP1007	Pháp luật Việt Nam Đại cương	6.2	C	2			L05	
+29	ME1001	Nhập môn Về Kỹ thuật	6.0	C	3			L10	Học lại đạt
+30	PH1005	Vật lý 2	6.5	C+	4			L03	Học lại đạt
+Năm học 2023 - 2024 / Học kỳ 2	1.4	39	Tích lũy chung
+1.4	14	Tích lũy học kỳ
+31	CO1003	Nhập môn về Lập trình	3.2	F	3			L02	
+32	PH1003	Vật lý 1	2.5	F	4			DT01	điểm liệt theo quy định bộ môn
+33	MT1007	Đại số Tuyến tính	5.6	D+	3			L18	
+34	MT1005	Giải tích 2	6.0	C	4			L24	
+Năm học 2023 - 2024 / Học kỳ 1	1.0	25	Tích lũy chung
+1.0	15	Tích lũy học kỳ
+35	CH1003	Hóa đại cương	5.0	D	3			L07	
+36	PE1013	Bóng bàn (Học phần 1)	8.5	A	0			L10	
+37	ME1001	Nhập môn Về Kỹ thuật	4.8	F	3			L10	
+38	MT1003	Giải tích 1	5.5	D+	4			L25	
+39	PH1005	Vật lý 2	4.5	F	4			L03	
+Môn học chuyển điểm/miễn điểm	8	
+40	LA1009	Anh văn 4	12	MT	2			AVV	2176/BKDT-20/6/23
+41	MI1003	Giáo dục Quốc phòng	21	DT	0			A01	Import from fox
+42	CCGDTC	Chứng chỉ Giáo Dục Thể Chất	21	DT	0		Không in trên bảng điểm		Không tính TCTL & TBTL
+Version 2.4.0Copyright © 2026 Academic Affairs Office. All rights reserved.

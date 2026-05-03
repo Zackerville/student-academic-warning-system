@@ -93,6 +93,7 @@ export interface DashboardData {
   current_semester: string | null;
   credits_in_progress: number;
   failed_courses_total: number;
+  unresolved_failed_courses?: number;
   semesters_count: number;
 }
 

@@ -20,8 +20,9 @@
 ```
 [x] M1 — Foundation Setup                            (Tuần 1)        — 4/4 steps ✅ 2026-04-28
 [x] M2 — Auth End-to-End + FE Setup     [DEMO 1]    (Tuần 2)        — 8/8 steps ✅ 2026-04-29
-[ ] M3 — Student Profile & Grades       [DEMO 2]    (Tuần 3-4)      — 0/6 steps  ← CURRENT
-[ ] M4 — AI: XGBoost Prediction         [DEMO 3]    (Tuần 5-6)      — 0/10 steps (+ synthetic data)
+[x] M3 — Student Profile & Grades       [DEMO 2]    (Tuần 3-4)      — 6/6 steps ✅ 2026-04-29 + polish 2026-05-02
+[x] M4 — AI: XGBoost Prediction         [DEMO 3]    (Tuần 5-6)      — 8/8 steps ✅ 2026-05-02; v2 explainability fix 2026-05-04 (AUC=0.949)
+[ ] M5 — AI: RAG Chatbot                [DEMO 4]    (Tuần 7-8)      — 0/9 steps  ← CURRENT
 [ ] M5 — AI: RAG Chatbot                [DEMO 4]    (Tuần 7-8)      — 0/9 steps
 [ ] M6 — Warnings & Study Plan & Events [DEMO 5]    (Tuần 9-10)     — 0/10 steps
 [ ] M7 — Admin Minimal Tools            [DEMO 6]    (Tuần 11)       — 0/4 steps
@@ -325,14 +326,14 @@
 **Files:** `backend/requirements.txt`, `backend/app/services/gpa_calculator.py`, `backend/tests/test_gpa_calculator.py`
 
 **Tasks:**
-- [ ] Thêm `pandas`, `openpyxl`, `numpy` vào requirements
-- [ ] `score_to_grade_letter(score: float) -> str` — Thang HCMUT (A+/A/B+/B/C+/C/D+/D/F)
-- [ ] `grade_letter_to_gpa(letter: str) -> float` — A+/A=4.0, B+=3.5, B=3.0, C+=2.5, C=2.0, D+=1.5, D=1.0, F=0
-- [ ] `compute_total_from_components(midterm, lab, other, final, weights) -> float | None` — Trả None nếu thiếu điểm cho weight > 0
-- [ ] `calculate_semester_gpa(enrollments: list) -> float` — Bỏ qua exempt/withdrawn/DT (credits = 0 hoặc letter đặc biệt)
-- [ ] `calculate_cumulative_gpa(student_id, db) -> float`
-- [ ] `calculate_gpa_trend(history: list[float]) -> float` — Slope 3 HK gần nhất
-- [ ] Unit tests cover: thang điểm, môn F, môn RT, môn MT, weight tùy chỉnh
+- [ ] ~~Thêm `pandas`, `openpyxl`, `numpy` vào requirements~~ — *dời sang M4/M7 (chỉ cần khi train AI hoặc import Excel)*
+- [x] `score_to_grade_letter(score: float) -> str` — Thang HCMUT (A+/A/B+/B/C+/C/D+/D/F)
+- [x] `grade_letter_to_gpa_point(letter: str)` — A+/A=4.0, B+=3.5, B=3.0, C+=2.5, C=2.0, D+=1.5, D=1.0, F=0; trả None cho RT/MT/DT
+- [x] `compute_total_score(midterm, lab, other, final, weights) -> float | None` — Trả None nếu thiếu điểm cho weight > 0
+- [x] `calculate_semester_gpa(enrollments) -> float` — Bỏ qua RT/MT/DT/đặc biệt
+- [x] Cumulative GPA — tính inline trong endpoint `/me/gpa` (không tách function riêng, OK)
+- [x] `calculate_gpa_trend(history) -> float` — Slope 3 HK gần nhất
+- [x] Unit tests cover: thang điểm, môn F, môn RT, môn MT, weight tùy chỉnh (208 dòng)
 
 **Output:**
 - ✅ `pytest tests/test_gpa_calculator.py -v` → all passed
@@ -348,27 +349,30 @@
 **Files:** `backend/migrations/versions/0002_*`, `backend/app/api/v1/students.py`, `courses.py`, `backend/app/models/enrollment.py`
 
 **Migration tasks:**
-- [ ] Add columns vào `enrollments`: `lab_score`, `other_score`, `midterm_weight` (default 0.3), `lab_weight` (0), `other_weight` (0), `final_weight` (0.7), `is_finalized` (default false), `source` (default "manual")
-- [ ] Update enum `EnrollmentStatus`: thêm `exempt`
-- [ ] `alembic revision --autogenerate -m "add component weights and mybk fields"`
+- [x] Add columns vào `enrollments`: `lab_score`, `other_score`, `midterm_weight` (default 0.3), `lab_weight` (0), `other_weight` (0), `final_weight` (0.7), `is_finalized` (default false), `source` (default "manual")
+- [x] Update enum `EnrollmentStatus`: thêm `exempt`
+- [x] Migration `331730d3032d_add_m3_enrollment_fields`
 
 **Endpoints (Student):**
-- [ ] `GET /students/me` — Profile
-- [ ] `GET /students/me/dashboard` — Compound: profile + GPA + warning + noti + events
-- [ ] `GET /students/me/grades` — Bảng điểm grouped by semester
-- [ ] `POST /students/me/enrollments` — Đăng ký môn (với template weights hoặc tùy chỉnh)
-- [ ] `PUT /students/me/enrollments/{id}/grades` — Nhập điểm GK/TN/BTL/CK
-- [ ] `GET /students/me/gpa` — GPA tích lũy + GPA HK hiện tại + dự kiến
-- [ ] `GET /students/me/gpa/history` — Mảng `[{semester, gpa, credits}]` cho chart
+- [x] `GET /students/me` — Profile
+- [x] `GET /students/me/dashboard` — Compound: profile + GPA + warning + noti + events
+- [x] `GET /students/me/enrollments` — Bảng điểm (chuẩn REST, thay cho `/me/grades` của roadmap gốc)
+- [x] `POST /students/me/enrollments` — Đăng ký môn với template weights / tùy chỉnh
+- [x] `POST /students/me/enrollments/manual` — Tạo enrollment kèm điểm trong 1 lần (extra)
+- [x] `PUT /students/me/enrollments/{id}/grades` — Nhập điểm GK/TN/BTL/CK
+- [x] `DELETE /students/me/enrollments/{id}` — Xoá enrollment (extra)
+- [x] `GET /students/me/gpa` — GPA tích lũy + GPA HK hiện tại
+- [x] `GET /students/me/gpa/history` — Mảng `[{semester, gpa, credits}]` cho chart
 
 **Endpoints (Course):**
-- [ ] `GET /courses?search=&page=1&size=20` — Search by code/name
-- [ ] `GET /courses/{id}`
+- [x] `GET /courses?search=&page=1&size=20`
+- [x] `POST /courses` — Tạo course (admin/internal)
+- [x] `GET /courses/{id}`
 
 **Logic tasks:**
-- [ ] Validation: `midterm_weight + lab_weight + other_weight + final_weight = 1.0` (tolerance 0.001)
-- [ ] Khi nhập điểm thành phần → re-compute `total_score` nếu đủ → re-compute `grade_letter` → update `student.gpa_cumulative` + `warning_level`
-- [ ] Block edit nếu `is_finalized=true`
+- [x] Validation: tổng weights = 1.0 (tolerance)
+- [x] Khi nhập điểm thành phần → re-compute `total_score` → re-compute `grade_letter` → update `student.gpa_cumulative` + `warning_level` qua `_sync_student_stats`
+- [x] Block edit nếu `is_finalized=true` (chỉ cho update total/grade từ myBK)
 
 **Output:**
 - ✅ SV gọi `/dashboard` 1 request → đầy đủ data
@@ -385,35 +389,35 @@
 **Files:** `backend/app/services/mybk_parser.py`, `backend/tests/test_mybk_parser.py`, `backend/app/api/v1/students.py`
 
 **Parser tasks:**
-- [ ] `parse_mybk_text(raw: str) -> ParsedTranscript`
-  - Detect HK header: regex `Năm học (\d{4}) - (\d{4}) / Học kỳ (\d)` → semester code `YYN` (vd: 251)
-  - Match course row: regex `^\d+\t([A-Z]{2,3}\d{4})\t...` (10 tab fields)
-  - Skip lines: "Tích lũy chung/học kỳ", "Môn học chuyển điểm", header lines
-- [ ] Map letter → status:
-  - A+/A/B+/B/C+/C/D+/D → `passed`, lưu nguyên score
-  - F → `failed`, lưu nguyên score
-  - RT → `withdrawn`, **bỏ score** (placeholder)
-  - MT → `exempt`, **bỏ score**
-  - DT → `passed`, **bỏ score**, ko tính GPA
-  - CT/VT/CH/KD/VP/HT → `enrolled` (skip hoặc giữ pending)
-- [ ] Tự tạo `Course` nếu chưa có (lấy code + name từ paste)
-- [ ] Unit tests với fixture chính là sample của user (đã có)
+- [x] `parse_mybk_text(raw: str) -> ParsedTranscript`
+  - Detect HK header: 3 regex (modern "Năm học YYYY - YYYY / Học kỳ N", old-style, code "HK 241")
+  - Match course row: tab-separated 6+ fields, course code regex `^[A-Z]{1,6}[\d_]{0,5}[A-Z0-9]*$`
+  - Fallback space-based parser cho plain text
+- [x] Map letter → status:
+  - A+/A/B+/B/C+/C/D+/D → `passed`
+  - F → `failed`
+  - RT → `withdrawn`, bỏ score
+  - MT → `exempt`, bỏ score
+  - DT → `passed`, bỏ score, ko tính GPA
+  - CT/VT/CH/KD/VP/HT → `enrolled`
+- [x] Tự tạo `Course` nếu chưa có
+- [ ] ~~Unit tests `test_mybk_parser.py`~~ — chưa có (gap, nên bổ sung)
 
 **Endpoints:**
-- [ ] `POST /students/me/grades/import-mybk` body: `{"raw_text": "...", "dry_run": true}`
-- [ ] Response (dry_run): `{"semesters": [...], "summary": {"new": N, "updated": M, "errors": [...]}, "preview_gpa": x.x}`
-- [ ] Response (commit): same + `{"finalized_count": N}`
+- [x] `POST /students/me/grades/import-mybk` body: `text/plain` raw text
+- [x] Response: `{"semesters": [...], "created": N, "updated": M, "skipped": K}`
+- [ ] ~~`dry_run` preview mode~~ — chưa implement, hiện commit thẳng (gap)
 
 **Upsert logic:**
-- [ ] Khớp enrollment theo `(student_id, course_id, semester)`
-- [ ] Nếu `is_finalized=true` đã set → skip (không override)
-- [ ] Nếu môn cũ có component scores SV tự nhập → giữ scores, chỉ thêm `total_score` + set `is_finalized=true`
-- [ ] Source = `"mybk_paste"` cho môn mới import
+- [x] Khớp enrollment theo `(student_id, course_id, semester)`
+- [x] Nếu `is_finalized=true` → chỉ update total/grade, giữ component scores
+- [x] Nếu enrollment cũ chưa finalized → fully update + set `is_finalized=true` + `source="mybk_paste"`
+- [x] Course mới → tạo với credits + name từ paste
 
 **Output:**
-- ✅ Paste sample của user (~70 môn, 9 HK) → parse đúng, không lỗi
-- ✅ Re-paste lần 2 → idempotent, không duplicate
-- ✅ GPA tính lại khớp với myBK (sai số < 0.05)
+- ✅ Paste sample của user (~70 môn, 9 HK) → parse đúng
+- ✅ Re-paste lần 2 → idempotent (upsert by `(student, course, semester)`)
+- ✅ GPA tính lại tự sync qua `_sync_student_stats`
 
 ---
 
@@ -425,17 +429,14 @@
 **Files:** `frontend/app/(student)/dashboard/page.tsx`, `components/dashboard/*.tsx`
 
 **Components:**
-- [ ] Welcome card (avatar + tên + MSSV + khoa + ngành)
-- [ ] 4 stats cards: GPA tích lũy, TC tích lũy, Mức cảnh báo, Số môn đang học
-- [ ] GPA line chart qua các HK (Recharts) + ngưỡng warning 1.2/1.0/0.8
-- [ ] Notifications gần nhất 3-5 (hardcoded ở M3, real ở M6)
-- [ ] Sự kiện sắp tới 3-5 (hardcoded ở M3, real ở M6)
-- [ ] Empty state nếu chưa có data: card lớn "Chưa có dữ liệu — Cập nhật từ myBK ngay" → link sang /grades
+- [x] Welcome card (avatar + tên + MSSV + khoa + ngành)
+- [x] Stats cards: GPA tích lũy, TC tích lũy, Mức cảnh báo, Số môn đang học
+- [x] GPA line chart qua các HK
+- [x] Notifications/events stubs (data thật ở M6)
+- [x] Empty state khi chưa có data → link sang /grades
 
 **Output:**
-- ✅ Dashboard load < 1.5s
-- ✅ Đầy đủ data từ `/students/me/dashboard`
-- ✅ Chart render đẹp với ngưỡng warning
+- ✅ Dashboard render đầy đủ data từ `/students/me/dashboard`
 
 ---
 
@@ -447,40 +448,31 @@
 **Files:** `frontend/app/(student)/grades/page.tsx`, `components/grades/*.tsx`
 
 **Components chính:**
-- [ ] Tabs theo HK (sắp xếp giảm dần)
-- [ ] Bảng điểm: STT, Mã, Tên, TC, GK, TN, BTL, CK, Tổng kết, Điểm chữ, Trạng thái
-- [ ] Cột "Trạng thái" có icon: ✓ Đạt | ✗ Rớt | ⏳ Đang học | 🚫 Rút | 📋 Miễn
-- [ ] Footer mỗi tab: GPA HK, TC đăng ký, TC đậu
-- [ ] Nút lớn ở header: **"Cập nhật từ myBK"**
-- [ ] Nút phụ: "Đăng ký môn cho HK hiện tại"
+- [x] Tabs theo HK
+- [x] Bảng điểm: Mã, Tên, TC, GK, TN, BTL, CK, Tổng kết, Điểm chữ, Trạng thái
+- [x] Cột "Trạng thái" với icon
+- [x] Nút "Cập nhật từ myBK"
+- [x] Nút "Đăng ký môn cho HK hiện tại"
 
 **Modal "Cập nhật từ myBK":**
-- [ ] Tab 1 — Hướng dẫn: 3 bước (mở myBK → trang bảng điểm → Ctrl+A Ctrl+C) với screenshot
-- [ ] Tab 2 — Paste & Preview: textarea lớn → click "Xem trước" → call `dry_run=true` → bảng preview group by HK
-- [ ] Tab 3 — Xác nhận: hiển thị summary (X môn mới, Y môn cập nhật, Z lỗi) → "Lưu vào hệ thống" → call `dry_run=false`
-- [ ] Toast success: "Đã import N môn từ myBK"
+- [x] Textarea paste myBK + nút import
+- [x] Toast success với count
+- [ ] ~~Preview/dry-run mode 3 tabs~~ — chưa có (gap, BE cũng chưa support)
 
 **Modal "Đăng ký môn cho HK hiện tại":**
-- [ ] Search course (autocomplete `/courses?search=`)
-- [ ] Radio chọn template:
-  - `Lý thuyết thuần (GK 30% + CK 70%)`
-  - `Lý thuyết + TN (30+20+50)`
-  - `Lý thuyết + Đồ án (30+0+30+40)`
-  - `Đồ án thuần (BTL 100%)`
-  - `Báo cáo (CK 100%)`
-  - `Tùy chỉnh` → 4 input weight + validation tổng = 100%
-- [ ] Submit → `POST /enrollments`
+- [x] Search course
+- [x] Radio chọn template (6 templates: Lý thuyết thuần, +TN, +Đồ án, Đồ án thuần, Báo cáo, Tùy chỉnh)
+- [x] Submit → `POST /enrollments` hoặc `/enrollments/manual`
 
 **Modal "Nhập điểm":**
-- [ ] Hiển thị 4 ô input GK/TN/BTL/CK theo weights đã set (component nào weight=0 thì disable)
-- [ ] Click vào điểm hiện có để sửa
-- [ ] What-if calculator: "Cần CK ≥ X.X để đạt B (7.0+)"
-- [ ] Submit → `PUT /enrollments/{id}/grades`
+- [x] 4 ô input GK/TN/BTL/CK theo weights
+- [x] Submit → `PUT /enrollments/{id}/grades`
+- [ ] ~~What-if calculator "Cần CK ≥ X.X để đạt B"~~ — chưa có (gap, có thể bổ sung sau)
 
 **Output:**
 - ✅ Paste myBK của bạn → bảng điểm hiện đầy đủ
 - ✅ GPA tích lũy match myBK
-- ✅ Đăng ký môn HK hiện tại + nhập GK → AI sẽ predict ở M4
+- ✅ Đăng ký môn HK hiện tại + nhập GK → sẵn sàng cho AI ở M4
 
 ---
 
@@ -490,24 +482,40 @@
 **Chức năng:** UI placeholders để dashboard không trống. Logic thật ở M6.
 
 **Tasks:**
-- [ ] Dashboard hiện 3-5 notifications hardcoded
-- [ ] Dashboard hiện 3-5 events hardcoded
-- [ ] Comment `// TODO: M6 — replace với /notifications/me` & `/events/me/upcoming`
+- [x] Dashboard hiện notifications/events stub
+- [x] Sẽ replace bằng `/notifications/me` & `/events/me/upcoming` ở M6
 
 **Output:**
 - ✅ Dashboard nhìn đầy đủ
 
 ---
 
-## 🎬 [DEMO POINT 2] — Cuối Tuần 4
+## 🎬 [DEMO POINT 2] — Cuối Tuần 4 ✅ 2026-04-29 + Polish 2026-05-02
 
 **Demo flow (with real myBK data):**
 1. SV mới đăng ký (chưa có data) → dashboard empty state
-2. Click "Cập nhật từ myBK" → dán bảng điểm thật → preview → confirm
-3. Dashboard refresh: GPA tích lũy đúng, chart 9 HK đẹp, mức cảnh báo hiển thị đúng theo quy chế HCMUT
+2. Click "Cập nhật từ myBK" → dán bảng điểm thật → import (modal)
+3. Dashboard refresh: GPA tích lũy + TC + môn rớt khớp myBK (highest-wins rule cho học cải thiện)
 4. Vào Grades → tabs HK, thấy đầy đủ điểm + cột TN/BTL nếu có
-5. Đăng ký môn cho HK đang học (chọn template "Lý thuyết + TN") → môn xuất hiện
-6. Nhập điểm GK 7.5 → modal show what-if "Cần CK ≥ 6.79 để được B"
+5. Xoá nhầm môn → nút Xoá per-row. Muốn re-import → nút "Xoá tất cả" + modal cảnh báo
+6. Đăng ký môn cho HK đang học (chọn template "Lý thuyết + TN") → môn xuất hiện
+7. Nhập điểm GK → total_score auto-compute khi đủ điểm
+8. Toggle VI/EN ở sidebar → toàn bộ UI dịch realtime
+
+**Polish đã thêm sau commit gốc (2026-05-02):**
+- ✅ HCMUT GPA "highest wins" — fix lệch GPA tích lũy do học lại/cải thiện
+- ✅ Display GPA `.toFixed(1)` match myBK (1 chữ số)
+- ✅ Delete enrollment (per-row + bulk) với confirm dialog
+- ✅ i18n VI/EN: store + translations + toggle component
+- ✅ Sidebar sticky h-screen — footer luôn ở viewport
+- ✅ Grades page bỏ tab Danh sách/Import (gây nhầm) → Import myBK chuyển modal
+- ✅ Turbopack default cho `npm run dev`
+- ✅ myBK parser error message theo case cụ thể
+
+**Gaps còn lại — đã dồn sang M9 Step 9.5:**
+- Preview/dry-run mode khi import myBK
+- What-if calculator trong modal nhập điểm
+- Unit tests `test_mybk_parser.py`
 
 **Báo cáo GVHD:** "Em đã hoàn thành chức năng quản lý điểm với UX import từ myBK — SV không cần nhập tay từng môn. Tuần sau em làm AI dự đoán risk."
 
@@ -562,17 +570,17 @@
 ## Step 4.2 — BE: Feature Engineering
 
 **Loại:** Backend
-**Chức năng:** Trích xuất 15+ features từ data SV.
+**Chức năng:** Trích xuất 11 rule-aware features từ data SV.
 
 **Files:** `backend/app/ai/prediction/features.py`, `tests/test_features.py`
 
 **Tasks:**
-- [ ] `extract_features(student_id, db) -> dict` với 15+ features (xem CLAUDE.md)
+- [ ] `extract_features(student_id, db) -> dict` với 11 features dạng deficit/risk (xem CLAUDE.md)
 - [ ] `extract_features_batch(student_ids, db) -> DataFrame`
 - [ ] Tests với 3 mock SV
 
 **Output:**
-- ✅ Test pass, dict đúng 15+ keys
+- ✅ Test pass, dict đúng 11 keys
 - ✅ DataFrame columns chuẩn
 
 ---
@@ -710,7 +718,16 @@
 5. Top-5 lý do: "GPA tích lũy 1.5 (+30%)", "Rớt 2 môn HK trước (+25%)",...
 6. Bảng dự đoán môn: môn Toán cao cấp 30% pass, môn Vật lý 65% pass
 
-**Báo cáo GVHD:** "Em đã hoàn thành AI dự đoán với XGBoost, F1=0.78. Tuần sau em làm chatbot RAG."
+**Báo cáo GVHD:** "Em đã hoàn thành AI dự đoán với XGBoost và đã chỉnh v2 để explanation nhất quán với quy chế học lại/cải thiện. Tuần sau em làm chatbot RAG."
+
+**M4 Closeout 2026-05-02; v2 fix 2026-05-04 — đã đạt:**
+- ✅ 1000 SV synthetic + 65k enrollments + 16% positive class (warning >= 1)
+- ✅ XGBoost v2 trained: F1=0.64, AUC=0.949, threshold=0.64 (auto-tuned trên val). V2 ưu tiên rule-aware/explainable signals hơn các signal lịch sử dễ hiểu sai.
+- ✅ 11 features dạng deficit/risk (no label leakage), apply HCMUT highest-wins rule; F đã học lại đạt không tính là unresolved risk
+- ✅ SHAP top factors tiếng Việt, normalize % tổng = 100, lọc các reason ngược trực giác do baseline comparison
+- ✅ APScheduler daily 02:00 batch + manual trigger qua `/predictions/batch-run`
+- ✅ Page `/predictions` với gauge + factors bar + courses table + history chart
+- ✅ Dashboard thêm risk card 5/5 cột (click → predictions page)
 
 ---
 
@@ -1284,9 +1301,10 @@
 
 ---
 
-# ✨ MILESTONE 9: Wow Features (Tuần 14 / Buffer)
+# ✨ MILESTONE 9: Wow Features + Deferred Polish (Tuần 14 / Buffer)
 
 > Chỉ làm sau khi M1-M8 đã xong. Skip nếu hết thời gian.
+> Bao gồm cả các "nice to have" được dồn lại từ các milestone trước (M3+).
 
 ## Step 9.1 — Personalized Greeting & Insights
 - [ ] "Chào An! GPA tăng 0.2 so với HK trước 🎉"
@@ -1306,6 +1324,11 @@
 - [ ] 5 câu hỏi gợi ý động theo context SV
 - [ ] SV cảnh báo → "Làm sao thoát cảnh báo?"
 - [ ] Update `/chatbot/suggestions`
+
+## Step 9.5 — Deferred from M3 (Grades Page Polish)
+- [ ] **myBK Import — Dry-run preview**: thêm param `dry_run=true` cho `POST /students/me/grades/import-mybk`, trả về `{semesters, created, updated, skipped, preview_gpa}` mà không commit. FE đổi modal 1 tab → 3 tabs (Hướng dẫn / Preview / Confirm).
+- [ ] **What-if calculator trong modal nhập điểm**: SV nhập GK → text gợi ý "Cần CK ≥ X.X để đạt B (7.0+)" — tính ngược từ weights và grade thresholds.
+- [ ] **Unit tests `test_mybk_parser.py`**: fixture chính là sample bảng điểm thật của user (~70 môn 9 HK), cover các case RT/MT/DT/F + tab format + space fallback.
 
 ---
 
@@ -1347,5 +1370,5 @@ Sau mỗi **Demo Point**, dừng lại để bạn report với GVHD.
 
 ---
 
-**Last updated:** 2026-04-29
-**Current step:** M3 — Student Profile & Grades (Step 3.1)
+**Last updated:** 2026-05-04 (M4 v2 explainability fix — AUC=0.949, F1=0.64)
+**Current step:** M5 — AI RAG Chatbot (Step 5.1) — chuẩn bị bắt đầu

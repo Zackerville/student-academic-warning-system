@@ -100,7 +100,7 @@ const dict = {
     "dashboard.currentSemester": "HK hiện tại:",
     "dashboard.creditsInProgress": "TC đang học",
     "dashboard.thisSemester": "Học kỳ này",
-    "dashboard.failedTotal": "Môn rớt (tổng)",
+    "dashboard.failedTotal": "Môn chưa đạt",
     "dashboard.aiRisk": "Risk AI",
     "dashboard.aiRiskSub": "Click để xem chi tiết",
     "dashboard.aiRiskNotReady": "Chưa có",
@@ -184,7 +184,7 @@ const dict = {
 
     // Predictions
     "predictions.title": "Dự báo AI",
-    "predictions.subtitle": "AI dự đoán nguy cơ cảnh báo học vụ dựa trên 16 yếu tố",
+    "predictions.subtitle": "AI dự đoán nguy cơ cảnh báo học vụ bằng các tín hiệu học vụ hiện tại",
     "predictions.semester": "Học kỳ",
     "predictions.riskScore": "Mức rủi ro",
     "predictions.riskLevel.low": "Thấp",
@@ -281,7 +281,7 @@ const dict = {
     "dashboard.currentSemester": "Current sem:",
     "dashboard.creditsInProgress": "Credits in Progress",
     "dashboard.thisSemester": "This semester",
-    "dashboard.failedTotal": "Failed Courses (total)",
+    "dashboard.failedTotal": "Unresolved Failed Courses",
     "dashboard.aiRisk": "AI Risk",
     "dashboard.aiRiskSub": "Click for details",
     "dashboard.aiRiskNotReady": "N/A",
@@ -365,7 +365,7 @@ const dict = {
 
     // Predictions
     "predictions.title": "AI Predictions",
-    "predictions.subtitle": "AI predicts academic warning risk based on 16 factors",
+    "predictions.subtitle": "AI predicts academic warning risk from current academic signals",
     "predictions.semester": "Semester",
     "predictions.riskScore": "Risk Level",
     "predictions.riskLevel.low": "Low",

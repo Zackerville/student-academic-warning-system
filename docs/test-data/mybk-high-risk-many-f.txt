@@ -1,0 +1,63 @@
+myBk/app
+Toggle navigation
+User ImagePHAM BAO KHANG
+User Image
+PHAM BAO KHANG
+
+ Khoa Điện - Điện tử
+Sinh viên
+Dịch vụ sinh viên
+Kết quả học tập
+Hệ thống quản lý Tra thông tin
+ Tra thông tin Kết quả học tập
+Bảng điểm môn học
+BẢNG ĐIỂM
+Năm học 2025 - 2026 / Học kỳ 1
+
+Họ và tên: PHAM BAO KHANG
+
+Mã sinh viên: 2259019
+
+Mã lớp: DD22
+
+Cập nhật cuối: 04/05/2026 11:05
+Các điểm đặc biệt: CT = Cấm thi, VT = Vắng thi, CH = Chưa có điểm, RT = Rút môn học, KD = Không đạt, VP = Vắng thi có phép, DT = Điểm đạt, HT = Hoãn thi, MT = Điểm miễn.
+
+Điểm hệ 4 áp dụng từ khóa 2021.
+
+Bảng điểm
+Môn học xét tương đương
+Danh mục các điểm khác
+Stt	Mã môn học	Tên môn học	Điểm tổng kết	Tín chỉ	Đạt	Tình trạng	Nhóm	Ghi chú
+Năm học 2025 - 2026 / Học kỳ 1	1.1	52	Tích lũy chung
+0.9	15	Tích lũy học kỳ
+1	EE3001	Hệ thống Điều khiển	3.8	F	3			L01	
+2	EE2001	Mạch Điện tử	4.2	F	4			L02	
+3	MT2013	Xác suất và Thống kê	5.0	D	4			L07	
+4	SP1037	Tư tưởng Hồ Chí Minh	5.4	D+	2			DT01	
+5	SA0002	Sinh hoạt Sinh viên	8.0	B+	0		Không in trên bảng điểm	L09	
+6	PE1047	Võ (Học phần 2)	17	RT	0		Không in trên bảng điểm	L03	Không tính TCTL & TBTL
+Năm học 2024 - 2025 / Học kỳ 2	1.2	37	Tích lũy chung
+1.1	15	Tích lũy học kỳ
+7	EE1001	Kỹ thuật Điện cơ bản	3.5	F	3			L01	Học lại vẫn chưa đạt
+8	PH1005	Vật lý 2	4.0	F	4			L10	Học lại vẫn chưa đạt
+9	MT1007	Đại số Tuyến tính	5.0	D	3			L18	
+10	SP1033	Kinh tế Chính trị Mác - Lênin	5.7	D+	2			DT01	
+11	CO1003	Nhập môn về Lập trình	6.0	C	3			L02	
+Năm học 2024 - 2025 / Học kỳ 1	1.3	22	Tích lũy chung
+1.3	14	Tích lũy học kỳ
+12	EE1001	Kỹ thuật Điện cơ bản	2.8	F	3			L01	
+13	PH1005	Vật lý 2	3.2	F	4			L10	
+14	MT1005	Giải tích 2	5.2	D	4			L24	
+15	PH1007	Thí nghiệm Vật lý	6.0	C	1			L03	
+16	LA1003	Anh văn 1	5.5	D+	2			L01	
+Năm học 2023 - 2024 / Học kỳ 2	1.4	8	Tích lũy chung
+1.4	8	Tích lũy học kỳ
+17	CH1003	Hóa đại cương	4.0	F	3			L07	
+18	PE1013	Bóng bàn (Học phần 1)	8.0	B+	0			L10	
+19	MT1003	Giải tích 1	5.0	D	4			L25	
+20	MI1003	Giáo dục Quốc phòng	21	DT	0			A01	Import from fox
+Môn học chuyển điểm/miễn điểm	8	
+21	LA1009	Anh văn 4	12	MT	2			AVV	2176/BKDT-20/6/23
+22	CCGDTC	Chứng chỉ Giáo Dục Thể Chất	21	DT	0		Không in trên bảng điểm		Không tính TCTL & TBTL
+Version 2.4.0Copyright © 2026 Academic Affairs Office. All rights reserved.

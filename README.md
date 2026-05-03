@@ -264,8 +264,8 @@ docker compose ps         # check db status = "healthy"
 |-----------|----------|-----------|
 | **M1** | Foundation Setup | ✅ Done |
 | **M2** | Auth End-to-End + FE Setup | ✅ Done |
-| **M3** | Student Profile & Grades + myBK paste | 🚧 In progress |
-| **M4** | AI XGBoost Prediction | ⬜ Pending |
+| **M3** | Student Profile & Grades + myBK paste | ✅ Done |
+| **M4** | AI XGBoost Prediction | ✅ Done (v2 explainability fix) |
 | **M5** | RAG Chatbot (Gemini) | ⬜ Pending |
 | **M6** | Warnings, Study Plan, Events | ⬜ Pending |
 | **M7** | Admin Minimal Tools | ⬜ Pending |

@@ -2,9 +2,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from loguru import logger
 
+from app.ai.prediction.model import prediction_service
 from app.api.v1.router import api_router
 from app.core.config import settings
+from app.core.scheduler import setup_scheduler
 from app.db.init_db import bootstrap_admin
 from app.db.session import check_database_connection
 
@@ -12,7 +15,14 @@ from app.db.session import check_database_connection
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await bootstrap_admin()
+    # Load XGBoost model nếu đã train
+    prediction_service.load()
+    # Start APScheduler (daily batch predictions at 02:00)
+    scheduler = setup_scheduler()
+    scheduler.start()
+    logger.info(f"Scheduler started with {len(scheduler.get_jobs())} job(s)")
     yield
+    scheduler.shutdown(wait=False)
 
 
 app = FastAPI(

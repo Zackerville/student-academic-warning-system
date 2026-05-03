@@ -301,19 +301,40 @@ Cảnh báo học vụ theo quy chế Bách Khoa:
 AI Early Warning: Risk score >= 0.6 → cảnh báo sớm ngay cả khi chưa vi phạm quy chế
 ```
 
+## Quy chế tính GPA tích lũy & TC tích lũy (HCMUT) ⚠️ QUAN TRỌNG
+
+**Học lại / Học cải thiện — quy tắc "ĐIỂM CAO NHẤT thắng" (không phải mới nhất):**
+- Với mỗi `course_id`, lấy enrollment có `gpa_point` **cao nhất** trong số tất cả lần học
+- Trùng điểm → tiebreak bằng học kỳ muộn hơn
+- Nếu không lần nào có gpa_point hợp lệ (toàn RT/MT/DT) → fallback lấy lần mới nhất
+- Bỏ qua môn đang học chưa có điểm — không override điểm cũ
+
+**Áp dụng vào 3 chỉ số:**
+- `gpa_cumulative`: chỉ tính trên enrollment "winner" của mỗi môn
+- `credits_earned`: mỗi môn chỉ tính 1 lần (passed/exempt → cộng credits)
+- `failed_courses_total`: chỉ đếm môn nếu winner vẫn là failed
+
+**Implementation:** [`_effective_enrollments_per_course`](backend/app/api/v1/students.py) trong students.py — gọi từ `_sync_student_stats` + `get_dashboard`.
+
+**Per-semester GPA KHÔNG dedup** — `/me/gpa/history` show GPA từng HK historical (F vẫn nằm ở HK đó dù sau này đã học lại đạt).
+
+**Display precision:** FE format GPA `.toFixed(1)` để khớp myBK (myBK round 1 chữ số). Backend lưu DB precision 2 chữ số (round(x, 2)).
+
 ## AI Models
 
 ### XGBoost Risk Prediction
 **Features** (input):
-- `gpa_semester_1..N`: GPA từng học kỳ
-- `gpa_cumulative`: GPA tích lũy
-- `gpa_trend_3hk`: Xu hướng GPA 3 HK gần nhất (slope)
-- `credits_enrolled`: Số TC đang đăng ký HK này
-- `credits_earned_ratio`: TC tích lũy / TC cần tốt nghiệp
-- `failed_courses_total`: Tổng số môn rớt
-- `failed_courses_last_semester`: Môn rớt HK trước
-- `avg_attendance`: Điểm danh trung bình
-- `midterm_gpa_current`: GPA giữa kỳ HK này (nếu có)
+- `gpa_cumulative_deficit`: GPA tích lũy thiếu bao nhiêu so với mốc an toàn 2.0
+- `gpa_recent_deficit`: GPA HK gần nhất thiếu bao nhiêu so với 2.0
+- `gpa_trend_drop`: chỉ lấy phần GPA đang giảm trong 3 HK gần nhất
+- `low_gpa_streak`: số HK liên tiếp GPA < 2.0
+- `unresolved_failed_courses`: số môn mà điểm hiệu lực vẫn là F (F đã học lại đạt không tính)
+- `unresolved_failed_last_semester`: F ở HK gần nhất và hiện vẫn chưa qua
+- `unresolved_failed_retake_count`: học lại nhưng điểm hiệu lực vẫn F
+- `withdrawn_count`: số môn rút
+- `pass_rate_deficit`: 1 - tỉ lệ qua môn theo điểm hiệu lực
+- `attendance_risk`: chỉ > 0 khi điểm danh < 75%; 80% không tăng risk
+- `recovered_failed_courses`: từng F nhưng đã học lại đạt (protective feature)
 
 **Output**: `risk_score` (0-1), `risk_level` (low/medium/high/critical)
 
@@ -349,11 +370,41 @@ REDIS_URL=redis://redis:6379/0  # Optional, dùng khi bật Redis
   - Frontend: Next.js 14 + shadcn/ui, login/register pages, student layout + sidebar
   - Landing page `/` với navbar VI/EN toggle + nút Đăng nhập
   - Middleware auth guard chuẩn (exact `/`, prefix `/login` `/register`)
+- [x] **M3** — Student Profile & Grades ✅ 2026-04-29 → polish 2026-05-02
+  - **Initial commit `8f9792e`** (2026-04-29):
+    - Migration `331730d3032d_add_m3_enrollment_fields`: `lab_score`, `other_score`, 4 weights, `is_finalized`, `source`, enum `exempt`
+    - `services/gpa_calculator.py`: thang điểm HCMUT, `compute_total_score`, `calculate_semester_gpa`, `calculate_gpa_trend`
+    - `services/mybk_parser.py`: parse Ctrl+A myBK (tab-based + space fallback), 3 regex semester header, status mapping
+    - `tests/test_gpa_calculator.py` (36 tests pass)
+    - `api/v1/students.py` (10 endpoints), `api/v1/courses.py` (3 endpoints)
+    - FE: `dashboard/page.tsx`, `grades/page.tsx` với 12 weight templates
+  - **Post-commit additions (2026-05-02)** sau khi user test thực tế:
+    - **Quy chế "highest GPA wins"** cho học lại/cải thiện: helper `_effective_enrollments_per_course` trong students.py — fix cho cả `gpa_cumulative`, `credits_earned`, `failed_total`. Dashboard endpoint tự gọi `_sync_student_stats` đầu request
+    - **Delete features**: `DELETE /me/enrollments/{id}` bỏ chặn `is_finalized` + `DELETE /me/enrollments` xoá hết. FE: nút Xoá per-row + modal "Xoá tất cả" với cảnh báo
+    - **i18n VI/EN**: `lib/i18n.ts` (Zustand persist), `LanguageToggle` component variant light/dark. Apply vào sidebar + auth layout + login + register + dashboard + grades
+    - **Sidebar sticky**: `h-screen` + `sticky top-0` thay `min-h-screen` để footer (logout + lang toggle) luôn ở viewport
+    - **Grades UX**: bỏ tab pattern Danh sách/Import (gây nhầm), chuyển Import myBK thành modal
+    - **GPA display 1 chữ số** (`toFixed(1)`) match myBK
+    - **myBK parser error**: error message cụ thể theo case (không tìm thấy semester / tìm header nhưng ko có môn)
+    - **Turbopack**: `npm run dev --turbo` mặc định cho dev nhanh hơn 5-10×
+  - Tests: 36/36 pass (test_gpa_calculator.py)
+  - **Polish dồn sang M9** (Step 9.5): dry_run preview myBK, what-if calculator, test_mybk_parser. pandas/numpy deps sẽ add khi vào M4/M7.
+
+- [x] **M4** — AI XGBoost Prediction ✅ 2026-05-02
+  - Synthetic data: `scripts/seed_synthetic.py` + `cleanup_synthetic.py` + `sync_synthetic_stats.py` — 1000 SV (`SYN*`), 65k enrollments, 16% positive class (warning_level >= 1)
+  - 4 GPA tiers + retake_success_rate (xuất sắc 15% / TB 55% / yếu 20% / cực yếu 10%)
+  - Noisy labels v2: `warning_level_from_gpa_noisy()` thêm admin discretion + risk_boost từ attendance/unresolved_failed; môn F đã học lại đạt không còn bị boost risk
+  - `app/ai/prediction/features.py`: 11 rule-aware features dạng deficit/risk + `recovered_failed_courses`. **KHÔNG có `warning_level_current`** (label leakage). Dùng `_effective_enrollments_per_course` (HCMUT highest-wins)
+  - `app/ai/prediction/train.py`: Optuna 25 trials × 5-fold CV + threshold tuning trên val set + monotonic constraints → F1=0.64, AUC=0.949, threshold=0.64, model 0.14MB (v2 ưu tiên explanation đáng tin cậy hơn việc dùng signal lịch sử dễ leak/hiểu sai)
+  - `app/ai/prediction/explainer.py`: `RiskExplainer` (SHAP TreeExplainer) → top factors tiếng Việt, normalize % tổng = 100, lọc các SHAP reason ngược trực giác do baseline comparison
+  - `app/ai/prediction/model.py`: `prediction_service` singleton load model lúc lifespan startup
+  - `app/core/scheduler.py`: APScheduler `AsyncIOScheduler` (timezone Asia/Ho_Chi_Minh), daily 02:00 batch
+  - `app/api/v1/predictions.py`: 4 endpoints `/me`, `/me/history`, `/me/refresh`, `/batch-run` [admin]
+  - FE: `app/(student)/predictions/page.tsx` (RadialBar gauge + factor bars + courses table + AreaChart history), dashboard thêm 5th card "Risk AI" link sang `/predictions`
+  - Translations VI/EN cho predictions trong `lib/i18n.ts`
 
 ### Cần làm (theo thứ tự):
-- [ ] **M3** (Tuần 3-4): Student Profile & Grades — GPA calculator HCMUT thang 4, Student/Course API, **myBK paste parser**, Migration thêm component weights + is_finalized + source, FE Dashboard + Grades page với 2 luồng nhập (paste myBK + tự nhập GK/TN/BTL/CK với weights). Synthetic 1000 SV để sang M4 (chỉ cần khi train AI + load test)
-- [ ] **M4** (Tuần 5-6): AI XGBoost Prediction
-- [ ] **M5** (Tuần 7-8): AI RAG Chatbot
+- [ ] **M5** (Tuần 7-8): AI RAG Chatbot — Gemini 1.5 Flash + LangChain + pgvector, document upload + chunking, citation, streaming SSE  ← **CURRENT**
 - [ ] **M6** (Tuần 9-10): Warnings, Study Plan, Events
 - [ ] **M7** (Tuần 11): Admin Minimal Tools
 - [ ] **M8** (Tuần 12-13): Integration & Polish
@@ -365,21 +416,29 @@ REDIS_URL=redis://redis:6379/0  # Optional, dùng khi bật Redis
 # Khởi động Docker stack
 docker compose up -d
 
-# Chạy backend local
+# Backend local (alternative)
 cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
-# Tạo Alembic migration
-cd backend && alembic revision --autogenerate -m "description"
+# Frontend dev (Turbopack — nhanh hơn 5-10× so với webpack)
+cd frontend && npm run dev
 
-# Apply migrations
+# Frontend dev (fallback webpack nếu Turbopack có lỗi lạ)
+cd frontend && npm run dev:slow
+
+# Frontend production build (instant page load, không HMR — dùng cho demo)
+cd frontend && npm run start:prod
+
+# Tạo / apply Alembic migration
+cd backend && alembic revision --autogenerate -m "description"
 cd backend && alembic upgrade head
 
-# Chạy tests
-cd backend && pytest tests/ -v
+# Tests trong container (pytest chưa baked vào image — phải cài 1 lần)
+docker compose exec backend pip install pytest pytest-asyncio
+docker compose exec backend python -m pytest tests/ -v
 
 # Seed dữ liệu
-cd backend && python -m app.db.init_db
+docker compose exec backend python -m app.db.init_db
 
-# Train AI model
-cd backend && python -m app.ai.prediction.train
+# Train AI model (khi vào M4)
+docker compose exec backend python -m app.ai.prediction.train
 ```

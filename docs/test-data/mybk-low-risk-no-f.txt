@@ -1,0 +1,63 @@
+myBk/app
+Toggle navigation
+User ImageNGUYEN AN MINH
+User Image
+NGUYEN AN MINH
+
+ Khoa Khoa học và Kỹ thuật Máy tính
+Sinh viên
+Dịch vụ sinh viên
+Kết quả học tập
+Hệ thống quản lý Tra thông tin
+ Tra thông tin Kết quả học tập
+Bảng điểm môn học
+BẢNG ĐIỂM
+Năm học 2025 - 2026 / Học kỳ 1
+
+Họ và tên: NGUYEN AN MINH
+
+Mã sinh viên: 2259001
+
+Mã lớp: CSE22
+
+Cập nhật cuối: 04/05/2026 09:10
+Các điểm đặc biệt: CT = Cấm thi, VT = Vắng thi, CH = Chưa có điểm, RT = Rút môn học, KD = Không đạt, VP = Vắng thi có phép, DT = Điểm đạt, HT = Hoãn thi, MT = Điểm miễn.
+
+Điểm hệ 4 áp dụng từ khóa 2021.
+
+Bảng điểm
+Môn học xét tương đương
+Danh mục các điểm khác
+Stt	Mã môn học	Tên môn học	Điểm tổng kết	Tín chỉ	Đạt	Tình trạng	Nhóm	Ghi chú
+Năm học 2025 - 2026 / Học kỳ 1	3.5	72	Tích lũy chung
+3.7	18	Tích lũy học kỳ
+1	CO3001	Công nghệ Phần mềm	8.7	A	3			L01	
+2	CO3029	Khai phá Dữ liệu	8.3	B+	3			L02	
+3	CO3061	Nhập môn Trí tuệ Nhân tạo	8.8	A	3			L01	
+4	CO3093	Mạng máy tính	7.8	B	3			L03	
+5	SP1037	Tư tưởng Hồ Chí Minh	8.2	B+	2			DT01	
+6	SA0002	Sinh hoạt Sinh viên	9.0	A	0		Không in trên bảng điểm	L15	
+Năm học 2024 - 2025 / Học kỳ 2	3.4	54	Tích lũy chung
+3.3	18	Tích lũy học kỳ
+7	CO2013	Hệ cơ sở Dữ liệu	7.4	B	4			L01	
+8	CO2017	Hệ điều hành	8.0	B+	3			L02	
+9	CO2003	Cấu trúc Dữ liệu và Giải Thuật	8.5	A	4			L01	
+10	MT2013	Xác suất và Thống kê	7.9	B	4			L04	
+11	IM1025	Quản lý Dự án cho Kỹ sư	8.1	B+	3			L01	
+Năm học 2024 - 2025 / Học kỳ 1	3.5	36	Tích lũy chung
+3.5	18	Tích lũy học kỳ
+12	CO1007	Cấu trúc Rời rạc cho KHMT	8.2	B+	4			L01	
+13	CO1027	Kỹ thuật Lập trình	8.6	A	3			L03	
+14	PH1003	Vật lý 1	7.9	B	4			DT01	
+15	MT1007	Đại số Tuyến tính	8.8	A	3			L12	
+16	SP1031	Triết học Mác - Lênin	8.1	B+	3			L09	
+17	PE1009	Bóng đá (Học phần 1)	8.0	B+	0			L02	
+Năm học 2023 - 2024 / Học kỳ 2	3.4	18	Tích lũy chung
+3.4	18	Tích lũy học kỳ
+18	MT1003	Giải tích 1	8.0	B+	4			L20	
+19	MT1005	Giải tích 2	7.6	B	4			L22	
+20	CH1003	Hóa đại cương	8.4	B+	3			L05	
+21	PH1007	Thí nghiệm Vật lý	8.0	B+	1			L06	
+22	LA1003	Anh văn 1	8.8	A	2			L01	
+23	MI1003	Giáo dục Quốc phòng	21	DT	0			A01	Import from fox
+Version 2.4.0Copyright © 2026 Academic Affairs Office. All rights reserved.

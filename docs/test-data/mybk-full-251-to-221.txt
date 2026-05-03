@@ -1,0 +1,123 @@
+myBk/app
+Toggle navigation
+User ImageLE MINH DUC
+User Image
+LE MINH DUC
+
+ Khoa Khoa học và Kỹ thuật Máy tính
+Sinh viên
+Dịch vụ sinh viên
+Kết quả học tập
+ Tài liệu hướng dẫn
+Hệ thống quản lý Tra thông tin
+ Tra thông tin Kết quả học tập
+Bảng điểm môn học
+BẢNG ĐIỂM
+Năm học 2025 - 2026 / Học kỳ 1
+
+Họ và tên: LE MINH DUC
+
+Mã sinh viên: 2259998
+
+Mã lớp: CSE22CLC
+
+Cập nhật cuối: 04/05/2026 14:30
+Các điểm đặc biệt: CT = Cấm thi, VT = Vắng thi, CH = Chưa có điểm, RT = Rút môn học, KD = Không đạt, VP = Vắng thi có phép, DT = Điểm đạt, HT = Hoãn thi, MT = Điểm miễn.
+
+Điểm hệ 4 áp dụng từ khóa 2021.
+
+Nhấn vào điểm tổng kết môn học để xem "điểm thành phần".
+
+Tình trạng điểm:
+Hủy điểm: Giảng viên đang trong quá trình chỉnh sửa điểm (đã cập nhật trên hệ thống), nhưng chưa hoàn tất việc nộp bảng điểm chính thức về Phòng Khảo thí và Đảm bảo chất lượng.
+Tạm tính: Giảng viên đã hoàn tất việc nhập điểm trên hệ thống, tuy nhiên vẫn chưa nộp bảng điểm chính thức cho Phòng Khảo thí và Đảm bảo chất lượng.
+Bảng điểm
+Môn học xét tương đương
+Danh mục các điểm khác
+Stt	Mã môn học	Tên môn học	Điểm tổng kết	Tín chỉ	Đạt	Tình trạng	Nhóm	Ghi chú
+Năm học 2025 - 2026 / Học kỳ 1	2.8	118	Tích lũy chung
+3.0	18	Tích lũy học kỳ
+1	CO4029	Đồ án Chuyên ngành	8.2	B+	2			L01	
+2	CO3117	Học máy	7.4	B	3			L02	
+3	CO3085	Xử lý Ngôn ngữ Tự nhiên	7.8	B	3			L01	
+4	CO3049	Lập trình Web	8.0	B+	3			L03	
+5	IM1025	Quản lý Dự án cho Kỹ sư	7.2	B	3			L01	
+6	SP1039	Lịch sử Đảng Cộng sản Việt Nam	8.0	B+	2			DT01	
+7	SA0002	Sinh hoạt Sinh viên	8.6	A	0		Không in trên bảng điểm	L11	
+8	CO3335	Thực tập Ngoài trường	0	F	2			L49	Chưa hoàn thành minh chứng thực tập
+Năm học 2024 - 2025 / Học kỳ 3	2.8	100	Tích lũy chung
+2.2	10	Tích lũy học kỳ
+9	CO3101	Đồ án Tổng hợp - AI	7.5	B	1			L01	
+10	CO3107	Thực tập Đồ án Đa ngành	6.8	C+	1			L02	
+11	SP1035	Chủ nghĩa Xã hội Khoa học	6.4	C	2			DT02	
+12	MT2013	Xác suất và Thống kê	6.0	C	4			L04	
+13	PE1047	Võ (Học phần 2)	8.0	B+	0			L08	Import from fox
+14	LA2019	Tiếng Nhật 4	12	MT	0			AVV	2176/BKDT-20/6/23
+Năm học 2024 - 2025 / Học kỳ 2	2.9	90	Tích lũy chung
+3.1	20	Tích lũy học kỳ
+15	CO3001	Công nghệ Phần mềm	8.1	B+	3			L01	
+16	CO3029	Khai phá Dữ liệu	7.2	B	3			L02	
+17	CO3061	Nhập môn Trí tuệ Nhân tạo	8.5	A	3			L01	
+18	CO3093	Mạng máy tính	7.8	B	3			L03	
+19	CO3005	Nguyên lý Ngôn ngữ Lập trình	6.8	C+	4			L01	
+20	SP1037	Tư tưởng Hồ Chí Minh	7.6	B	2			DT01	
+21	SA0002	Sinh hoạt Sinh viên	9.0	A	0		Không in trên bảng điểm	L66	
+22	CO2017	Hệ điều hành	7.0	B	3			L02	Học cải thiện đạt
+Năm học 2024 - 2025 / Học kỳ 1	2.8	70	Tích lũy chung
+2.4	19	Tích lũy học kỳ
+23	CO2013	Hệ cơ sở Dữ liệu	7.4	B	4			L01	
+24	CO2039	Lập trình Nâng cao	6.5	C+	3			L03	
+25	CO2007	Kiến trúc Máy tính	6.0	C	4			L04	
+26	CO2011	Mô hình hóa Toán học	6.2	C	3			L01	
+27	IM1027	Kinh tế Kỹ thuật	7.0	B	3			L02	
+28	SP1033	Kinh tế Chính trị Mác - Lênin	7.8	B	2			DT01	
+29	CO2017	Hệ điều hành	4.0	F	3			L02	Điểm liệt cuối kỳ
+30	SA0002	Sinh hoạt Sinh viên	8.7	A	0		Không in trên bảng điểm	L38	
+Năm học 2023 - 2024 / Học kỳ 3	2.7	51	Tích lũy chung
+3.4	10	Tích lũy học kỳ
+31	CO2003	Cấu trúc Dữ liệu và Giải Thuật	8.2	B+	4			L01	Học lại đạt
+32	PH1007	Thí nghiệm Vật lý	8.5	A	1			L03	
+33	SP1031	Triết học Mác - Lênin	7.6	B	3			L10	
+34	LA1047	Tiếng Nhật 2	8.0	B+	0			AV02	
+35	PE1009	Bóng đá (Học phần 1)	8.0	B+	0			L05	Import from fox
+Năm học 2023 - 2024 / Học kỳ 2	2.4	41	Tích lũy chung
+2.0	17	Tích lũy học kỳ
+36	CO1027	Kỹ thuật Lập trình	6.5	C+	3			L03	
+37	CO2003	Cấu trúc Dữ liệu và Giải Thuật	3.8	F	4			L01	
+38	CO1023	Hệ thống số	6.0	C	3			L04	
+39	PH1003	Vật lý 1	5.6	D+	4			DT01	
+40	MT1007	Đại số Tuyến tính	6.2	C	3			L18	
+41	SA0002	Sinh hoạt Sinh viên	8.0	B+	0		Không in trên bảng điểm	L330	
+Năm học 2023 - 2024 / Học kỳ 1	2.5	24	Tích lũy chung
+2.6	18	Tích lũy học kỳ
+42	CO1007	Cấu trúc Rời rạc cho KHMT	7.0	B	4			L01	
+43	CO1005	Nhập môn Điện toán	7.5	B	3			L02	
+44	MT1005	Giải tích 2	6.8	C+	4			L24	
+45	CH1003	Hóa đại cương	6.0	C	3			L07	
+46	SP1007	Pháp luật Việt Nam Đại cương	7.2	B	2			L05	
+47	LA1045	Tiếng Nhật 1	8.0	B+	0			AV01	
+48	PH1005	Vật lý 2	7.2	B	4			L10	Học lại đạt
+Năm học 2022 - 2023 / Học kỳ 2	2.2	6	Tích lũy chung
+1.6	14	Tích lũy học kỳ
+49	MT1003	Giải tích 1	5.5	D+	4			L25	
+50	PH1005	Vật lý 2	3.5	F	4			L10	
+51	PH1007	Thí nghiệm Vật lý	5.8	C	1			L03	
+52	LA1003	Anh văn 1	7.0	B	2			L01	
+53	MI1003	Giáo dục Quốc phòng	21	DT	0			A01	Import from fox
+54	PE1013	Bóng bàn (Học phần 1)	8.0	B+	0			L10	
+Năm học 2022 - 2023 / Học kỳ 1	1.4	0	Tích lũy chung
+1.4	15	Tích lũy học kỳ
+55	CO1003	Nhập môn về Lập trình	5.0	D	3			L02	
+56	MT1007	Đại số Tuyến tính	4.8	F	3			L18	
+57	MT1003	Giải tích 1	4.5	F	4			L25	
+58	PH1003	Vật lý 1	4.0	F	4			L03	điểm liệt theo quy định bộ môn
+59	CH1003	Hóa đại cương	5.2	D	3			L07	
+60	SA0002	Sinh hoạt Sinh viên	8.5	A	0		Không in trên bảng điểm	L103	
+Môn học chuyển điểm/miễn điểm	8	
+61	LA1009	Anh văn 4	12	MT	2			AVV	2176/BKDT-20/6/23
+62	LA1007	Anh văn 3	12	MT	2			AVV	2176/BKDT-20/6/23
+63	LA1005	Anh văn 2	12	MT	2			AVV	2176/BKDT-20/6/23
+64	LA1003	Anh văn 1	12	MT	2				Cap nhat tu fox ngày 08/11/2024
+65	CCGDTC	Chứng chỉ Giáo Dục Thể Chất	21	DT	0		Không in trên bảng điểm		Không tính TCTL & TBTL
+66	SA4001	Hoạt động sinh viên	21	DT	0		Không in trên bảng điểm		Không tính TCTL & TBTL
+Version 2.4.0Copyright © 2026 Academic Affairs Office. All rights reserved.

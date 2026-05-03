@@ -113,7 +113,9 @@ export default function DashboardPage() {
     );
   }
 
-  const { student, current_semester, credits_in_progress, failed_courses_total } = dashboard;
+  const { student, current_semester, credits_in_progress } = dashboard;
+  const failed_courses_total =
+    dashboard.unresolved_failed_courses ?? dashboard.failed_courses_total;
   const warning = WARNING_KEYS[student.warning_level] ?? WARNING_KEYS[0];
 
   return (

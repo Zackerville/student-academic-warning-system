@@ -1,0 +1,13 @@
+[
+  "gpa_cumulative_deficit",
+  "gpa_recent_deficit",
+  "gpa_trend_drop",
+  "low_gpa_streak",
+  "unresolved_failed_courses",
+  "unresolved_failed_last_semester",
+  "unresolved_failed_retake_count",
+  "withdrawn_count",
+  "pass_rate_deficit",
+  "attendance_risk",
+  "recovered_failed_courses"
+]

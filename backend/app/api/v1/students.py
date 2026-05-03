@@ -5,13 +5,14 @@ Endpoints: profile, dashboard, grades, enrollments, GPA, myBK import
 from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.deps import get_current_student, get_db
 from app.models.course import Course
 from app.models.enrollment import Enrollment, EnrollmentStatus
+from app.models.prediction import Prediction
 from app.models.student import Student
 from app.schemas.course import CourseCreate, CourseResponse
 from app.schemas.enrollment import (
@@ -37,6 +38,58 @@ from app.services.mybk_parser import ParsedCourse, parse_mybk_text
 router = APIRouter(prefix="/students", tags=["students"])
 
 
+# ─── Helper: deduplicate by course (HCMUT học lại / học cải thiện) ──
+
+def _enrollment_gpa_point(e: Enrollment):
+    """GPA point thang 4 của enrollment, None nếu là RT/MT/DT/đặc biệt hoặc chưa có điểm."""
+    letter = e.grade_letter
+    if letter and letter in _SPECIAL_LETTERS:
+        return None  # RT/MT/DT/CT/VT/CH/KD/VP/HT — không tính GPA
+    if letter:
+        return grade_letter_to_gpa_point(letter)
+    if e.total_score is not None:
+        return score_to_gpa_point(e.total_score)
+    return None
+
+
+def _effective_enrollments_per_course(enrollments: list[Enrollment]) -> list[Enrollment]:
+    """
+    Quy chế HCMUT — học lại / học cải thiện:
+    → Với mỗi course_id, lấy enrollment có GPA CAO NHẤT (chứ không phải mới nhất).
+      Nghĩa là: nếu B (3.0) ở HK241 rồi học cải thiện được C (2.0) ở HK251 → giữ B.
+      Nếu F (0) → học lại đạt B → giữ B.
+    → Nếu không có lần nào có điểm GPA hợp lệ (toàn RT/MT/DT) → giữ lần MỚI NHẤT
+      để vẫn xử lý đúng credits / status.
+
+    Bỏ qua enrollment 'enrolled' chưa có điểm — không override điểm cũ.
+    """
+    by_course: dict = {}
+    for e in enrollments:
+        is_in_progress = (
+            e.status == EnrollmentStatus.enrolled
+            and not e.grade_letter
+            and e.total_score is None
+        )
+        if is_in_progress:
+            continue
+        by_course.setdefault(e.course_id, []).append(e)
+
+    effective: list[Enrollment] = []
+    for attempts in by_course.values():
+        # Tách enrollments có gpa point thực sự
+        scored = [(e, _enrollment_gpa_point(e)) for e in attempts]
+        scored = [(e, p) for e, p in scored if p is not None]
+
+        if scored:
+            # Lấy điểm cao nhất; nếu trùng điểm thì lấy học kỳ muộn hơn
+            best = max(scored, key=lambda x: (x[1], x[0].semester))[0]
+            effective.append(best)
+        else:
+            # Toàn RT/MT/DT — lấy lần mới nhất theo học kỳ
+            effective.append(max(attempts, key=lambda e: e.semester))
+    return effective
+
+
 # ─── Helper: recalculate và lưu GPA + TC vào student record ──
 
 async def _sync_student_stats(student: Student, db: AsyncSession) -> None:
@@ -48,50 +101,45 @@ async def _sync_student_stats(student: Student, db: AsyncSession) -> None:
     )
     all_enrollments = result.scalars().all()
 
-    # Credits earned: môn passed/exempt có tín chỉ > 0
+    # Áp dụng quy chế học lại/cải thiện: lấy điểm hiệu lực tốt nhất cho mỗi môn.
+    effective = _effective_enrollments_per_course(all_enrollments)
+
+    # Credits earned: môn passed/exempt có tín chỉ > 0 (mỗi môn chỉ tính 1 lần)
     passed_statuses = {EnrollmentStatus.passed, EnrollmentStatus.exempt}
     credits_earned = sum(
-        e.course.credits for e in all_enrollments
+        e.course.credits for e in effective
         if e.status in passed_statuses and e.course.credits > 0
     )
 
-    # GPA tích lũy: tính từ tất cả môn có grade
-    semester_map: dict[str, list[EnrollmentGrade]] = {}
-    for e in all_enrollments:
+    # GPA tích lũy: chỉ dùng điểm hiệu lực, bỏ môn 0 TC + RT/MT/DT
+    total_pts = 0.0
+    total_tc = 0
+    for e in effective:
         if e.course.credits == 0:
-            continue  # bỏ môn 0 TC (SHSV, PE, ...)
-        if e.grade_letter or e.total_score is not None:
-            eg = EnrollmentGrade(
-                credits=e.course.credits,
-                grade_letter=e.grade_letter,
-                total_score=e.total_score,
-            )
-            semester_map.setdefault(e.semester, []).append(eg)
+            continue  # bỏ môn 0 TC (SHSV, PE...)
+        letter = e.grade_letter
+        if letter and letter in _SPECIAL_LETTERS:
+            continue  # RT/MT/DT/CT/VT/CH/KD/VP/HT — không tính GPA
+        gpa_pt = None
+        if letter:
+            gpa_pt = grade_letter_to_gpa_point(letter)
+        elif e.total_score is not None:
+            gpa_pt = score_to_gpa_point(e.total_score)
+        if gpa_pt is None:
+            continue
+        total_pts += gpa_pt * e.course.credits
+        total_tc += e.course.credits
 
-    if semester_map:
-        all_grades = [eg for grades in semester_map.values() for eg in grades]
-        total_pts = 0.0
-        total_tc = 0
-        for eg in all_grades:
-            letter = eg.grade_letter
-            if letter and letter in _SPECIAL_LETTERS:
-                continue
-            if letter:
-                gpa_pt = grade_letter_to_gpa_point(letter)
-            elif eg.total_score is not None:
-                gpa_pt = score_to_gpa_point(eg.total_score)
-            else:
-                continue
-            if gpa_pt is None:
-                continue
-            total_pts += gpa_pt * eg.credits
-            total_tc += eg.credits
-        gpa_cumulative = round(total_pts / total_tc, 2) if total_tc > 0 else 0.0
-    else:
-        gpa_cumulative = 0.0
+    gpa_cumulative = round(total_pts / total_tc, 2) if total_tc > 0 else 0.0
 
     student.gpa_cumulative = gpa_cumulative
     student.credits_earned = credits_earned
+    await db.commit()
+
+
+async def _invalidate_student_predictions(student_id: UUID, db: AsyncSession) -> None:
+    """Drop cached predictions after transcript changes."""
+    await db.execute(delete(Prediction).where(Prediction.student_id == student_id))
     await db.commit()
 
 
@@ -109,6 +157,10 @@ async def get_dashboard(
     student: Student = Depends(get_current_student),
     db: AsyncSession = Depends(get_db),
 ):
+    # Đảm bảo gpa_cumulative + credits_earned trên student record là mới nhất
+    await _sync_student_stats(student, db)
+    await db.refresh(student)
+
     result = await db.execute(
         select(Enrollment)
         .where(Enrollment.student_id == student.id)
@@ -121,7 +173,10 @@ async def get_dashboard(
     current_semester = semesters[0] if semesters else None
     current_enrollments = [e for e in enrollments if e.semester == current_semester]
 
-    failed_total = sum(1 for e in enrollments if e.status == EnrollmentStatus.failed)
+    # Chỉ đếm môn chưa đạt nếu điểm hiệu lực của môn đó vẫn là F.
+    # F đã học lại đạt sẽ không còn được tính vào dashboard.
+    effective = _effective_enrollments_per_course(enrollments)
+    failed_total = sum(1 for e in effective if e.status == EnrollmentStatus.failed)
     credits_in_progress = sum(
         e.course.credits for e in current_enrollments
         if e.status == EnrollmentStatus.enrolled
@@ -132,6 +187,7 @@ async def get_dashboard(
         "current_semester": current_semester,
         "credits_in_progress": credits_in_progress,
         "failed_courses_total": failed_total,
+        "unresolved_failed_courses": failed_total,
         "semesters_count": len(semesters),
     }
 
@@ -238,6 +294,7 @@ async def create_enrollment_manual(
     await db.commit()
     await db.refresh(enrollment)
     await _sync_student_stats(student, db)
+    await _invalidate_student_predictions(student.id, db)
 
     await db.refresh(enrollment, ["course"])
     return EnrollmentWithCourse.model_validate(enrollment)
@@ -277,6 +334,7 @@ async def create_enrollment(
     db.add(enrollment)
     await db.commit()
     await db.refresh(enrollment)
+    await _invalidate_student_predictions(student.id, db)
     return enrollment
 
 
@@ -331,6 +389,7 @@ async def update_grades(
     await db.commit()
     await db.refresh(enrollment)
     await _sync_student_stats(student, db)
+    await _invalidate_student_predictions(student.id, db)
     return enrollment
 
 
@@ -340,6 +399,7 @@ async def delete_enrollment(
     student: Student = Depends(get_current_student),
     db: AsyncSession = Depends(get_db),
 ):
+    """Xoá 1 môn học của SV — cho phép xoá cả môn manual lẫn môn import từ myBK."""
     result = await db.execute(
         select(Enrollment).where(
             Enrollment.id == enrollment_id,
@@ -349,10 +409,29 @@ async def delete_enrollment(
     enrollment = result.scalar_one_or_none()
     if not enrollment:
         raise HTTPException(status_code=404, detail="Không tìm thấy enrollment")
-    if enrollment.is_finalized:
-        raise HTTPException(status_code=409, detail="Điểm đã được chốt, không thể xóa")
     await db.delete(enrollment)
     await db.commit()
+    await _sync_student_stats(student, db)
+    await _invalidate_student_predictions(student.id, db)
+
+
+@router.delete("/me/enrollments", status_code=200)
+async def delete_all_enrollments(
+    student: Student = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+):
+    """Xoá toàn bộ bảng điểm của SV — dùng khi muốn re-import lại từ myBK."""
+    result = await db.execute(
+        select(Enrollment).where(Enrollment.student_id == student.id)
+    )
+    enrollments = result.scalars().all()
+    count = len(enrollments)
+    for e in enrollments:
+        await db.delete(e)
+    await db.commit()
+    await _sync_student_stats(student, db)
+    await _invalidate_student_predictions(student.id, db)
+    return {"message": f"Đã xoá {count} môn học", "deleted": count}
 
 
 # ─── GPA ─────────────────────────────────────────────────────
@@ -454,10 +533,21 @@ async def import_mybk(
     """
     transcript = parse_mybk_text(raw_text)
     if not transcript.courses:
-        raise HTTPException(
-            status_code=422,
-            detail="Không parse được dữ liệu. Hãy copy toàn bộ bảng điểm từ myBK.",
-        )
+        if not transcript.semesters_found:
+            detail = (
+                "Không tìm thấy thông tin học kỳ nào trong nội dung. "
+                "Hãy đảm bảo bạn đã vào đúng trang 'Bảng điểm' trên myBK "
+                "(không phải trang menu) và bảng điểm đã hiển thị đầy đủ trước khi Ctrl+A."
+            )
+        else:
+            sems = ", ".join(transcript.semesters_found)
+            detail = (
+                f"Tìm thấy header học kỳ ({sems}) nhưng không có môn học nào. "
+                "Bạn có thể đang đứng ở trang menu — hãy click vào link 'Bảng điểm' "
+                "trên myBK để xem bảng có cột STT / Mã môn / Tên môn / Điểm, "
+                "rồi mới Ctrl+A → Ctrl+C."
+            )
+        raise HTTPException(status_code=422, detail=detail)
 
     created_count = 0
     updated_count = 0
@@ -478,6 +568,11 @@ async def import_mybk(
             )
             db.add(course)
             await db.flush()  # get course.id
+        else:
+            # Update credits nếu import có credits lớn hơn (fix cho case
+            # course được tạo bởi SV khác với credits sai hoặc = 0)
+            if pc.credits > 0 and course.credits != pc.credits:
+                course.credits = pc.credits
 
         # Upsert enrollment
         enroll_result = await db.execute(
@@ -523,6 +618,7 @@ async def import_mybk(
 
     await db.commit()
     await _sync_student_stats(student, db)
+    await _invalidate_student_predictions(student.id, db)
 
     return {
         "message": "Import thành công",
