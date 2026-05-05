@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   RadialBarChart, RadialBar, PolarAngleAxis,
@@ -139,7 +139,7 @@ export default function PredictionsPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -162,7 +162,7 @@ export default function PredictionsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -179,7 +179,7 @@ export default function PredictionsPage() {
     }
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+  useEffect(() => { load(); }, [load]);
 
   if (loading) {
     return (

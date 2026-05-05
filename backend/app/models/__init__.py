@@ -10,6 +10,7 @@ from app.models.prediction import Prediction, RiskLevel
 from app.models.notification import Notification, NotificationType
 from app.models.event import Event, EventType, TargetAudience
 from app.models.document import Document
+from app.models.chat_message import ChatMessage
 
 __all__ = [
     "User", "UserRole",
@@ -21,4 +22,5 @@ __all__ = [
     "Notification", "NotificationType",
     "Event", "EventType", "TargetAudience",
     "Document",
+    "ChatMessage",
 ]

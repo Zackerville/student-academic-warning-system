@@ -43,7 +43,7 @@ export default function LoginPage() {
       setAuth(token, meRes.data);
 
       if (meRes.data.role === "admin") {
-        router.push("/admin/dashboard");
+        router.push("/admin/documents");
       } else {
         router.push("/dashboard");
       }

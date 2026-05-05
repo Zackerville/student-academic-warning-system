@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -396,8 +397,8 @@ export type TKey = keyof (typeof dict)["vi"];
  */
 export function useT() {
   const lang = useI18nStore((s) => s.lang);
-  return (key: TKey): string => {
+  return useCallback((key: TKey): string => {
     const table = dict[lang] as Record<string, string>;
     return table[key] ?? key;
-  };
+  }, [lang]);
 }

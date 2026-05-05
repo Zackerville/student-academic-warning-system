@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from app.models.warning import Warning
     from app.models.prediction import Prediction
     from app.models.notification import Notification
+    from app.models.chat_message import ChatMessage
 
 
 class Student(Base):
@@ -65,4 +66,7 @@ class Student(Base):
     )
     notifications: Mapped[list[Notification]] = relationship(
         "Notification", back_populates="student", cascade="all, delete-orphan"
+    )
+    chat_messages: Mapped[list[ChatMessage]] = relationship(
+        "ChatMessage", back_populates="student", cascade="all, delete-orphan"
     )

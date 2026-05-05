@@ -28,6 +28,28 @@ class Settings(BaseSettings):
 
     BACKEND_CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003,http://127.0.0.1:3000,http://127.0.0.1:3001,http://127.0.0.1:3002,http://localhost:8000"
 
+    CHAT_PROVIDER: str = "extractive"
+    EMBEDDING_PROVIDER: str = "hash"
+    VECTOR_STORE: str = "pgvector"
+    RAG_TOP_K: int = 5
+    RAG_CHUNK_SIZE: int = 800
+    RAG_CHUNK_OVERLAP: int = 120
+    RAG_ENABLE_OCR: bool = True
+    RAG_OCR_LANG: str = "vie+eng"
+    RAG_OCR_DPI: int = 220
+    RAG_OCR_MAX_PAGES: int = 120
+
+    GEMINI_API_KEY: str = ""
+    GEMINI_CHAT_MODEL: str = "models/gemini-2.5-flash"
+    GEMINI_EMBEDDING_MODEL: str = "models/gemini-embedding-001"
+
+    HUGGINGFACE_API_TOKEN: str = ""
+    HF_CHAT_MODEL: str = "Qwen/Qwen2.5-7B-Instruct"
+    HF_EMBEDDING_MODEL: str = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
+
+    LOCAL_LLM_BASE_URL: str = "http://localhost:11434/v1"
+    LOCAL_LLM_MODEL: str = "qwen2.5:7b"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

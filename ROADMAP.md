@@ -22,8 +22,8 @@
 [x] M2 — Auth End-to-End + FE Setup     [DEMO 1]    (Tuần 2)        — 8/8 steps ✅ 2026-04-29
 [x] M3 — Student Profile & Grades       [DEMO 2]    (Tuần 3-4)      — 6/6 steps ✅ 2026-04-29 + polish 2026-05-02
 [x] M4 — AI: XGBoost Prediction         [DEMO 3]    (Tuần 5-6)      — 8/8 steps ✅ 2026-05-02; v2 explainability fix 2026-05-04 (AUC=0.949)
-[ ] M5 — AI: RAG Chatbot                [DEMO 4]    (Tuần 7-8)      — 0/9 steps  ← CURRENT
-[ ] M5 — AI: RAG Chatbot                [DEMO 4]    (Tuần 7-8)      — 0/9 steps
+[~] M5 — AI: RAG Chatbot                [DEMO 4]    (Tuần 7-8)      — 7/9 steps  ← CURRENT
+[~] M5 — AI: RAG Chatbot                [DEMO 4]    (Tuần 7-8)      — 7/9 steps
 [ ] M6 — Warnings & Study Plan & Events [DEMO 5]    (Tuần 9-10)     — 0/10 steps
 [ ] M7 — Admin Minimal Tools            [DEMO 6]    (Tuần 11)       — 0/4 steps
 [ ] M8 — Integration & Polish                       (Tuần 12-13)    — 0/6 steps
@@ -735,21 +735,21 @@
 
 > **Mục tiêu:** E1, E2 — chatbot quy chế + tư vấn cá nhân với streaming + citations.
 
-## Step 5.1 — BE: Cài RAG Deps + Gemini Setup
+## Step 5.1 — BE: Cài RAG Deps + Provider Setup
 
 **Loại:** Backend
-**Chức năng:** Cài LangChain + Gemini libs.
+**Chức năng:** Cài RAG libs + cấu hình provider linh hoạt.
 
 **Files:** `backend/requirements.txt`, `.env.example`
 
 **Tasks:**
-- [ ] Thêm: `langchain`, `langchain-google-genai`, `google-generativeai`, `pypdf`, `python-docx`, `tiktoken`, `sse-starlette`
-- [ ] `.env.example`: thêm `GEMINI_API_KEY=`
-- [ ] Setup Gemini API key (lấy từ aistudio.google.com)
+- [x] Thêm: `google-generativeai`, `pypdf`, `python-docx`, `httpx`
+- [x] `.env.example`: thêm `CHAT_PROVIDER`, `EMBEDDING_PROVIDER`, Gemini, Hugging Face, local LLM
+- [x] Default chạy được không cần key bằng `extractive + hash`
 
 **Output:**
-- ✅ Build container OK, import `langchain_google_genai` không lỗi
-- ✅ `.env` có Gemini key
+- ✅ Có thể đổi provider qua `.env`
+- ✅ Chưa có Gemini key vẫn test được chatbot nội bộ
 
 ---
 
@@ -761,11 +761,11 @@
 **Files:** `backend/app/ai/chatbot/rag.py`, `backend/data/regulations/`
 
 **Tasks:**
-- [ ] `parse_pdf` (giữ page number)
-- [ ] `parse_docx`
-- [ ] `chunk_text(text, 800, 100)` với RecursiveCharacterTextSplitter
-- [ ] `embed_text` với Gemini embedding-001 (768 dims)
-- [ ] `process_document` → list chunks với metadata
+- [x] `parse_pdf` (giữ page number)
+- [x] `parse_docx`
+- [x] `chunk_text(text, 800, 120)`
+- [x] Embedding provider 768 dims: hash fallback, Gemini/HF optional
+- [x] `process_document` → list chunks với metadata
 
 **Output:**
 - ✅ PDF 20 trang → 50-80 chunks
@@ -782,10 +782,10 @@
 **Files:** `backend/app/ai/chatbot/vectorstore.py`
 
 **Tasks:**
-- [ ] `add_document` full pipeline
-- [ ] `search_similar` dùng `<=>` operator
-- [ ] `delete_document`, `toggle_active`
-- [ ] List grouped by source_file
+- [x] `add_document` full pipeline
+- [x] `search_similar` dùng pgvector cosine distance
+- [x] `delete_document`, `toggle_active`
+- [x] List grouped by source_file
 
 **Output:**
 - ✅ Upload PDF → ~50 rows trong DB
@@ -793,7 +793,7 @@
 
 ---
 
-## Step 5.4 — BE: RAG Chain với LangChain
+## Step 5.4 — BE: RAG Chain với Provider Adapter
 
 **Loại:** Backend
 **Chức năng:** E1 — chatbot quy chế.
@@ -801,11 +801,11 @@
 **Files:** `backend/app/ai/chatbot/chains.py`
 
 **Tasks:**
-- [ ] `ChatGoogleGenerativeAI(model="gemini-1.5-flash")`
-- [ ] Custom retriever wrap pgvector
-- [ ] Prompt template tiếng Việt yêu cầu citation
-- [ ] `ConversationalRetrievalChain` với memory
-- [ ] `ask_question(query, history, db)` + streaming version
+- [x] Gemini chat provider (`gemini-1.5-flash`) khi có key
+- [x] Hugging Face/local/extractive providers
+- [x] Custom retriever wrap pgvector
+- [x] Prompt tiếng Việt, không hallucinate khi thiếu tài liệu
+- [x] `ask_chatbot(query, history, db)` + streaming SSE wrapper
 
 **Output:**
 - ✅ Hỏi quy chế → trả đúng + citation
@@ -822,9 +822,9 @@
 **Files:** `backend/app/ai/chatbot/personal.py`
 
 **Tasks:**
-- [ ] `get_student_context(student_id)` → text profile
-- [ ] `personal_chat` inject context vào prompt
-- [ ] Heuristic detect intent: regulation vs personal vs hybrid
+- [x] `get_student_context(student_id)` → text profile
+- [x] Inject context vào prompt/câu trả lời
+- [x] Hybrid mặc định: luôn kết hợp data SV + tài liệu retrieve được
 
 **Output:**
 - ✅ "Tôi có nguy cơ buộc thôi học không?" → trả lời cá nhân với data SV
@@ -839,10 +839,10 @@
 **Files:** `backend/app/api/v1/chatbot.py`, `documents.py` + migration mới cho `chat_messages`
 
 **Tasks:**
-- [ ] Tạo model + migration `chat_messages`
-- [ ] `POST /chatbot/ask` streaming SSE
-- [ ] `GET /chatbot/history`, `/suggestions`, `DELETE /history`
-- [ ] `POST /documents/upload`, `GET /documents`, `PUT /toggle`, `DELETE`
+- [x] Tạo model + migration `chat_messages`
+- [x] `POST /chatbot/ask` JSON + `POST /chatbot/ask/stream` SSE
+- [x] `GET /chatbot/history`, `/suggestions`, `DELETE /history`
+- [x] `POST /documents/upload`, `GET /documents`, `PATCH`, `DELETE`
 
 **Output:**
 - ✅ FE gọi `/ask` nhận stream SSE
@@ -859,13 +859,13 @@
 **Files:** `frontend/app/(student)/chatbot/page.tsx`, `components/chatbot/*.tsx`
 
 **Components:**
-- [ ] Welcome screen với 5 suggested questions chips
-- [ ] Message bubbles user/assistant
-- [ ] Markdown rendering (react-markdown)
-- [ ] Streaming text effect (EventSource hoặc fetch ReadableStream)
-- [ ] Citations footnote `[1] Quy chế, trang 12` clickable
-- [ ] Auto-scroll, typing indicator
-- [ ] Reset conversation
+- [x] Welcome screen với suggested questions chips
+- [x] Message bubbles user/assistant
+- [ ] Markdown rendering (plain text hiện tại)
+- [x] Streaming text effect bằng fetch ReadableStream
+- [x] Citations `[1] file, trang n` hiển thị dưới câu trả lời
+- [x] Auto-scroll, typing indicator
+- [x] Reset conversation
 
 **Output:**
 - ✅ UX mượt như ChatGPT
@@ -882,9 +882,9 @@
 **Files:** `frontend/app/admin/documents/page.tsx`
 
 **Tasks:**
-- [ ] Drag-drop upload PDF
-- [ ] List documents grouped + toggle/delete
-- [ ] Toast feedback
+- [x] Upload PDF/DOCX/TXT/MD
+- [x] List documents grouped + toggle/delete
+- [ ] Toast feedback (đang dùng inline error/status)
 
 **Output:**
 - ✅ Admin upload PDF qua UI → chunks tạo
@@ -1371,4 +1371,4 @@ Sau mỗi **Demo Point**, dừng lại để bạn report với GVHD.
 ---
 
 **Last updated:** 2026-05-04 (M4 v2 explainability fix — AUC=0.949, F1=0.64)
-**Current step:** M5 — AI RAG Chatbot (Step 5.1) — chuẩn bị bắt đầu
+**Current step:** M5 — AI RAG Chatbot — backend/frontend core đã hiện thực, còn refine tài liệu thật + markdown/toast UI.

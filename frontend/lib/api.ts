@@ -1,15 +1,26 @@
 import axios from "axios";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 
 export const apiClient = axios.create({
   baseURL: API_BASE,
-  headers: { "Content-Type": "application/json" },
   timeout: 15000,
 });
 
 // Attach JWT token from localStorage on every request
 apiClient.interceptors.request.use((config) => {
+  if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+    const headers = config.headers as unknown as {
+      delete?: (name: string) => void;
+      set?: (name: string, value: unknown) => void;
+      [key: string]: unknown;
+    };
+    headers.delete?.("Content-Type");
+    headers.delete?.("content-type");
+    delete headers["Content-Type"];
+    delete headers["content-type"];
+  }
+
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("access_token");
     if (token) {
@@ -273,4 +284,97 @@ export const coursesApi = {
 
   create: (payload: Omit<CourseResponse, "id" | "created_at">) =>
     apiClient.post<CourseResponse>("/courses", payload),
+};
+
+// ─── Chatbot / RAG ──────────────────────────────────────────
+
+export interface ChatCitation {
+  index: number;
+  document_id: string;
+  source_file: string;
+  filename: string;
+  chunk_index: number;
+  page_number: number | null;
+  snippet: string;
+  score: number;
+}
+
+export interface ChatResponse {
+  answer: string;
+  citations: ChatCitation[];
+  provider: string;
+  used_personal_context: boolean;
+}
+
+export interface ChatMessageResponse {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  citations: ChatCitation[];
+  created_at: string;
+}
+
+export const chatbotApi = {
+  ask: (question: string) =>
+    apiClient.post<ChatResponse>("/chatbot/ask", { question }),
+
+  history: () => apiClient.get<ChatMessageResponse[]>("/chatbot/history"),
+
+  clearHistory: () => apiClient.delete<{ deleted: number }>("/chatbot/history"),
+
+  suggestions: () => apiClient.get<{ suggestions: string[] }>("/chatbot/suggestions"),
+};
+
+// ─── Admin Documents ────────────────────────────────────────
+
+export interface DocumentGroupResponse {
+  source_file: string;
+  filename: string;
+  chunks_count: number;
+  is_active: boolean;
+  uploaded_at: string;
+  uploaded_by: string | null;
+  pages_count: number;
+}
+
+export interface DocumentBatchUploadItem {
+  filename: string;
+  status: "uploaded" | "failed";
+  chunks_count: number;
+  error: string | null;
+}
+
+export interface DocumentBatchUploadResponse {
+  uploaded: number;
+  failed: number;
+  total_chunks: number;
+  results: DocumentBatchUploadItem[];
+}
+
+export const documentsApi = {
+  list: () => apiClient.get<DocumentGroupResponse[]>("/documents"),
+
+  upload: (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return apiClient.post("/documents/upload", form, {
+      timeout: 600000,
+    });
+  },
+
+  uploadBatch: (files: File[]) => {
+    const form = new FormData();
+    files.forEach((file) => form.append("files", file));
+    return apiClient.post<DocumentBatchUploadResponse>("/documents/upload-batch", form, {
+      timeout: 600000,
+    });
+  },
+
+  toggle: (sourceFile: string, isActive: boolean) =>
+    apiClient.patch(`/documents/${encodeURIComponent(sourceFile)}`, {
+      is_active: isActive,
+    }),
+
+  delete: (sourceFile: string) =>
+    apiClient.delete(`/documents/${encodeURIComponent(sourceFile)}`),
 };
