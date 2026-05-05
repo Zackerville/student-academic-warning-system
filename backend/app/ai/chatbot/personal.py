@@ -1,3 +1,11 @@
+"""
+Build student context cho RAG chatbot — inject GPA/warning/F-courses vào prompt.
+
+> CONTRACT: format text trả về phải khớp regex parsers trong
+> `app.ai.chatbot.providers.ExtractiveChatProvider._parse_student_context`.
+> Nếu thay đổi label tiếng Việt ở `lines = [...]` bên dưới thì PHẢI update
+> regex tương ứng để fallback "no API key" không trả answer rỗng.
+"""
 from __future__ import annotations
 
 from sqlalchemy import select
@@ -7,7 +15,10 @@ from sqlalchemy.orm import selectinload
 from app.models.enrollment import Enrollment, EnrollmentStatus
 from app.models.prediction import Prediction
 from app.models.student import Student
-from app.services.gpa_calculator import _SPECIAL_LETTERS, grade_letter_to_gpa_point, score_to_gpa_point
+from app.services.grade_aggregator import (
+    effective_enrollments_per_course,
+    enrollment_gpa_point,
+)
 
 
 async def build_student_context(student: Student, db: AsyncSession) -> str:
@@ -31,7 +42,7 @@ async def build_student_context(student: Student, db: AsyncSession) -> str:
         item for item in enrollments
         if item.status == EnrollmentStatus.failed and item.course and item.course.credits > 0
     ]
-    effective_enrollments = _effective_enrollments_per_course(enrollments)
+    effective_enrollments = effective_enrollments_per_course(enrollments)
     latest_enrollments = _latest_enrollments_per_course(enrollments)
     unresolved_failed = [
         item for item in effective_enrollments
@@ -78,40 +89,6 @@ async def build_student_context(student: Student, db: AsyncSession) -> str:
     return "\n".join(lines)
 
 
-def _enrollment_gpa_point(enrollment: Enrollment):
-    letter = enrollment.grade_letter
-    if letter and letter in _SPECIAL_LETTERS:
-        return None
-    if letter:
-        return grade_letter_to_gpa_point(letter)
-    if enrollment.total_score is not None:
-        return score_to_gpa_point(enrollment.total_score)
-    return None
-
-
-def _effective_enrollments_per_course(enrollments: list[Enrollment]) -> list[Enrollment]:
-    by_course: dict = {}
-    for enrollment in enrollments:
-        is_in_progress = (
-            enrollment.status == EnrollmentStatus.enrolled
-            and not enrollment.grade_letter
-            and enrollment.total_score is None
-        )
-        if is_in_progress:
-            continue
-        by_course.setdefault(enrollment.course_id, []).append(enrollment)
-
-    effective: list[Enrollment] = []
-    for attempts in by_course.values():
-        scored = [(item, _enrollment_gpa_point(item)) for item in attempts]
-        scored = [(item, point) for item, point in scored if point is not None]
-        if scored:
-            effective.append(max(scored, key=lambda item: (item[1], item[0].semester))[0])
-        else:
-            effective.append(max(attempts, key=lambda item: item.semester))
-    return effective
-
-
 def _latest_enrollments_per_course(enrollments: list[Enrollment]) -> list[Enrollment]:
     by_course: dict = {}
     for enrollment in enrollments:
@@ -151,7 +128,7 @@ def _improvement_candidates(enrollments: list[Enrollment]) -> list[Enrollment]:
     for enrollment in enrollments:
         if not enrollment.course or enrollment.course.credits <= 0:
             continue
-        point = _enrollment_gpa_point(enrollment)
+        point = enrollment_gpa_point(enrollment)
         if point is None:
             continue
         if enrollment.status == EnrollmentStatus.failed or point <= 2.5:
@@ -172,7 +149,7 @@ def _format_course_list(enrollments: list[Enrollment], *, include_points: bool =
     items = []
     for enrollment in enrollments[:10]:
         grade = enrollment.grade_letter or enrollment.total_score or enrollment.status.value
-        point = _enrollment_gpa_point(enrollment)
+        point = enrollment_gpa_point(enrollment)
         point_text = f", hệ 4 {point:.1f}" if include_points and point is not None else ""
         items.append(
             f"{enrollment.course.course_code} - {enrollment.course.name} "

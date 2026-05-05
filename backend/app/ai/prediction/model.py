@@ -23,6 +23,7 @@ from app.ai.prediction.features import FEATURE_NAMES, FEATURE_VERSION, extract_f
 from app.models.enrollment import Enrollment, EnrollmentStatus
 from app.models.prediction import Prediction, RiskLevel
 from app.models.student import Student
+from app.services.grade_aggregator import sync_student_stats
 
 MODEL_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "models"
 MODEL_PATH = MODEL_DIR / "xgboost_v1.pkl"
@@ -380,8 +381,7 @@ class PredictionService:
 
         # Sync stats để student.gpa_cumulative + credits_earned + warning_level fresh
         # (tránh dùng giá trị stale khi SV vừa import myBK xong)
-        from app.api.v1.students import _sync_student_stats
-        await _sync_student_stats(student, db)
+        await sync_student_stats(student, db)
         await db.refresh(student)
 
         # Fetch enrollments

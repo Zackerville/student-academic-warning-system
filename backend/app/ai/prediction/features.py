@@ -2,7 +2,7 @@
 Feature engineering — biến enrollments raw thành 1 row features cho XGBoost.
 
 Áp dụng quy chế HCMUT "highest GPA wins" cho học lại / cải thiện
-(xem `_effective_enrollments_per_course` trong app.api.v1.students).
+(xem `effective_enrollments_per_course` trong app.api.v1.students).
 
 Output: dict[str, float] với các feature đã quy đổi về "risk signal" rõ nghĩa.
 Hầu hết feature càng lớn thì rủi ro càng cao; riêng recovered_failed_courses
@@ -19,12 +19,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.v1.students import (
-    _count_unresolved_failed,
-    _effective_enrollments_per_course,
-    _enrollment_gpa_point,
-    _is_credit_bearing,
-)
 from app.models.enrollment import Enrollment, EnrollmentStatus
 from app.models.student import Student
 from app.services.gpa_calculator import (
@@ -32,6 +26,11 @@ from app.services.gpa_calculator import (
     _SPECIAL_LETTERS,
     calculate_gpa_trend,
     calculate_semester_gpa,
+)
+from app.services.grade_aggregator import (
+    count_unresolved_failed,
+    effective_enrollments_per_course,
+    is_credit_bearing,
 )
 
 # ─── Constants ───────────────────────────────────────────────
@@ -188,14 +187,14 @@ async def extract_features(
 
     Returns dict matching FEATURE_NAMES.
     """
-    effective = _effective_enrollments_per_course(enrollments)
+    effective = effective_enrollments_per_course(enrollments)
 
     # Status counts từ effective (per course unique).
     # Nếu một môn từng F nhưng đã học lại đạt, môn đó KHÔNG còn nằm ở unresolved_failed.
-    unresolved_failed = _count_unresolved_failed(effective)
+    unresolved_failed = count_unresolved_failed(effective)
     withdrawn_count = sum(
         1 for e in effective
-        if e.status == EnrollmentStatus.withdrawn and _is_credit_bearing(e)
+        if e.status == EnrollmentStatus.withdrawn and is_credit_bearing(e)
     )
 
     # Per-semester GPA (no dedup)
@@ -213,7 +212,7 @@ async def extract_features(
             if (
                 e.semester == last_sem
                 and e.status == EnrollmentStatus.failed
-                and _is_credit_bearing(e)
+                and is_credit_bearing(e)
                 and effective_status_by_course.get(e.course_id) == EnrollmentStatus.failed
             )
         )
@@ -235,13 +234,13 @@ async def extract_features(
     # Pass rate
     n_finished = sum(
         1 for e in effective
-        if _is_credit_bearing(e)
+        if is_credit_bearing(e)
         and e.status in (EnrollmentStatus.passed, EnrollmentStatus.failed)
     )
     pass_rate = (
         sum(
             1 for e in effective
-            if _is_credit_bearing(e) and e.status == EnrollmentStatus.passed
+            if is_credit_bearing(e) and e.status == EnrollmentStatus.passed
         ) / n_finished
         if n_finished > 0 else 1.0
     )

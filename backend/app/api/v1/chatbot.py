@@ -7,7 +7,7 @@ from app.ai.chatbot.chains import (
     clear_chat_history,
     default_suggestions,
     get_chat_history,
-    stream_chat_response,
+    stream_chatbot_response,
 )
 from app.core.deps import get_current_student, get_db
 from app.models.student import Student
@@ -37,9 +37,8 @@ async def ask_stream(
     student: Student = Depends(get_current_student),
     db: AsyncSession = Depends(get_db),
 ):
-    response = await ask_chatbot(db, student=student, question=payload.question)
     return StreamingResponse(
-        stream_chat_response(response),
+        stream_chatbot_response(db, student=student, question=payload.question),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )

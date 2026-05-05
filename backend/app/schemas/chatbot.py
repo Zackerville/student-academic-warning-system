@@ -18,6 +18,10 @@ class ChatCitation(BaseModel):
     page_number: Optional[int] = None
     snippet: str
     score: float
+    # vector = cosine similarity từ pgvector embedding
+    # keyword = ilike match từ keyword whitelist (score normalize khác — KHÔNG so sánh cross-mode)
+    # merged = trùng cả 2, lấy điểm cao hơn
+    match_type: Literal["vector", "keyword", "merged"] = "vector"
 
 
 class ChatResponse(BaseModel):

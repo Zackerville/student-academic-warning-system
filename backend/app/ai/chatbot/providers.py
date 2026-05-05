@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import math
 import re
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, AsyncIterator
 
 import httpx
 
@@ -101,6 +102,30 @@ class ChatProvider(ABC):
     ) -> str:
         raise NotImplementedError
 
+    async def answer_stream(
+        self,
+        question: str,
+        retrieved_context: str,
+        student_context: str,
+        history: list[dict[str, str]],
+    ) -> AsyncIterator[str]:
+        """
+        Default streaming = chunk full answer thành từng cụm 24 từ rồi yield.
+
+        Provider hỗ trợ native streaming (Gemini SDK) override hàm này
+        để trả token thực sự khi LLM sinh ra.
+        """
+        full = await self.answer(question, retrieved_context, student_context, history)
+        words = full.split(" ")
+        chunk_size = 24
+        for index in range(0, len(words), chunk_size):
+            chunk = " ".join(words[index:index + chunk_size])
+            if index + chunk_size < len(words):
+                chunk += " "
+            yield chunk
+            # yield control cho event loop để FE thấy hiệu ứng từng cụm
+            await asyncio.sleep(0)
+
 
 class ExtractiveChatProvider(ChatProvider):
     name = "extractive"
@@ -155,6 +180,45 @@ class GeminiChatProvider(ChatProvider):
                     generation_config={"temperature": 0.35},
                 )
                 return getattr(response, "text", "") or "Mình chưa tạo được câu trả lời."
+            except Exception as exc:  # pragma: no cover - depends on upstream API availability.
+                last_error = exc
+
+        detail = _compact_provider_error(last_error)
+        raise ProviderConfigError(f"Gemini chưa gọi được model chat ({detail})")
+
+    async def answer_stream(
+        self,
+        question: str,
+        retrieved_context: str,
+        student_context: str,
+        history: list[dict[str, str]],
+    ) -> AsyncIterator[str]:
+        """Native streaming qua Gemini SDK — yield từng chunk text khi LLM sinh ra."""
+        if not settings.GEMINI_API_KEY:
+            raise ProviderConfigError("Thiếu GEMINI_API_KEY")
+
+        import google.generativeai as genai  # type: ignore
+
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        prompt = _build_prompt(question, retrieved_context, student_context, history)
+        last_error: Exception | None = None
+        for model_name in _candidate_gemini_models(settings.GEMINI_CHAT_MODEL, self.fallback_models):
+            try:
+                model = genai.GenerativeModel(model_name)
+                response = await model.generate_content_async(
+                    prompt,
+                    generation_config={"temperature": 0.35},
+                    stream=True,
+                )
+                emitted = False
+                async for chunk in response:
+                    text = getattr(chunk, "text", "") or ""
+                    if text:
+                        emitted = True
+                        yield text
+                if not emitted:
+                    yield "Mình chưa tạo được câu trả lời."
+                return
             except Exception as exc:  # pragma: no cover - depends on upstream API availability.
                 last_error = exc
 

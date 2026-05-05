@@ -78,3 +78,9 @@ docker-compose.override.yml
 .cache/
 tmp/
 temp/
+
+# ─── Internal Planning Docs (không up GitHub) ────────────────
+CLAUDE.md
+ROADMAP.md
+feature_list.md
+implementation_plan.md

@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from collections import OrderedDict
 from dataclasses import dataclass
+from typing import Literal
 
 from sqlalchemy import cast, delete, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,11 +14,14 @@ from app.ai.chatbot.rag import chunk_pages, parse_document_bytes
 from app.core.config import settings
 from app.models.document import Document
 
+MatchType = Literal["vector", "keyword", "merged"]
+
 
 @dataclass
 class SearchHit:
     document: Document
     distance: float
+    match_type: MatchType = "vector"
 
     @property
     def score(self) -> float:
@@ -95,7 +99,11 @@ async def search_documents(
         .limit(limit)
     )
     vector_hits = [
-        SearchHit(document=document, distance=float(distance or 0.0))
+        SearchHit(
+            document=document,
+            distance=float(distance or 0.0),
+            match_type="vector",
+        )
         for document, distance in result.all()
     ]
     keyword_hits = await _search_documents_by_keywords(db, question, limit=limit)
@@ -140,7 +148,7 @@ async def _search_documents_by_keywords(
     hits = []
     for score, document in scored[:limit]:
         distance = max(0.0, 1.0 - min(0.98, score / 12.0))
-        hits.append(SearchHit(document=document, distance=distance))
+        hits.append(SearchHit(document=document, distance=distance, match_type="keyword"))
     return hits
 
 
@@ -187,12 +195,25 @@ def _keyword_score(content: str, terms: list[str]) -> float:
 
 
 def _merge_hits(hits: list[SearchHit], limit: int) -> list[SearchHit]:
+    """
+    Dedup theo document_id. Nếu cùng doc xuất hiện ở cả vector và keyword:
+    - giữ hit có score cao hơn để xếp hạng
+    - nhưng đánh dấu match_type="merged" để FE phân biệt với hit single-source
+      (giải tỏa confusion "score keyword 0.9 vs score vector 0.4 không cùng thang")
+    """
     merged: OrderedDict[str, SearchHit] = OrderedDict()
+    sources_seen: dict[str, set[MatchType]] = {}
     for hit in hits:
         key = str(hit.document.id)
+        sources_seen.setdefault(key, set()).add(hit.match_type)
         existing = merged.get(key)
         if existing is None or hit.score > existing.score:
             merged[key] = hit
+
+    for key, hit in merged.items():
+        sources = sources_seen.get(key, set())
+        if {"vector", "keyword"}.issubset(sources):
+            hit.match_type = "merged"
     return list(merged.values())[:limit]
 
 

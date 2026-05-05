@@ -33,121 +33,25 @@ from app.services.gpa_calculator import (
     score_to_gpa_point,
     score_to_grade_letter,
 )
+from app.services.grade_aggregator import (
+    count_unresolved_failed,
+    effective_enrollments_per_course,
+    enrollment_gpa_point,
+    is_credit_bearing,
+    sync_student_stats,
+)
 from app.services.mybk_parser import ParsedCourse, parse_mybk_text
 
 router = APIRouter(prefix="/students", tags=["students"])
 
 
-# ─── Helper: deduplicate by course (HCMUT học lại / học cải thiện) ──
-
-def _enrollment_gpa_point(e: Enrollment):
-    """GPA point thang 4 của enrollment, None nếu là RT/MT/DT/đặc biệt hoặc chưa có điểm."""
-    letter = e.grade_letter
-    if letter and letter in _SPECIAL_LETTERS:
-        return None  # RT/MT/DT/CT/VT/CH/KD/VP/HT — không tính GPA
-    if letter:
-        return grade_letter_to_gpa_point(letter)
-    if e.total_score is not None:
-        return score_to_gpa_point(e.total_score)
-    return None
-
-
-def _is_credit_bearing(e: Enrollment) -> bool:
-    """True nếu môn có tín chỉ học vụ > 0."""
-    return bool(e.course and e.course.credits > 0)
-
-
-def _count_unresolved_failed(effective_enrollments: list[Enrollment]) -> int:
-    """Đếm môn chưa đạt đang còn hiệu lực, bỏ môn 0 tín chỉ như PE/SA/Anh văn nhu cầu."""
-    return sum(
-        1 for e in effective_enrollments
-        if e.status == EnrollmentStatus.failed and _is_credit_bearing(e)
-    )
-
-
-def _effective_enrollments_per_course(enrollments: list[Enrollment]) -> list[Enrollment]:
-    """
-    Quy chế HCMUT — học lại / học cải thiện:
-    → Với mỗi course_id, lấy enrollment có GPA CAO NHẤT (chứ không phải mới nhất).
-      Nghĩa là: nếu B (3.0) ở HK241 rồi học cải thiện được C (2.0) ở HK251 → giữ B.
-      Nếu F (0) → học lại đạt B → giữ B.
-    → Nếu không có lần nào có điểm GPA hợp lệ (toàn RT/MT/DT) → giữ lần MỚI NHẤT
-      để vẫn xử lý đúng credits / status.
-
-    Bỏ qua enrollment 'enrolled' chưa có điểm — không override điểm cũ.
-    """
-    by_course: dict = {}
-    for e in enrollments:
-        is_in_progress = (
-            e.status == EnrollmentStatus.enrolled
-            and not e.grade_letter
-            and e.total_score is None
-        )
-        if is_in_progress:
-            continue
-        by_course.setdefault(e.course_id, []).append(e)
-
-    effective: list[Enrollment] = []
-    for attempts in by_course.values():
-        # Tách enrollments có gpa point thực sự
-        scored = [(e, _enrollment_gpa_point(e)) for e in attempts]
-        scored = [(e, p) for e, p in scored if p is not None]
-
-        if scored:
-            # Lấy điểm cao nhất; nếu trùng điểm thì lấy học kỳ muộn hơn
-            best = max(scored, key=lambda x: (x[1], x[0].semester))[0]
-            effective.append(best)
-        else:
-            # Toàn RT/MT/DT — lấy lần mới nhất theo học kỳ
-            effective.append(max(attempts, key=lambda e: e.semester))
-    return effective
-
-
-# ─── Helper: recalculate và lưu GPA + TC vào student record ──
-
-async def _sync_student_stats(student: Student, db: AsyncSession) -> None:
-    """Recompute gpa_cumulative và credits_earned từ enrollments, lưu vào DB."""
-    result = await db.execute(
-        select(Enrollment)
-        .where(Enrollment.student_id == student.id)
-        .options(selectinload(Enrollment.course))
-    )
-    all_enrollments = result.scalars().all()
-
-    # Áp dụng quy chế học lại/cải thiện: lấy điểm hiệu lực tốt nhất cho mỗi môn.
-    effective = _effective_enrollments_per_course(all_enrollments)
-
-    # Credits earned: môn passed/exempt có tín chỉ > 0 (mỗi môn chỉ tính 1 lần)
-    passed_statuses = {EnrollmentStatus.passed, EnrollmentStatus.exempt}
-    credits_earned = sum(
-        e.course.credits for e in effective
-        if e.status in passed_statuses and e.course.credits > 0
-    )
-
-    # GPA tích lũy: chỉ dùng điểm hiệu lực, bỏ môn 0 TC + RT/MT/DT
-    total_pts = 0.0
-    total_tc = 0
-    for e in effective:
-        if e.course.credits == 0:
-            continue  # bỏ môn 0 TC (SHSV, PE...)
-        letter = e.grade_letter
-        if letter and letter in _SPECIAL_LETTERS:
-            continue  # RT/MT/DT/CT/VT/CH/KD/VP/HT — không tính GPA
-        gpa_pt = None
-        if letter:
-            gpa_pt = grade_letter_to_gpa_point(letter)
-        elif e.total_score is not None:
-            gpa_pt = score_to_gpa_point(e.total_score)
-        if gpa_pt is None:
-            continue
-        total_pts += gpa_pt * e.course.credits
-        total_tc += e.course.credits
-
-    gpa_cumulative = round(total_pts / total_tc, 2) if total_tc > 0 else 0.0
-
-    student.gpa_cumulative = gpa_cumulative
-    student.credits_earned = credits_earned
-    await db.commit()
+# ─── Backward-compat aliases (giữ tên cũ trong file để không phải đổi 7 callsites) ──
+# Logic thật ở app.services.grade_aggregator — module này là single source of truth.
+_enrollment_gpa_point = enrollment_gpa_point
+_is_credit_bearing = is_credit_bearing
+_count_unresolved_failed = count_unresolved_failed
+_effective_enrollments_per_course = effective_enrollments_per_course
+_sync_student_stats = sync_student_stats
 
 
 async def _invalidate_student_predictions(student_id: UUID, db: AsyncSession) -> None:
