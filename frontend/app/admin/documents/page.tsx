@@ -53,14 +53,24 @@ export default function AdminDocumentsPage() {
   };
 
   const toggleDocument = async (document: DocumentGroupResponse) => {
-    await documentsApi.toggle(document.source_file, !document.is_active);
-    await loadDocuments();
+    try {
+      setError("");
+      await documentsApi.toggle(document.source_file, !document.is_active);
+      await loadDocuments();
+    } catch (err: unknown) {
+      setError(formatApiError(err, `Không thể ${document.is_active ? "tắt" : "bật"} tài liệu.`));
+    }
   };
 
   const deleteDocument = async (document: DocumentGroupResponse) => {
     if (!confirm(`Xóa tài liệu ${document.filename}?`)) return;
-    await documentsApi.delete(document.source_file);
-    await loadDocuments();
+    try {
+      setError("");
+      await documentsApi.delete(document.source_file);
+      await loadDocuments();
+    } catch (err: unknown) {
+      setError(formatApiError(err, "Xóa tài liệu thất bại."));
+    }
   };
 
   return (
