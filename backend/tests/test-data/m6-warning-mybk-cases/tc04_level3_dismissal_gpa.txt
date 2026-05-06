@@ -1,0 +1,87 @@
+myBk/app
+Toggle navigation
+User ImageVO MINH KHOA
+User Image
+VO MINH KHOA
+
+ Khoa Khoa học và Kỹ thuật Máy tính
+Sinh viên
+Dịch vụ sinh viên
+Kết quả học tập
+Hệ thống quản lý Tra thông tin
+ Tra thông tin Kết quả học tập
+Bảng điểm môn học
+BẢNG ĐIỂM
+Năm học 2025 - 2026 / Học kỳ 1
+
+Họ và tên: VO MINH KHOA
+
+Mã sinh viên: TC040004
+
+Mã lớp: CN22KHM3
+
+Cập nhật cuối: 05/05/2026 08:40
+Các điểm đặc biệt: CT = Cấm thi, VT = Vắng thi, CH = Chưa có điểm, RT = Rút môn học, KD = Không đạt, VP = Vắng thi có phép, DT = Điểm đạt, HT = Hoãn thi, MT = Điểm miễn.
+
+Điểm hệ 4 áp dụng từ khóa 2021.
+
+Bảng điểm
+Môn học xét tương đương
+Danh mục các điểm khác
+Stt	Mã môn học	Tên môn học	Điểm tổng kết	Tín chỉ	Đạt	Tình trạng	Nhóm	Ghi chú
+Năm học 2025 - 2026 / Học kỳ 1	0.70	72	Tích lũy chung
+0.50	14	Tích lũy học kỳ
+1	CO4029	Đồ án Chuyên ngành	3.0	F	2			CN05	
+2	CO3029	Khai phá Dữ liệu	3.8	F	3			L03	
+3	CO3117	Học máy	4.0	D	3			CN01	
+4	CO3049	Lập trình Web	3.4	F	3			CN01	
+5	IM1025	Quản lý Dự án cho Kỹ sư	4.2	D	3			CN01	
+6	SP1037	Tư tưởng Hồ Chí Minh	3.5	F	2			CN01	
+Năm học 2024 - 2025 / Học kỳ 3	0.75	58	Tích lũy chung
+0.60	9	Tích lũy học kỳ
+7	CO3101	Đồ án Tổng hợp - Hướng Trí tuệ Nhân tạo	3.8	F	1			CN05	
+8	CO3107	Thực tập Đồ án môn học Đa ngành - Hướng Trí tuệ Nhân tạo	4.0	D	1			CN03	
+9	MT2013	Xác suất và Thống kê	3.5	F	4			DT02	
+10	SP1035	Chủ nghĩa Xã hội Khoa học	4.2	D	2			DT03	
+Năm học 2024 - 2025 / Học kỳ 2	0.76	49	Tích lũy chung
+0.70	15	Tích lũy học kỳ
+11	CO3001	Công nghệ Phần mềm	3.5	F	3			CN01	
+12	CO3005	Nguyên lý Ngôn ngữ Lập trình	4.0	D	4			DT02	
+13	CO3061	Nhập môn Trí tuệ Nhân tạo	3.8	F	3			CN01	
+14	CO3093	Mạng máy tính	4.3	D	3			CN01	
+15	SP1039	Lịch sử Đảng Cộng sản Việt Nam	4.0	D	2			CN01	
+Năm học 2024 - 2025 / Học kỳ 1	0.78	34	Tích lũy chung
+0.80	15	Tích lũy học kỳ
+16	CO2013	Hệ cơ sở Dữ liệu	3.0	F	4			CN01	
+17	CO2039	Lập trình Nâng cao	4.0	D	3			CN02	
+18	CO2007	Kiến trúc Máy tính	3.8	F	4			CN02	
+19	CO2011	Mô hình hóa Toán học	4.1	D	3			CN01	
+20	SP1033	Kinh tế Chính trị Mác - Lênin	4.5	D	2			CN01	
+Năm học 2023 - 2024 / Học kỳ 3	0.75	19	Tích lũy chung
+0.75	8	Tích lũy học kỳ
+21	CH1003	Hóa đại cương	3.5	F	3			DTN1	
+22	MT1003	Giải tích 1	4.0	D	4			DT02	
+23	PH1007	Thí nghiệm Vật lý	4.5	D	1			CN04	
+24	LA2019	Tiếng Nhật 4	7.0	B	0			CN03	
+Năm học 2023 - 2024 / Học kỳ 2	0.78	11	Tích lũy chung
+0.80	8	Tích lũy học kỳ
+25	CO1027	Kỹ thuật Lập trình	3.8	F	3			CN01	
+26	CO2003	Cấu trúc Dữ liệu và Giải Thuật	4.1	D	4			DT01	
+27	PE1013	Bóng bàn (Học phần 1)	8.0	B+	0			L10	
+Năm học 2023 - 2024 / Học kỳ 1	0.70	3	Tích lũy chung
+0.70	7	Tích lũy học kỳ
+28	CO1007	Cấu trúc Rời rạc cho Khoa học Máy tính	3.0	F	4			L02	
+29	CO1005	Nhập môn Điện toán	4.2	D	3			CN01	
+Năm học 2022 - 2023 / Học kỳ 2	0.60	0	Tích lũy chung
+0.60	7	Tích lũy học kỳ
+30	MT1007	Đại số Tuyến tính	3.8	F	3			CN01	
+31	MT1005	Giải tích 2	4.0	D	4			CN01	
+Năm học 2022 - 2023 / Học kỳ 1	0.00	0	Tích lũy chung
+0.00	4	Tích lũy học kỳ
+32	PH1005	Vật lý 2	3.0	F	4			CN01	
+33	SA0002	Sinh hoạt Sinh viên	8.0	B+	0		Không in trên bảng điểm	CN05	
+Môn học chuyển điểm/miễn điểm	6	
+34	MI1003	Giáo dục Quốc phòng	21	DT	0			A01	Import from fox
+35	CCGDTC	Chứng chỉ Giáo Dục Thể Chất	21	DT	0		Không in trên bảng điểm		Không tính TCTL & TBTL
+Version 2.4.0Copyright © 2026 Academic Affairs Office. All rights reserved.
+

@@ -62,7 +62,7 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
         embedding = response.get("embedding")
         if not embedding:
             raise ProviderConfigError("Gemini không trả về embedding")
-        return list(embedding)
+        return _fit_embedding(list(embedding))
 
 
 class HuggingFaceEmbeddingProvider(EmbeddingProvider):

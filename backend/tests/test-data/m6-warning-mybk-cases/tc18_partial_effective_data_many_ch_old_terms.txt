@@ -1,0 +1,103 @@
+myBk/app
+Toggle navigation
+User ImageSINH VIEN TEST 18
+User Image
+SINH VIEN TEST 18
+
+ Khoa Khoa học và Kỹ thuật Máy tính
+Sinh viên
+Dịch vụ sinh viên
+Kết quả học tập
+Hệ thống quản lý Tra thông tin
+ Tra thông tin Kết quả học tập
+Bảng điểm môn học
+BẢNG ĐIỂM
+Năm học 2025 - 2026 / Học kỳ 1
+
+Họ và tên: SINH VIEN TEST 18
+
+Mã sinh viên: TC200018
+
+Mã lớp: CN22KHM7
+
+Cập nhật cuối: 06/05/2026 05:20
+Các điểm đặc biệt: CT = Cấm thi, VT = Vắng thi, CH = Chưa có điểm, RT = Rút môn học, KD = Không đạt, VP = Vắng thi có phép, DT = Điểm đạt, HT = Hoãn thi, MT = Điểm miễn.
+
+Điểm hệ 4 áp dụng từ khóa 2021.
+
+Ghi chú testcase: Nhiều học kỳ cũ CH/HT, chỉ vài học kỳ có điểm thật; không cold-start.
+
+Bảng điểm
+Môn học xét tương đương
+Danh mục các điểm khác
+Stt	Mã môn học	Tên môn học	Điểm tổng kết	Tín chỉ	Đạt	Tình trạng	Nhóm	Ghi chú
+Năm học 2025 - 2026 / Học kỳ 1	1.78	16	Tích lũy chung
+1.78	16	Tích lũy học kỳ
+1	CO4029	Đồ án Chuyên ngành	6.8	C+	2			CN05	
+2	SP1037	Tư tưởng Hồ Chí Minh	6.0	C	2			CN01	
+3	CO3029	Khai phá Dữ liệu	7.4	B	3			L03	
+4	CO3117	Học máy	5.2	D+	3			CN01	
+5	CO3049	Lập trình Web	2.0	F	3			CN01	
+6	IM1025	Quản lý Dự án cho Kỹ sư	6.0	C	3			CN01	
+Năm học 2024 - 2025 / Học kỳ 3	1.78	16	Tích lũy chung
+0.00	0	Tích lũy học kỳ
+7	CO2003	Cấu trúc Dữ liệu và Giải Thuật	11	CH	4			DT01	Không tính TCTL & TBTL
+8	CO3005	Nguyên lý Ngôn ngữ Lập trình	11	CH	4			DT02	Không tính TCTL & TBTL
+9	MT1007	Đại số Tuyến tính	11	CH	3			DT02	Không tính TCTL & TBTL
+10	SP1035	Chủ nghĩa Xã hội Khoa học	11	CH	2			DT03	Không tính TCTL & TBTL
+Năm học 2024 - 2025 / Học kỳ 2	2.48	31	Tích lũy chung
+3.23	15	Tích lũy học kỳ
+11	CO3335	Thực tập Ngoài trường	8.2	B+	2			CN34	
+12	CO3107	Thực tập Đồ án môn học Đa ngành - Hướng Trí tuệ Nhân tạo	7.4	B	1			CN03	
+13	CO1007	Cấu trúc Rời rạc cho Khoa học Máy tính	7.4	B	4			CN01	
+14	CO1027	Kỹ thuật Lập trình	8.2	B+	3			CN01	
+15	SP1039	Lịch sử Đảng Cộng sản Việt Nam	8.2	B+	2			CN01	
+16	CO2001	Kỹ năng Chuyên nghiệp cho Kỹ sư	7.4	B	3			CN01	
+Năm học 2024 - 2025 / Học kỳ 1	2.48	31	Tích lũy chung
+0.00	0	Tích lũy học kỳ
+17	CO2013	Hệ cơ sở Dữ liệu	11	CH	4			CN01	Không tính TCTL & TBTL
+18	CO2039	Lập trình Nâng cao	11	CH	3			CN02	Không tính TCTL & TBTL
+19	CO2007	Kiến trúc Máy tính	11	CH	4			CN02	Không tính TCTL & TBTL
+20	CO3001	Công nghệ Phần mềm	11	CH	3			CN01	Không tính TCTL & TBTL
+21	CO3093	Mạng máy tính	11	CH	3			CN01	Không tính TCTL & TBTL
+22	CO3085	Xử lý Ngôn ngữ Tự nhiên	11	CH	3			CN01	Không tính TCTL & TBTL
+Năm học 2023 - 2024 / Học kỳ 3	2.48	31	Tích lũy chung
+0.00	0	Tích lũy học kỳ
+23	CH1003	Hóa đại cương	11	CH	3			DTN1	Không tính TCTL & TBTL
+24	MT1003	Giải tích 1	11	CH	4			DT02	Không tính TCTL & TBTL
+25	PH1007	Thí nghiệm Vật lý	11	CH	1			CN04	Không tính TCTL & TBTL
+26	LA2019	Tiếng Nhật 4	11	CH	0			CN03	Không tính TCTL & TBTL
+Năm học 2023 - 2024 / Học kỳ 2	2.43	46	Tích lũy chung
+2.33	15	Tích lũy học kỳ
+27	MT2013	Xác suất và Thống kê	6.8	C+	4			CN01	
+28	SP1033	Kinh tế Chính trị Mác - Lênin	6.0	C	2			CN01	
+29	CO2039	Lập trình Nâng cao	7.4	B	3			CN02	
+30	IM1021	Khởi nghiệp	5.2	D+	3			CN01	
+31	CO2017	Hệ điều hành	6.8	C+	3			CN01	
+Năm học 2023 - 2024 / Học kỳ 1	2.43	46	Tích lũy chung
+0.00	0	Tích lũy học kỳ
+32	CO2003	Cấu trúc Dữ liệu và Giải Thuật	11	CH	4			CN01	Không tính TCTL & TBTL
+33	CO2007	Kiến trúc Máy tính	11	CH	4			CN02	Không tính TCTL & TBTL
+34	SP1031	Triết học Mác - Lênin	11	CH	3			CN01	Không tính TCTL & TBTL
+35	CO2011	Mô hình hóa Toán học	11	CH	3			CN01	Không tính TCTL & TBTL
+36	LA2017	Tiếng Nhật 3	11	CH	0			CN03	Không tính TCTL & TBTL
+Năm học 2022 - 2023 / Học kỳ 2	2.43	46	Tích lũy chung
+0.00	0	Tích lũy học kỳ
+37	CO1007	Cấu trúc Rời rạc cho Khoa học Máy tính	11	CH	4			CN01	Không tính TCTL & TBTL
+38	CO1027	Kỹ thuật Lập trình	11	CH	3			CN01	Không tính TCTL & TBTL
+39	PH1007	Thí nghiệm Vật lý	11	CH	1			CN04	Không tính TCTL & TBTL
+40	MT1007	Đại số Tuyến tính	11	CH	3			CN01	Không tính TCTL & TBTL
+41	MT1005	Giải tích 2	11	CH	4			CN01	Không tính TCTL & TBTL
+42	LA1047	Tiếng Nhật 2	11	CH	0			CN01	Không tính TCTL & TBTL
+Năm học 2022 - 2023 / Học kỳ 1	2.43	46	Tích lũy chung
+0.00	0	Tích lũy học kỳ
+43	CO1005	Nhập môn Điện toán	11	CH	3			CN01	Không tính TCTL & TBTL
+44	CO1023	Hệ thống số	11	CH	3			CN01	Không tính TCTL & TBTL
+45	PH1003	Vật lý 1	11	CH	4			CN01	Không tính TCTL & TBTL
+46	SP1041	Kỹ năng mềm	11	CH	0			CN02	Không tính TCTL & TBTL
+47	MT1003	Giải tích 1	11	CH	4			CN01	Không tính TCTL & TBTL
+48	LA1045	Tiếng Nhật 1	11	CH	0			CN01	Không tính TCTL & TBTL
+Môn học chuyển điểm/miễn điểm	6	
+49	LA1007	Anh văn 3	12	MT	2			MIEN	1089/BKDT-04/4/2023
+50	CCGDTC	Chứng chỉ Giáo Dục Thể Chất	21	DT	0		Không in trên bảng điểm		Không tính TCTL & TBTL
+Version 2.4.0Copyright © 2026 Academic Affairs Office. All rights reserved.

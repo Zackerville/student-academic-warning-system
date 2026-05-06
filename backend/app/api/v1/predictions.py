@@ -20,6 +20,7 @@ from app.core.deps import get_current_student, get_db, require_admin
 from app.models.enrollment import Enrollment
 from app.models.prediction import Prediction
 from app.models.student import Student
+from app.services import warning_engine
 
 router = APIRouter(prefix="/predictions", tags=["predictions"])
 
@@ -66,6 +67,8 @@ async def get_my_prediction(
             status_code=503,
             detail="AI model chưa được train hoặc load. Liên hệ admin.",
         )
+
+    await warning_engine.sync_current_warning_level(db, student)
 
     # Tìm prediction mới nhất
     result = await db.execute(
@@ -152,6 +155,7 @@ async def refresh_my_prediction(
     """Force re-predict cho chính SV (vd sau khi nhập điểm mới)."""
     if not prediction_service.is_loaded:
         raise HTTPException(status_code=503, detail="AI model chưa load")
+    await warning_engine.sync_current_warning_level(db, student)
     pred = await prediction_service.predict_for_student(student, db, save=True)
     if pred is None:
         raise HTTPException(

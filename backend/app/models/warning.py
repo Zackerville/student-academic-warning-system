@@ -41,6 +41,11 @@ class Warning(Base):
     sent_at: Mapped[Optional[datetime]] = mapped_column(
         sa.DateTime(timezone=True), nullable=True
     )
+    notification_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("notifications.id", ondelete="SET NULL"),
+        nullable=True,
+    )
     created_by: Mapped[WarningCreatedBy] = mapped_column(
         sa.Enum(WarningCreatedBy, name="warningcreatedby"),
         nullable=False,

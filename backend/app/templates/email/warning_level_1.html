@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Cảnh báo học vụ mức 1 — HCMUT{% endblock %}
+{% block content %}
+  <h2 style="margin:0 0 14px 0;color:#b45309;font-size:20px;">⚠️ Cảnh báo học vụ mức 1</h2>
+  <p style="margin:0 0 12px 0;">Chào <strong>{{ full_name }}</strong> ({{ mssv }}),</p>
+  <p style="margin:0 0 12px 0;">
+    Hệ thống ghi nhận kết quả học tập học kỳ <strong>{{ semester }}</strong> của bạn đã đáp ứng điều kiện
+    <strong style="color:#b45309;">Cảnh báo học vụ mức 1</strong> theo Quy chế đào tạo HCMUT.
+  </p>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:14px 0;background:#fef3c7;border:1px solid #fde68a;border-radius:6px;">
+    <tr>
+      <td style="padding:14px 16px;color:#78350f;font-size:14px;">
+        <div><strong>GPA tích lũy hiện tại:</strong> {{ "%.2f"|format(gpa_cumulative) }}</div>
+        {% if gpa_semester is not none %}
+        <div><strong>GPA học kỳ {{ semester }}:</strong> {{ "%.2f"|format(gpa_semester) }}</div>
+        {% endif %}
+        <div style="margin-top:6px;"><strong>Lý do:</strong> {{ reason }}</div>
+      </td>
+    </tr>
+  </table>
+  <p style="margin:0 0 12px 0;">
+    <strong>Đề xuất hành động:</strong>
+  </p>
+  <ul style="margin:0 0 14px 18px;padding:0;">
+    <li>Vào mục "Kế hoạch học tập" để xem gợi ý số tín chỉ và môn nên ưu tiên học lại.</li>
+    <li>Liên hệ cố vấn học tập của Khoa nếu cần tư vấn cá nhân.</li>
+    <li>Theo dõi GPA học kỳ tiếp theo — vi phạm 2 HK liên tiếp có thể dẫn đến cảnh báo mức 2.</li>
+  </ul>
+  <p style="margin:18px 0 0 0;">
+    <a href="{{ app_base_url }}/warnings" style="display:inline-block;background:#003366;color:#ffffff;text-decoration:none;padding:10px 18px;border-radius:6px;font-weight:600;">
+      Xem chi tiết cảnh báo
+    </a>
+  </p>
+{% endblock %}

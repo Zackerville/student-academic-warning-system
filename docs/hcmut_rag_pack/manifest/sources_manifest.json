@@ -1,0 +1,272 @@
+[
+  {
+    "type": "pdf",
+    "status": "downloaded",
+    "folder": "01_academic",
+    "title": "Quy trình Quản lý điểm sinh viên 2025",
+    "local_path_or_link_file": "/pdfs/01_academic/quy_trinh_quan_ly_diem_sinh_vien_2025.pdf",
+    "source_url": "https://hcmut.edu.vn/document/1751629618949_BK_QT_ED_031_02_Quy%20trinh%20Quan%20ly%20diem%20sinh%20vien_01.7.2025.signed.pdf",
+    "rag_topic": "Điểm, điểm trung bình, số tín chỉ tích lũy, xét tốt nghiệp"
+  },
+  {
+    "type": "pdf",
+    "status": "downloaded",
+    "folder": "01_academic",
+    "title": "Quy định tạm thời về công tác khảo thí 2024",
+    "local_path_or_link_file": "/pdfs/01_academic/quy_dinh_tam_thoi_cong_tac_khao_thi_2024.pdf",
+    "source_url": "https://hcmut.edu.vn/document/1725962135325_20240710_2929_QD%20ban%20hanh%20Quy%20dinh%20tam%20thoi%20ve%20cong%20tac%20khao%20thi%20tai%20Truong%20DHBK%2C%20DHQG-HCM.pdf",
+    "rag_topic": "Thi, kiểm tra, khảo thí, coi thi"
+  },
+  {
+    "type": "pdf",
+    "status": "downloaded",
+    "folder": "01_academic",
+    "title": "Quy trình Sắp xếp thời khóa biểu, phân công giảng dạy 2025",
+    "local_path_or_link_file": "/pdfs/01_academic/quy_trinh_sap_xep_tkb_phan_cong_giang_day_2025.pdf",
+    "source_url": "https://hcmut.edu.vn/document/1751629315673_BK_QT_ED_009_02_Quy%20trinh%20Sap%20xep%20TKB%20Phan%20cong%20Giang%20day_01.7.20255.signed.pdf",
+    "rag_topic": "Thời khóa biểu, đăng ký môn học, dữ liệu học phí"
+  },
+  {
+    "type": "pdf",
+    "status": "downloaded",
+    "folder": "02_academic_services",
+    "title": "Quy trình Bộ phận một cửa 2025",
+    "local_path_or_link_file": "/pdfs/02_academic_services/quy_trinh_bo_phan_mot_cua_2025.pdf",
+    "source_url": "https://hcmut.edu.vn/document/1754531945730_13_Quy%20trinh%20bo%20phan%20mot%20cua.signed.pdf",
+    "rag_topic": "Thủ tục hành chính, học vụ, bảng điểm, chứng chỉ, xác nhận sinh viên"
+  },
+  {
+    "type": "pdf",
+    "status": "downloaded",
+    "folder": "02_academic_services",
+    "title": "Danh mục CTSV 2026",
+    "local_path_or_link_file": "/pdfs/02_academic_services/danh_muc_ctsv_2026.pdf",
+    "source_url": "https://hcmut.edu.vn/document/1775187018249_Danh%20m%E1%BB%A5c%20CTSV.pdf",
+    "rag_topic": "Danh mục thủ tục công tác sinh viên"
+  },
+  {
+    "type": "pdf",
+    "status": "downloaded",
+    "folder": "03_student_affairs",
+    "title": "Quy trình Chi học bổng cho sinh viên 2025",
+    "local_path_or_link_file": "/pdfs/03_student_affairs/quy_trinh_chi_hoc_bong_sinh_vien_2025.pdf",
+    "source_url": "https://hcmut.edu.vn/document/1751620083423_1_BK_QT_ED_003_06%20Quy%20trinh%20chi%20hoc%20bong%20sinh%20vien.signed.pdf",
+    "rag_topic": "Chi học bổng, tài chính"
+  },
+  {
+    "type": "pdf",
+    "status": "downloaded",
+    "folder": "03_student_affairs",
+    "title": "Quy trình Khám sức khỏe 2025",
+    "local_path_or_link_file": "/pdfs/03_student_affairs/quy_trinh_kham_suc_khoe_2025.pdf",
+    "source_url": "https://hcmut.edu.vn/document/1753847135920_Quy%20trinh%20Kham%20suc%20khoe.signed.pdf",
+    "rag_topic": "Y tế học đường, khám sức khỏe đầu vào/định kỳ/ra trường"
+  },
+  {
+    "type": "pdf",
+    "status": "downloaded",
+    "folder": "03_student_affairs",
+    "title": "Quy trình Kỷ luật sinh viên 2025",
+    "local_path_or_link_file": "/pdfs/03_student_affairs/quy_trinh_ky_luat_sinh_vien_2025.pdf",
+    "source_url": "https://hcmut.edu.vn/document/1751876829064_6_Quy%20trinh%20Ky%20luat%20SV.signed.pdf",
+    "rag_topic": "Kỷ luật sinh viên, vi phạm quy định"
+  },
+  {
+    "type": "pdf",
+    "status": "downloaded",
+    "folder": "03_student_affairs",
+    "title": "Quy trình Quản lý hồ sơ sinh viên 2025",
+    "local_path_or_link_file": "/pdfs/03_student_affairs/quy_trinh_quan_ly_ho_so_sinh_vien_2025.pdf",
+    "source_url": "https://hcmut.edu.vn/document/1751878391401_12_Quy%20trinh%20Quan%20ly%20ho%20so%20SV.signed.pdf",
+    "rag_topic": "Hồ sơ sinh viên, nhập học, hậu kiểm"
+  },
+  {
+    "type": "pdf",
+    "status": "downloaded",
+    "folder": "03_student_affairs",
+    "title": "Quy trình Triển khai học bổng khuyến khích 2025",
+    "local_path_or_link_file": "/pdfs/03_student_affairs/quy_trinh_trien_khai_hoc_bong_khuyen_khich_2025.pdf",
+    "source_url": "https://hcmut.edu.vn/document/1751877694633_10_Quy%20trinh%20trien%20khai%20hoc%20bong%20khuyen%20khich.signed.pdf",
+    "rag_topic": "Xét học bổng khuyến khích học tập"
+  },
+  {
+    "type": "pdf",
+    "status": "downloaded",
+    "folder": "04_graduation",
+    "title": "Quy trình Đồ án tốt nghiệp/Luận văn thạc sĩ 2025",
+    "local_path_or_link_file": "/pdfs/04_graduation/quy_trinh_do_an_tot_nghiep_luan_van_2025.pdf",
+    "source_url": "https://hcmut.edu.vn/document/1766459526538_Quy%20tr%C3%ACnh%20T%E1%BB%95%20ch%E1%BB%A9c%20th%E1%BB%B1c%20hi%E1%BB%87n%20%C4%91%C3%A1nh%20gi%C3%A1%20%C4%90A%20t%E1%BB%91t%20nghi%E1%BB%87p-lu%E1%BA%ADn%20v%C4%83n%20th%E1%BA%A1c%20s%C4%A9_%2001.12.2025_c%E1%BA%A3i%20ti%E1%BA%BFn.signed.signed.pdf",
+    "rag_topic": "Đồ án tốt nghiệp, khóa luận, luận văn"
+  },
+  {
+    "type": "pdf",
+    "status": "downloaded",
+    "folder": "04_graduation",
+    "title": "Quy trình Quản lý, cấp văn bằng, chứng chỉ 2025",
+    "local_path_or_link_file": "/pdfs/04_graduation/quy_trinh_quan_ly_cap_van_bang_chung_chi_2025.pdf",
+    "source_url": "https://hcmut.edu.vn/document/1751629383714_BK_QT_ED_011_02_Quy%20trinh%20Quan%20ly_Cap%20Van%20bang%20Chung%20chi_01.7.2025.signed.pdf",
+    "rag_topic": "Văn bằng, bảng điểm, phụ lục văn bằng, chứng chỉ"
+  },
+  {
+    "type": "pdf",
+    "status": "downloaded",
+    "folder": "04_graduation",
+    "title": "Quy trình Thực tập ngoài trường 2025",
+    "local_path_or_link_file": "/pdfs/04_graduation/quy_trinh_thuc_tap_ngoai_truong_2025.pdf",
+    "source_url": "https://hcmut.edu.vn/document/1753860329492_2.Quy%20tr%C3%ACnh%20th%E1%BB%B1c%20t%E1%BA%ADp%20ngo%C3%A0i%20tr%C6%B0%E1%BB%9Dng%20BK-QT-ED-046-20.pdf",
+    "rag_topic": "Thực tập ngoài trường"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "01_academic",
+    "title": "Trang Quy chế - Quy định HCMUT",
+    "local_path_or_link_file": "links/hcmut_quy_che_quy_dinh.url",
+    "source_url": "https://hcmut.edu.vn/dao-tao/quy-che-quy-dinh",
+    "rag_topic": "Nguồn tổng hợp quy định học vụ, giảng dạy, thi, đồ án, thực tập"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "07_curriculum",
+    "title": "Chương trình đào tạo đại học",
+    "local_path_or_link_file": "links/hcmut_chuong_trinh_dao_tao.url",
+    "source_url": "https://hcmut.edu.vn/dao-tao/chuong-trinh-dao-tao",
+    "rag_topic": "Chương trình đào tạo, kế hoạch giảng dạy, ngành"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "05_standards",
+    "title": "Ngoại ngữ - MyBK",
+    "local_path_or_link_file": "links/mybk_ngoai_ngu.url",
+    "source_url": "https://mybk.hcmut.edu.vn/bksi/public/vi/blog/ngoai-ngu",
+    "rag_topic": "Chuẩn ngoại ngữ, xét miễn Anh văn, chuẩn tốt nghiệp"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "02_academic_services",
+    "title": "Đăng ký môn học - Quy định - Hướng dẫn chung",
+    "local_path_or_link_file": "links/mybk_dang_ky_mon_hoc_huong_dan_chung.url",
+    "source_url": "https://mybk.hcmut.edu.vn/bksi/public/vi/blog/dang-ky-mon-hoc-quy-trinh-huong-dan-chung",
+    "rag_topic": "Điều kiện ĐKMH, GDTC, chuẩn sinh viên"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "02_academic_services",
+    "title": "Quy trình đăng ký môn học",
+    "local_path_or_link_file": "links/mybk_quy_trinh_dang_ky_mon_hoc.url",
+    "source_url": "https://mybk.hcmut.edu.vn/bksi/public/vi/blog/quy-trinh-dang-ky-mon-hoc",
+    "rag_topic": "Đợt ĐKMH, hậu kiểm, thực tập ngoài trường"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "05_standards",
+    "title": "Bảng lịch trình cập nhật chuẩn 2025-2026",
+    "local_path_or_link_file": "links/mybk_lich_trinh_cap_nhat_chuan_2025_2026.url",
+    "source_url": "https://mybk.hcmut.edu.vn/bksi/public/vi/blog/bang-lich-trinh-cac-moc-thoi-gian-cap-nhat-cac-chuan-dang-ky-mon-hoc-theo-lich-hoc-vu-hk-242-hk-243",
+    "rag_topic": "Lịch cập nhật chuẩn AV/CNTT/GDQP/GDTC/điểm"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "05_standards",
+    "title": "Bảng tổng hợp quy định các chuẩn",
+    "local_path_or_link_file": "links/mybk_bang_tong_hop_quy_dinh_cac_chuan.url",
+    "source_url": "https://mybk.hcmut.edu.vn/bksi/public/vi/blog/bng-tng-hp-quy-nh-cc-chun-p-dng-cho-k-ng-k-mn-hc-ti-hk223-ngy-01032023",
+    "rag_topic": "Chuẩn đăng ký môn học và tốt nghiệp"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "01_academic",
+    "title": "Đánh giá kết quả học tập - MyBK",
+    "local_path_or_link_file": "links/mybk_danh_gia_ket_qua_hoc_tap.url",
+    "source_url": "https://mybk.hcmut.edu.vn/bksi/public/vi/blog/danh-gia-ket-qua-hoc-tap",
+    "rag_topic": "Điểm, học lại, cải thiện, đánh giá kết quả"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "02_academic_services",
+    "title": "Học phí - MyBK",
+    "local_path_or_link_file": "links/mybk_hoc_phi.url",
+    "source_url": "https://mybk.hcmut.edu.vn/bksi/public/vi/blog/hoc-phi",
+    "rag_topic": "Thanh toán học phí, thời hạn, hỗ trợ khó khăn"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "02_academic_services",
+    "title": "Rút môn học - MyBK",
+    "local_path_or_link_file": "links/mybk_rut_mon_hoc.url",
+    "source_url": "https://mybk.hcmut.edu.vn/bksi/public/vi/blog/rut-mon-hoc",
+    "rag_topic": "Điều kiện rút môn, điểm R/RT"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "02_academic_services",
+    "title": "Hoãn thi giữa kỳ và cuối kỳ - MyBK",
+    "local_path_or_link_file": "links/mybk_hoan_thi.url",
+    "source_url": "https://mybk.hcmut.edu.vn/bksi/public/vi/blog/hoan-thi-giua-ky-va-cuoi-ky",
+    "rag_topic": "Điều kiện hoãn thi, thời hạn đăng ký"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "04_graduation",
+    "title": "Các câu hỏi liên quan đến tốt nghiệp - MyBK",
+    "local_path_or_link_file": "links/mybk_cau_hoi_tot_nghiep.url",
+    "source_url": "https://mybk.hcmut.edu.vn/bksi/public/vi/blog/cac-cau-hoi-lien-quan-den-tot-nghiep",
+    "rag_topic": "Xếp loại tốt nghiệp, văn bằng tốt nghiệp"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "02_academic_services",
+    "title": "Đào tạo song ngành - MyBK",
+    "local_path_or_link_file": "links/mybk_dao_tao_song_nganh.url",
+    "source_url": "https://mybk.hcmut.edu.vn/bksi/public/vi/blog/do-tao-song-nganh",
+    "rag_topic": "Song ngành, ngành thứ hai"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "02_academic_services",
+    "title": "Kéo dài thời gian đào tạo - MyBK",
+    "local_path_or_link_file": "links/mybk_keo_dai_thoi_gian_dao_tao.url",
+    "source_url": "https://mybk.hcmut.edu.vn/bksi/public/vi/blog/keo-dai-thoi-gian-dao-tao",
+    "rag_topic": "Gia hạn thời gian đào tạo"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "04_graduation",
+    "title": "Đăng ký thông tin văn bằng - MyBK",
+    "local_path_or_link_file": "links/mybk_dang_ky_thong_tin_van_bang.url",
+    "source_url": "https://mybk.hcmut.edu.vn/bksi/public/vi/blog/dang-ky-thong-tin-van-bang",
+    "rag_topic": "Thông tin in bằng, văn bằng"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "05_standards",
+    "title": "CNTT cơ bản - MyBK",
+    "local_path_or_link_file": "links/mybk_cntt_co_ban.url",
+    "source_url": "https://mybk.hcmut.edu.vn/bksi/public/vi/blog/huong-dan-du-thi-kiem-tra-danh-gia-ky-nang-su-dung-cntt-co-ban",
+    "rag_topic": "Chuẩn CNTT, thi chứng chỉ"
+  },
+  {
+    "type": "html",
+    "status": "link_only",
+    "folder": "08_student_life",
+    "title": "Sổ tay sinh viên 2025-2026",
+    "local_path_or_link_file": "links/hcmut_so_tay_sinh_vien_2025_2026.url",
+    "source_url": "https://hcmut.edu.vn/tintuc/so-tay-sinh-vien-2025-2026",
+    "rag_topic": "Sổ tay sinh viên, tổng hợp quy định và hướng dẫn"
+  }
+]

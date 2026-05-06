@@ -38,6 +38,9 @@ class User(Base):
         default=UserRole.student,
     )
     is_active: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=True)
+    email_notifications_enabled: Mapped[bool] = mapped_column(
+        sa.Boolean, nullable=False, default=True, server_default=sa.true()
+    )
     created_at: Mapped[datetime] = mapped_column(
         sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()
     )

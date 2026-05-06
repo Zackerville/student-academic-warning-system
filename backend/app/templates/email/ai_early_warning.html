@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Dự báo nguy cơ học vụ — HCMUT{% endblock %}
+{% block content %}
+  <h2 style="margin:0 0 14px 0;color:#92400e;font-size:20px;">📈 Dự báo nguy cơ học vụ từ AI</h2>
+  <p style="margin:0 0 12px 0;">Chào <strong>{{ full_name }}</strong> ({{ mssv }}),</p>
+  <p style="margin:0 0 12px 0;">
+    Hệ thống AI dự báo bạn đang có <strong>nguy cơ</strong> bị cảnh báo học vụ trong các học kỳ tới,
+    mặc dù hiện tại bạn <em>chưa</em> vi phạm quy chế.
+  </p>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:14px 0;background:#fef3c7;border:1px solid #fde68a;border-radius:6px;">
+    <tr>
+      <td style="padding:14px 16px;color:#78350f;font-size:14px;">
+        <div><strong>Risk score:</strong> {{ "%.0f"|format(risk_score * 100) }}%</div>
+        <div><strong>Mức:</strong> {{ risk_level_vi }}</div>
+        <div><strong>GPA tích lũy:</strong> {{ "%.2f"|format(gpa_cumulative) }}</div>
+        {% if top_factors %}
+        <div style="margin-top:8px;"><strong>Lý do chính:</strong></div>
+        <ul style="margin:6px 0 0 18px;padding:0;">
+          {% for factor in top_factors[:3] %}
+          <li>{{ factor }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+  <p style="margin:0 0 12px 0;">
+    Bạn nên xem chi tiết phân tích AI và đề xuất kế hoạch học tập sớm để tránh rơi vào diện cảnh báo chính thức.
+  </p>
+  <p style="margin:18px 0 0 0;">
+    <a href="{{ app_base_url }}/predictions" style="display:inline-block;background:#003366;color:#ffffff;text-decoration:none;padding:10px 18px;border-radius:6px;font-weight:600;">
+      Xem dự báo AI
+    </a>
+  </p>
+{% endblock %}

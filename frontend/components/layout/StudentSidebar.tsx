@@ -7,14 +7,17 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/lib/auth";
 import { useT, type TKey } from "@/lib/i18n";
 import LanguageToggle from "@/components/LanguageToggle";
+import NotificationBell from "@/components/layout/NotificationBell";
 
 const NAV_ITEMS: { href: string; labelKey: TKey; icon: string }[] = [
-  { href: "/dashboard",   labelKey: "nav.dashboard",   icon: "📊" },
-  { href: "/grades",      labelKey: "nav.grades",      icon: "📝" },
-  { href: "/warnings",    labelKey: "nav.warnings",    icon: "⚠️" },
-  { href: "/predictions", labelKey: "nav.predictions", icon: "🤖" },
-  { href: "/chatbot",     labelKey: "nav.chatbot",     icon: "💬" },
-  { href: "/events",      labelKey: "nav.events",      icon: "📅" },
+  { href: "/student/dashboard",   labelKey: "nav.dashboard",   icon: "📊" },
+  { href: "/student/grades",      labelKey: "nav.grades",      icon: "📝" },
+  { href: "/student/warnings",    labelKey: "nav.warnings",    icon: "⚠️" },
+  { href: "/student/predictions", labelKey: "nav.predictions", icon: "🤖" },
+  { href: "/student/study-plan",  labelKey: "nav.studyPlan",   icon: "🎯" },
+  { href: "/student/chatbot",     labelKey: "nav.chatbot",     icon: "💬" },
+  { href: "/student/events",      labelKey: "nav.events",      icon: "📅" },
+  { href: "/student/notifications", labelKey: "nav.notifications", icon: "🔔" },
 ];
 
 export default function StudentSidebar() {
@@ -25,7 +28,7 @@ export default function StudentSidebar() {
 
   const handleLogout = () => {
     clearAuth();
-    router.push("/login");
+    router.push("/auth/login");
   };
 
   return (
@@ -36,10 +39,11 @@ export default function StudentSidebar() {
           <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center font-bold text-sm">
             BK
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <p className="font-semibold text-sm leading-tight">{t("nav.title")}</p>
             <p className="text-xs text-white/60">{t("nav.subtitle")}</p>
           </div>
+          <NotificationBell />
         </div>
       </div>
 

@@ -29,6 +29,7 @@ from app.services.gpa_calculator import (
 )
 from app.services.grade_aggregator import (
     count_unresolved_failed,
+    enrollment_gpa_point,
     effective_enrollments_per_course,
     is_credit_bearing,
 )
@@ -37,7 +38,7 @@ from app.services.grade_aggregator import (
 
 GPA_SAFE_TARGET = 2.0
 ATTENDANCE_SAFE_MIN = 75.0
-FEATURE_VERSION = "m4_v4_2026_05_04_no_zero_credit_f"
+FEATURE_VERSION = "m4_v6_2026_05_06_ignore_no_gpa_semesters"
 
 # Order of features (load-bearing — XGBoost requires same order in train + predict)
 FEATURE_NAMES = [
@@ -92,13 +93,14 @@ def _per_semester_gpas(enrollments: list[Enrollment]) -> dict[str, float]:
     for e in enrollments:
         if e.course.credits == 0:
             continue
-        if e.grade_letter or e.total_score is not None:
-            eg = EnrollmentGrade(
-                credits=e.course.credits,
-                grade_letter=e.grade_letter,
-                total_score=e.total_score,
-            )
-            semester_map.setdefault(e.semester, []).append(eg)
+        if enrollment_gpa_point(e) is None:
+            continue
+        eg = EnrollmentGrade(
+            credits=e.course.credits,
+            grade_letter=e.grade_letter,
+            total_score=e.total_score,
+        )
+        semester_map.setdefault(e.semester, []).append(eg)
     return {s: calculate_semester_gpa(grades) for s, grades in semester_map.items()}
 
 

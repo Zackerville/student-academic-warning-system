@@ -1,0 +1,97 @@
+myBk/app
+Toggle navigation
+User ImageTRUONG GIA HAN
+User Image
+TRUONG GIA HAN
+
+ Khoa Khoa học và Kỹ thuật Máy tính
+Sinh viên
+Dịch vụ sinh viên
+Kết quả học tập
+Hệ thống quản lý Tra thông tin
+ Tra thông tin Kết quả học tập
+Bảng điểm môn học
+BẢNG ĐIỂM
+Năm học 2025 - 2026 / Học kỳ 1
+
+Họ và tên: TRUONG GIA HAN
+
+Mã sinh viên: TC090009
+
+Mã lớp: CN22CLC2
+
+Cập nhật cuối: 05/05/2026 09:30
+Các điểm đặc biệt: CT = Cấm thi, VT = Vắng thi, CH = Chưa có điểm, RT = Rút môn học, KD = Không đạt, VP = Vắng thi có phép, DT = Điểm đạt, HT = Hoãn thi, MT = Điểm miễn.
+
+Điểm hệ 4 áp dụng từ khóa 2021.
+
+Bảng điểm
+Môn học xét tương đương
+Danh mục các điểm khác
+Stt	Mã môn học	Tên môn học	Điểm tổng kết	Tín chỉ	Đạt	Tình trạng	Nhóm	Ghi chú
+Năm học 2025 - 2026 / Học kỳ 1	2.85	100	Tích lũy chung
+0.00	9	Tích lũy học kỳ
+1	CO4029	Đồ án Chuyên ngành	17	RT	2		Không in trên bảng điểm	CN05	Không tính TCTL & TBTL
+2	CO3029	Khai phá Dữ liệu	0	CH	3			L03	Chưa có điểm
+3	CO3117	Học máy	0	HT	3			CN01	Hoãn thi
+4	CO3049	Lập trình Web	0	VP	3			CN01	Vắng thi có phép
+5	SA0002	Sinh hoạt Sinh viên	9.2	A	0		Không in trên bảng điểm	CC63	
+Năm học 2024 - 2025 / Học kỳ 3	2.85	91	Tích lũy chung
+3.00	10	Tích lũy học kỳ
+6	CO3101	Đồ án Tổng hợp - Hướng Trí tuệ Nhân tạo	8.0	B+	1			CN05	
+7	CO3107	Thực tập Đồ án môn học Đa ngành - Hướng Trí tuệ Nhân tạo	21	DT	1			CN03	Điểm đạt không tính GPA
+8	MT2013	Xác suất và Thống kê	7.2	B	4			DT02	
+9	SP1035	Chủ nghĩa Xã hội Khoa học	7.0	B	2			DT03	
+10	PE1047	Võ (Vovinam, Karate, Taewondo) (Học phần 2)	21	DT	0			CC01	Import from fox
+Năm học 2024 - 2025 / Học kỳ 2	2.82	81	Tích lũy chung
+2.90	18	Tích lũy học kỳ
+11	CO3001	Công nghệ Phần mềm	7.5	B	3			CN01	
+12	CO3005	Nguyên lý Ngôn ngữ Lập trình	7.0	B	4			DT02	
+13	CO3061	Nhập môn Trí tuệ Nhân tạo	8.0	B+	3			CN01	
+14	CO3093	Mạng máy tính	0	CT	3			CN01	Cấm thi, không tính GPA
+15	CO2017	Hệ điều hành	7.8	B	3			CN01	
+16	SP1039	Lịch sử Đảng Cộng sản Việt Nam	7.5	B	2			CN01	
+Năm học 2024 - 2025 / Học kỳ 1	2.80	63	Tích lũy chung
+2.75	18	Tích lũy học kỳ
+17	CO2013	Hệ cơ sở Dữ liệu	7.2	B	4			CN01	
+18	CO2039	Lập trình Nâng cao	6.8	C+	3			CN02	
+19	CO2007	Kiến trúc Máy tính	7.0	B	4			CN02	
+20	CO2011	Mô hình hóa Toán học	6.5	C+	3			CN01	
+21	SP1033	Kinh tế Chính trị Mác - Lênin	7.5	B	2			CN01	
+22	LA3025	Tiếng Nhật 5	12	MT	0			CN03	Miễn điểm
+Năm học 2023 - 2024 / Học kỳ 3	2.75	45	Tích lũy chung
+2.70	10	Tích lũy học kỳ
+23	CH1003	Hóa đại cương	6.8	C+	3			DTN1	
+24	MT1003	Giải tích 1	7.0	B	4			DT02	
+25	PH1007	Thí nghiệm Vật lý	7.5	B	1			CN04	
+26	LA2019	Tiếng Nhật 4	12	MT	0			CN03	
+Năm học 2023 - 2024 / Học kỳ 2	2.75	35	Tích lũy chung
+2.80	16	Tích lũy học kỳ
+27	CO1027	Kỹ thuật Lập trình	7.2	B	3			CN01	
+28	CO2003	Cấu trúc Dữ liệu và Giải Thuật	7.0	B	4			DT01	
+29	CO1023	Hệ thống số	6.5	C+	3			CN01	
+30	SP1031	Triết học Mác - Lênin	7.8	B	3			CN01	
+31	IM1021	Khởi nghiệp	8.0	B+	3			CN01	
+Năm học 2023 - 2024 / Học kỳ 1	2.70	19	Tích lũy chung
+2.70	14	Tích lũy học kỳ
+32	CO1007	Cấu trúc Rời rạc cho Khoa học Máy tính	7.0	B	4			L02	
+33	CO1005	Nhập môn Điện toán	6.8	C+	3			CN01	
+34	PH1003	Vật lý 1	6.5	C+	4			CN01	
+35	SA0002	Sinh hoạt Sinh viên	9.0	A	0		Không in trên bảng điểm	CN05	
+Năm học 2022 - 2023 / Học kỳ 2	2.60	5	Tích lũy chung
+2.60	11	Tích lũy học kỳ
+36	MT1007	Đại số Tuyến tính	6.5	C+	3			CN01	
+37	MT1005	Giải tích 2	7.0	B	4			CN01	
+38	LA1047	Tiếng Nhật 2	8.0	B+	0			CN01	
+39	MI1003	Giáo dục Quốc phòng	21	DT	0			A01	Import from fox
+Năm học 2022 - 2023 / Học kỳ 1	2.50	0	Tích lũy chung
+2.50	8	Tích lũy học kỳ
+40	PH1005	Vật lý 2	6.5	C+	4			CN01	
+41	SP1041	Kỹ năng mềm	8.0	B+	0			CN02	
+Môn học chuyển điểm/miễn điểm	6	
+42	LA1007	Anh văn 3	12	MT	2			MIEN	1089/BKDT-04/4/2023
+43	LA1005	Anh văn 2	12	MT	2			MIEN	1089/BKDT-04/4/2023
+44	JPN_GC	Điều kiện tiếng Nhật tốt nghiệp đại học	21	DT	0		Không in trên bảng điểm		Không tính TCTL & TBTL
+45	CCGDTC	Chứng chỉ Giáo Dục Thể Chất	21	DT	0		Không in trên bảng điểm		Không tính TCTL & TBTL
+Version 2.4.0Copyright © 2026 Academic Affairs Office. All rights reserved.
+

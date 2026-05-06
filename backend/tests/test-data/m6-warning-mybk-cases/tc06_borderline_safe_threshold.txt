@@ -1,0 +1,74 @@
+myBk/app
+Toggle navigation
+User ImageDINH QUOC HUY
+User Image
+DINH QUOC HUY
+
+ Khoa Khoa học và Kỹ thuật Máy tính
+Sinh viên
+Dịch vụ sinh viên
+Kết quả học tập
+Hệ thống quản lý Tra thông tin
+ Tra thông tin Kết quả học tập
+Bảng điểm môn học
+BẢNG ĐIỂM
+Năm học 2025 - 2026 / Học kỳ 1
+
+Họ và tên: DINH QUOC HUY
+
+Mã sinh viên: TC060006
+
+Mã lớp: CN22KHM4
+
+Cập nhật cuối: 05/05/2026 09:00
+Các điểm đặc biệt: CT = Cấm thi, VT = Vắng thi, CH = Chưa có điểm, RT = Rút môn học, KD = Không đạt, VP = Vắng thi có phép, DT = Điểm đạt, HT = Hoãn thi, MT = Điểm miễn.
+
+Điểm hệ 4 áp dụng từ khóa 2021.
+
+Bảng điểm
+Môn học xét tương đương
+Danh mục các điểm khác
+Stt	Mã môn học	Tên môn học	Điểm tổng kết	Tín chỉ	Đạt	Tình trạng	Nhóm	Ghi chú
+Năm học 2025 - 2026 / Học kỳ 1	1.26	47	Tích lũy chung
+1.00	7	Tích lũy học kỳ
+1	CO4029	Đồ án Chuyên ngành	4.4	D	2			CN05	
+2	CO3029	Khai phá Dữ liệu	4.5	D	3			L03	
+3	SP1037	Tư tưởng Hồ Chí Minh	4.5	D	2			CN01	
+4	SA0002	Sinh hoạt Sinh viên	8.8	A	0		Không in trên bảng điểm	CC63	
+Năm học 2024 - 2025 / Học kỳ 3	1.30	40	Tích lũy chung
+1.30	5	Tích lũy học kỳ
+5	CO3101	Đồ án Tổng hợp - Hướng Trí tuệ Nhân tạo	5.0	D+	3			CN05	
+6	SP1035	Chủ nghĩa Xã hội Khoa học	4.5	D	2			DT03	
+Năm học 2024 - 2025 / Học kỳ 2	1.30	35	Tích lũy chung
+1.30	5	Tích lũy học kỳ
+7	CO3001	Công nghệ Phần mềm	5.0	D+	3			CN01	
+8	SP1039	Lịch sử Đảng Cộng sản Việt Nam	4.5	D	2			CN01	
+Năm học 2024 - 2025 / Học kỳ 1	1.30	30	Tích lũy chung
+1.30	5	Tích lũy học kỳ
+9	CO2013	Hệ cơ sở Dữ liệu	5.0	D+	3			CN01	
+10	SP1033	Kinh tế Chính trị Mác - Lênin	4.8	D	2			CN01	
+Năm học 2023 - 2024 / Học kỳ 3	1.30	25	Tích lũy chung
+1.30	5	Tích lũy học kỳ
+11	CH1003	Hóa đại cương	5.0	D+	3			DTN1	
+12	PH1007	Thí nghiệm Vật lý	4.5	D	2			CN04	
+Năm học 2023 - 2024 / Học kỳ 2	1.30	20	Tích lũy chung
+1.30	5	Tích lũy học kỳ
+13	CO1027	Kỹ thuật Lập trình	5.0	D+	3			CN01	
+14	IM1021	Khởi nghiệp	4.5	D	2			CN01	
+Năm học 2023 - 2024 / Học kỳ 1	1.30	15	Tích lũy chung
+1.30	5	Tích lũy học kỳ
+15	CO1007	Cấu trúc Rời rạc cho Khoa học Máy tính	5.0	D+	3			L02	
+16	SP1031	Triết học Mác - Lênin	4.5	D	2			CN01	
+Năm học 2022 - 2023 / Học kỳ 2	1.30	10	Tích lũy chung
+1.30	5	Tích lũy học kỳ
+17	MT1007	Đại số Tuyến tính	5.0	D+	3			CN01	
+18	LA1003	Anh văn 1	4.5	D	2			CN01	
+19	MI1003	Giáo dục Quốc phòng	21	DT	0			A01	Import from fox
+Năm học 2022 - 2023 / Học kỳ 1	1.30	5	Tích lũy chung
+1.30	5	Tích lũy học kỳ
+20	MT1003	Giải tích 1	5.0	D+	3			CN01	
+21	SP1041	Kỹ năng mềm	4.5	D	2			CN02	
+Môn học chuyển điểm/miễn điểm	6	
+22	LA1007	Anh văn 3	12	MT	2			MIEN	1089/BKDT-04/4/2023
+23	CCGDTC	Chứng chỉ Giáo Dục Thể Chất	21	DT	0		Không in trên bảng điểm		Không tính TCTL & TBTL
+Version 2.4.0Copyright © 2026 Academic Affairs Office. All rights reserved.

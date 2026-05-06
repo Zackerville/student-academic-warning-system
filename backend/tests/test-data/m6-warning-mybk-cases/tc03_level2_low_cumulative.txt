@@ -1,0 +1,89 @@
+myBk/app
+Toggle navigation
+User ImagePHAM KHANH DUY
+User Image
+PHAM KHANH DUY
+
+ Khoa Điện - Điện tử
+Sinh viên
+Dịch vụ sinh viên
+Kết quả học tập
+Hệ thống quản lý Tra thông tin
+ Tra thông tin Kết quả học tập
+Bảng điểm môn học
+BẢNG ĐIỂM
+Năm học 2025 - 2026 / Học kỳ 1
+
+Họ và tên: PHAM KHANH DUY
+
+Mã sinh viên: TC030003
+
+Mã lớp: DD22
+
+Cập nhật cuối: 05/05/2026 08:30
+Các điểm đặc biệt: CT = Cấm thi, VT = Vắng thi, CH = Chưa có điểm, RT = Rút môn học, KD = Không đạt, VP = Vắng thi có phép, DT = Điểm đạt, HT = Hoãn thi, MT = Điểm miễn.
+
+Điểm hệ 4 áp dụng từ khóa 2021.
+
+Bảng điểm
+Môn học xét tương đương
+Danh mục các điểm khác
+Stt	Mã môn học	Tên môn học	Điểm tổng kết	Tín chỉ	Đạt	Tình trạng	Nhóm	Ghi chú
+Năm học 2025 - 2026 / Học kỳ 1	0.95	86	Tích lũy chung
+1.00	15	Tích lũy học kỳ
+1	EE3001	Hệ thống Điều khiển	4.4	D	3			L01	
+2	EE2001	Mạch Điện tử	4.6	D	4			L02	
+3	MT2013	Xác suất và Thống kê	4.2	D	4			L07	
+4	SP1037	Tư tưởng Hồ Chí Minh	5.0	D+	2			DT01	
+5	SA0002	Sinh hoạt Sinh viên	8.0	B+	0		Không in trên bảng điểm	L09	
+Năm học 2024 - 2025 / Học kỳ 3	0.94	71	Tích lũy chung
+0.80	10	Tích lũy học kỳ
+6	EE3099	Đồ án Kỹ thuật Điện	4.0	D	2			L01	
+7	EE3011	Vi xử lý	3.5	F	3			L02	
+8	SP1035	Chủ nghĩa Xã hội Khoa học	4.8	D	2			DT02	
+9	PE1047	Võ (Học phần 2)	8.0	B+	0			L04	
+Năm học 2024 - 2025 / Học kỳ 2	0.96	61	Tích lũy chung
+0.90	16	Tích lũy học kỳ
+10	EE2011	Trường Điện từ	3.8	F	3			L01	
+11	EE2003	Tín hiệu và Hệ thống	4.2	D	4			L03	
+12	EE2005	Mạch Điện	4.5	D	4			L01	
+13	SP1033	Kinh tế Chính trị Mác - Lênin	5.2	D+	2			DT01	
+14	CO1003	Nhập môn về Lập trình	4.1	D	3			L02	
+Năm học 2024 - 2025 / Học kỳ 1	0.97	45	Tích lũy chung
+0.95	16	Tích lũy học kỳ
+15	EE1001	Kỹ thuật Điện cơ bản	3.2	F	3			L01	
+16	PH1005	Vật lý 2	4.0	D	4			L10	
+17	MT1007	Đại số Tuyến tính	4.2	D	3			L18	
+18	MT1005	Giải tích 2	4.8	D	4			L24	
+19	LA1003	Anh văn 1	5.0	D+	2			L01	
+Năm học 2023 - 2024 / Học kỳ 3	0.96	29	Tích lũy chung
+1.00	9	Tích lũy học kỳ
+20	CH1003	Hóa đại cương	4.0	D	3			L07	
+21	PH1007	Thí nghiệm Vật lý	5.5	C	1			L03	
+22	SP1031	Triết học Mác - Lênin	4.5	D	3			L10	
+23	LA1047	Tiếng Nhật 2	7.0	B	0			AV02	
+Năm học 2023 - 2024 / Học kỳ 2	0.94	20	Tích lũy chung
+0.90	10	Tích lũy học kỳ
+24	MT1003	Giải tích 1	4.1	D	4			L25	
+25	PH1003	Vật lý 1	3.5	F	4			L03	
+26	PE1013	Bóng bàn (Học phần 1)	8.0	B+	0			L10	
+27	MI1003	Giáo dục Quốc phòng	21	DT	0			A01	Import from fox
+Năm học 2023 - 2024 / Học kỳ 1	1.00	10	Tích lũy chung
+1.00	10	Tích lũy học kỳ
+28	EE1003	Nhập môn ngành Điện	4.4	D	3			L01	
+29	SP1007	Pháp luật Việt Nam Đại cương	5.0	D+	2			L05	
+30	CO1005	Nhập môn Điện toán	3.8	F	3			L02	
+Năm học 2022 - 2023 / Học kỳ 2	0.90	5	Tích lũy chung
+0.90	8	Tích lũy học kỳ
+31	LA1045	Tiếng Nhật 1	7.0	B	0			CN01	
+32	ME1001	Nhập môn Về Kỹ thuật	4.0	D	3			L10	
+33	MT1007	Đại số Tuyến tính	3.0	F	3			L18	
+Năm học 2022 - 2023 / Học kỳ 1	1.00	0	Tích lũy chung
+1.00	6	Tích lũy học kỳ
+34	SP1041	Kỹ năng mềm	7.0	B	0			CN02	
+35	PH1007	Thí nghiệm Vật lý	4.2	D	1			L03	
+Môn học chuyển điểm/miễn điểm	6	
+36	LA1007	Anh văn 3	12	MT	2			MIEN	1089/BKDT-04/4/2023
+37	CCGDTC	Chứng chỉ Giáo Dục Thể Chất	21	DT	0		Không in trên bảng điểm		Không tính TCTL & TBTL
+Version 2.4.0Copyright © 2026 Academic Affairs Office. All rights reserved.
+

@@ -78,7 +78,19 @@ def _early_warning_rules(student: Student, features: dict[str, float]) -> list[t
 
     rules: list[tuple[float, dict]] = []
 
-    if warning_level >= 1 or gpa < 1.2:
+    formal_warning_is_current = (
+        warning_level >= 1
+        and (
+            gpa < 2.0
+            or unresolved > 0
+            or unresolved_retake > 0
+            or low_streak > 0
+            or recent_gpa is not None
+            or pass_rate < 0.85
+        )
+    )
+
+    if formal_warning_is_current or gpa < 1.2:
         rules.append((
             0.78,
             _risk_factor(
@@ -379,7 +391,12 @@ class PredictionService:
         if not self._loaded or self._model is None or self._explainer is None:
             return None
 
-        # Sync stats để student.gpa_cumulative + credits_earned + warning_level fresh
+        # Sync cảnh báo trước để tránh dùng warning_level cũ từ cold-start GPA 0.0.
+        from app.services import warning_engine
+
+        await warning_engine.sync_current_warning_level(db, student)
+
+        # Sync stats để student.gpa_cumulative + credits_earned fresh
         # (tránh dùng giá trị stale khi SV vừa import myBK xong)
         await sync_student_stats(student, db)
         await db.refresh(student)

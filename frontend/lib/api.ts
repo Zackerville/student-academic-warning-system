@@ -38,7 +38,7 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !isAuthEndpoint && typeof window !== "undefined") {
       localStorage.removeItem("access_token");
       localStorage.removeItem("user");
-      window.location.href = "/login";
+      window.location.href = "/auth/login";
     }
     return Promise.reject(error);
   }
@@ -182,6 +182,14 @@ export interface EnrollmentCreate {
   final_weight?: number;
 }
 
+export interface GradeUpdateOutcome {
+  enrollment: EnrollmentResponse;
+  warning_created: boolean;
+  warning_level: number | null;
+  warning_reason: string | null;
+  ai_early_warning: boolean;
+}
+
 export interface ImportResult {
   message: string;
   semesters: string[];
@@ -205,7 +213,7 @@ export const studentApi = {
     apiClient.post<EnrollmentResponse>("/students/me/enrollments", payload),
 
   updateGrades: (enrollmentId: string, payload: GradeUpdate) =>
-    apiClient.put<EnrollmentResponse>(
+    apiClient.put<GradeUpdateOutcome>(
       `/students/me/enrollments/${enrollmentId}/grades`,
       payload
     ),
@@ -297,6 +305,7 @@ export interface ChatCitation {
   page_number: number | null;
   snippet: string;
   score: number;
+  match_type?: "vector" | "keyword" | "merged";
 }
 
 export interface ChatResponse {
@@ -377,4 +386,424 @@ export const documentsApi = {
 
   delete: (sourceFile: string) =>
     apiClient.delete(`/documents/${encodeURIComponent(sourceFile)}`),
+};
+
+// ─── M6: Warnings ───────────────────────────────────────────
+
+export type WarningCreatedBy = "system" | "admin";
+
+export interface WarningResponse {
+  id: string;
+  student_id: string;
+  level: number;
+  semester: string;
+  reason: string;
+  gpa_at_warning: number;
+  ai_risk_score: number | null;
+  is_resolved: boolean;
+  sent_at: string | null;
+  created_by: WarningCreatedBy;
+  created_at: string;
+}
+
+export const warningsApi = {
+  list: () => apiClient.get<WarningResponse[]>("/warnings/me"),
+  get: (id: string) => apiClient.get<WarningResponse>(`/warnings/me/${id}`),
+  resolve: (id: string, isResolved: boolean) =>
+    apiClient.patch<WarningResponse>(`/warnings/me/${id}/resolve`, {
+      is_resolved: isResolved,
+    }),
+};
+
+// ─── M6: Notifications ──────────────────────────────────────
+
+export type NotificationType = "warning" | "reminder" | "event" | "system";
+
+export interface NotificationResponse {
+  id: string;
+  student_id: string;
+  type: NotificationType;
+  title: string;
+  content: string;
+  is_read: boolean;
+  sent_at: string;
+  email_sent_at: string | null;
+  created_at: string;
+}
+
+export interface UnreadCountResponse {
+  unread: number;
+}
+
+export interface NotificationPreferenceResponse {
+  email_notifications_enabled: boolean;
+}
+
+export const notificationsApi = {
+  list: (onlyUnread = false, limit = 50) =>
+    apiClient.get<NotificationResponse[]>("/notifications/me", {
+      params: { only_unread: onlyUnread, limit },
+    }),
+  unreadCount: () =>
+    apiClient.get<UnreadCountResponse>("/notifications/me/unread-count"),
+  markRead: (id: string) =>
+    apiClient.put(`/notifications/me/${id}/read`),
+  markAllRead: () =>
+    apiClient.put<{ data: { marked: number }; message: string }>(
+      "/notifications/me/read-all"
+    ),
+  getPreferences: () =>
+    apiClient.get<NotificationPreferenceResponse>("/notifications/me/preferences"),
+  updatePreferences: (enabled: boolean) =>
+    apiClient.put<NotificationPreferenceResponse>(
+      "/notifications/me/preferences",
+      { email_notifications_enabled: enabled }
+    ),
+};
+
+// ─── M6: Study Plan ─────────────────────────────────────────
+
+export interface CreditLoadRecommendation {
+  min_credits: number;
+  recommended_credits: number;
+  max_credits: number;
+  rationale: string;
+  based_on_gpa: number;
+  warning_level: number;
+}
+
+export interface RetakeCourseItem {
+  course_id: string;
+  course_code: string;
+  course_name: string;
+  credits: number;
+  last_grade_letter: string | null;
+  last_total_score: number | null;
+  last_semester: string;
+  reason: string;
+  priority: number;
+}
+
+export interface SuggestedCourseItem {
+  course_id: string;
+  course_code: string;
+  course_name: string;
+  credits: number;
+  rationale: string;
+}
+
+export interface StudyPlanResponse {
+  credit_load: CreditLoadRecommendation;
+  retake_courses: RetakeCourseItem[];
+  suggested_courses: SuggestedCourseItem[];
+  total_unresolved_failed: number;
+  total_credits_earned: number;
+  gpa_cumulative: number;
+}
+
+export const studyPlanApi = {
+  me: () => apiClient.get<StudyPlanResponse>("/study-plan/me"),
+  creditLoad: () =>
+    apiClient.get<CreditLoadRecommendation>("/study-plan/me/credit-load"),
+};
+
+// ─── M6: Events ─────────────────────────────────────────────
+
+export type EventType = "exam" | "submission" | "activity" | "evaluation";
+export type TargetAudience = "all" | "faculty_specific" | "cohort_specific";
+
+export interface EventResponse {
+  id: string;
+  title: string;
+  description: string | null;
+  event_type: EventType;
+  target_audience: TargetAudience;
+  target_value: string | null;
+  start_time: string;
+  end_time: string | null;
+  is_mandatory: boolean;
+  created_by: string | null;
+  created_at: string;
+}
+
+export const eventsApi = {
+  myEvents: (limit = 50) =>
+    apiClient.get<EventResponse[]>("/events/me", { params: { limit } }),
+  myUpcoming: (limit = 20) =>
+    apiClient.get<EventResponse[]>("/events/me/upcoming", { params: { limit } }),
+};
+
+// ─── M7: Admin ──────────────────────────────────────────────
+
+export interface AdminWarningLevelBucket { level: number; count: number }
+export interface AdminRiskBucket {
+  bucket: "low" | "medium" | "high" | "critical";
+  count: number;
+  label_vi: string;
+}
+export interface AdminFacultyBucket {
+  faculty: string;
+  warning_count: number;
+  total_students: number;
+  pct: number;
+}
+export interface AdminTopRiskStudent {
+  student_id: string;
+  mssv: string;
+  full_name: string;
+  faculty: string;
+  gpa_cumulative: number;
+  warning_level: number;
+  risk_score: number | null;
+  risk_level: string | null;
+}
+export interface AdminDashboardStats {
+  total_students: number;
+  total_warned: number;
+  total_high_risk: number;
+  total_critical: number;
+  by_warning_level: AdminWarningLevelBucket[];
+  by_risk_level: AdminRiskBucket[];
+  by_faculty: AdminFacultyBucket[];
+  top_risk: AdminTopRiskStudent[];
+  generated_at: string;
+}
+
+export interface AdminStudentListItem {
+  student_id: string;
+  mssv: string;
+  full_name: string;
+  faculty: string;
+  major: string;
+  cohort: number;
+  email: string;
+  gpa_cumulative: number;
+  credits_earned: number;
+  warning_level: number;
+  risk_score: number | null;
+  risk_level: string | null;
+}
+export interface AdminStudentListResponse {
+  items: AdminStudentListItem[];
+  total: number;
+  page: number;
+  size: number;
+}
+
+export interface AdminGpaHistoryPoint {
+  semester: string;
+  semester_gpa: number;
+  credits_taken: number;
+  courses_count: number;
+}
+export interface AdminWarningSummary {
+  id: string;
+  level: number;
+  semester: string;
+  reason: string;
+  gpa_at_warning: number;
+  is_resolved: boolean;
+  sent_at: string | null;
+  created_by: string;
+}
+export interface AdminStudentDetail {
+  student_id: string;
+  mssv: string;
+  full_name: string;
+  faculty: string;
+  major: string;
+  cohort: number;
+  email: string;
+  is_active: boolean;
+  gpa_cumulative: number;
+  credits_earned: number;
+  warning_level: number;
+  failed_courses_total: number;
+  gpa_history: AdminGpaHistoryPoint[];
+  risk_score: number | null;
+  risk_level: string | null;
+  risk_factors: Array<Record<string, unknown>>;
+  warnings: AdminWarningSummary[];
+}
+
+export interface PendingWarningItem {
+  student_id: string;
+  mssv: string;
+  full_name: string;
+  faculty: string;
+  semester: string;
+  suggested_level: number;
+  risk_score: number;
+  risk_level: string;
+  reason: string;
+  gpa_cumulative: number;
+}
+export interface PendingWarningsResponse {
+  items: PendingWarningItem[];
+  total: number;
+  threshold: number;
+  last_batch_at: string | null;
+}
+
+export interface AdminImportError {
+  row: number;
+  column: string | null;
+  reason: string;
+  raw: Record<string, unknown> | null;
+}
+export interface AdminImportResult {
+  type: "students" | "grades";
+  filename: string;
+  total_rows: number;
+  created: number;
+  updated: number;
+  skipped: number;
+  errors: AdminImportError[];
+  success: boolean;
+}
+export interface AdminImportHistoryItem {
+  id: string;
+  type: "students" | "grades";
+  filename: string;
+  total_rows: number;
+  created: number;
+  updated: number;
+  error_count: number;
+  success: boolean;
+  uploaded_at: string;
+  uploaded_by_email: string | null;
+}
+
+export interface AdminSemesterWarningCount { semester: string; count: number }
+export interface AdminGpaDistributionBucket { bucket: string; count: number }
+export interface AdminRiskDistributionBucket {
+  bucket: string;
+  label_vi: string;
+  count: number;
+  pct: number;
+}
+export interface AdminWarningLevelReportBucket {
+  level: number;
+  label: string;
+  count: number;
+  pct: number;
+}
+export interface AdminPassFailBucket {
+  status: string;
+  label: string;
+  count: number;
+  pct: number;
+}
+export interface AdminStatistics {
+  gpa_average: number;
+  warning_rate_pct: number;
+  improvement_rate_pct: number | null;
+  pass_rate_pct: number | null;
+  total_students: number;
+  total_warned: number;
+  total_high_risk: number;
+  total_critical: number;
+  by_semester: AdminSemesterWarningCount[];
+  gpa_distribution: AdminGpaDistributionBucket[];
+  by_warning_level: AdminWarningLevelReportBucket[];
+  risk_distribution: AdminRiskDistributionBucket[];
+  by_faculty: AdminFacultyBucket[];
+  latest_pass_fail: AdminPassFailBucket[];
+  semester_now: string | null;
+}
+
+export interface AdminThresholdConfig {
+  ai_early_warning_threshold: number;
+  gpa_safe: number;
+  gpa_warning_l1: number;
+  gpa_warning_l2: number;
+  gpa_dismissal: number;
+  semester_gpa_l1: number;
+}
+
+export const adminApi = {
+  dashboard: () => apiClient.get<AdminDashboardStats>("/admin/dashboard"),
+
+  listStudents: (params: {
+    q?: string; faculty?: string; cohort?: number;
+    warning_level?: number; high_risk?: boolean;
+    page?: number; size?: number;
+  }) => apiClient.get<AdminStudentListResponse>("/admin/students", { params }),
+
+  studentDetail: (id: string) =>
+    apiClient.get<AdminStudentDetail>(`/admin/students/${id}`),
+
+  pendingWarnings: (semester?: string) =>
+    apiClient.get<PendingWarningsResponse>("/admin/warnings/pending", {
+      params: semester ? { semester } : undefined,
+    }),
+
+  approveWarning: (payload: {
+    student_id: string; semester: string; level: number; reason?: string
+  }) => apiClient.post<AdminWarningSummary>("/admin/warnings/approve", payload),
+
+  manualWarning: (payload: {
+    student_id: string; level: number; semester: string; reason: string
+  }) => apiClient.post<AdminWarningSummary>("/admin/warnings/manual", payload),
+
+  runBatchWarnings: (semester?: string) =>
+    apiClient.post<{ data: { created: number; skipped: number }; message: string }>(
+      "/admin/warnings/batch",
+      undefined,
+      { params: semester ? { semester } : undefined }
+    ),
+
+  runBatchPredictions: () =>
+    apiClient.post<{ data: { count: number }; message: string }>(
+      "/predictions/batch-run"
+    ),
+
+  importStudents: (file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return apiClient.post<AdminImportResult>("/admin/import/students", fd, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+  importGrades: (file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return apiClient.post<AdminImportResult>("/admin/import/grades", fd, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+  templateUrl: (type: "students" | "grades") =>
+    `${apiClient.defaults.baseURL}/admin/import/templates/${type}`,
+  importHistory: () =>
+    apiClient.get<AdminImportHistoryItem[]>("/admin/import/history"),
+
+  statistics: () => apiClient.get<AdminStatistics>("/admin/statistics"),
+  exportReport: (reportType: "warnings" | "gpa" | "ai", format: "pdf" | "xlsx") =>
+    apiClient.get<Blob>("/admin/reports/export", {
+      params: { report_type: reportType, format },
+      responseType: "blob",
+    }),
+  threshold: () => apiClient.get<AdminThresholdConfig>("/admin/threshold"),
+};
+
+// ─── M7: Admin events (CRUD) ────────────────────────────────
+
+export interface AdminEventCreate {
+  title: string;
+  description: string | null;
+  event_type: EventType;
+  target_audience: TargetAudience;
+  target_value: string | null;
+  start_time: string;
+  end_time: string | null;
+  is_mandatory: boolean;
+}
+
+export const adminEventsApi = {
+  list: () => apiClient.get<EventResponse[]>("/events"),
+  create: (payload: AdminEventCreate) =>
+    apiClient.post<EventResponse>("/events", payload),
+  update: (id: string, payload: Partial<AdminEventCreate>) =>
+    apiClient.put<EventResponse>(`/events/${id}`, payload),
+  remove: (id: string) => apiClient.delete(`/events/${id}`),
 };

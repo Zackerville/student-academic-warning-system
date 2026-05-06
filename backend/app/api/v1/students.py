@@ -21,6 +21,7 @@ from app.schemas.enrollment import (
     EnrollmentWithCourse,
     GpaHistoryEntry,
     GradeUpdate,
+    GradeUpdateOutcome,
 )
 from app.schemas.student import StudentResponse
 from app.services.gpa_calculator import (
@@ -41,6 +42,7 @@ from app.services.grade_aggregator import (
     sync_student_stats,
 )
 from app.services.mybk_parser import ParsedCourse, parse_mybk_text
+from app.services import warning_engine
 
 router = APIRouter(prefix="/students", tags=["students"])
 
@@ -60,6 +62,36 @@ async def _invalidate_student_predictions(student_id: UUID, db: AsyncSession) ->
     await db.commit()
 
 
+async def _semester_gpa_for_student(
+    student_id: UUID,
+    semester: str,
+    db: AsyncSession,
+) -> float | None:
+    """Return GPA học kỳ nếu HK có môn GPA-bearing; None nếu toàn điểm đặc biệt/chưa có điểm."""
+    result = await db.execute(
+        select(Enrollment)
+        .where(Enrollment.student_id == student_id, Enrollment.semester == semester)
+        .options(selectinload(Enrollment.course))
+    )
+    enrollments = result.scalars().all()
+    gpa_enrollments = [
+        e for e in enrollments
+        if e.course.credits > 0 and _enrollment_gpa_point(e) is not None
+    ]
+    if not gpa_enrollments:
+        return None
+    return calculate_semester_gpa(
+        [
+            EnrollmentGrade(
+                credits=e.course.credits,
+                grade_letter=e.grade_letter,
+                total_score=e.total_score,
+            )
+            for e in gpa_enrollments
+        ]
+    )
+
+
 # ─── Profile ─────────────────────────────────────────────────
 
 @router.get("/me", response_model=StudentResponse)
@@ -75,7 +107,7 @@ async def get_dashboard(
     db: AsyncSession = Depends(get_db),
 ):
     # Đảm bảo gpa_cumulative + credits_earned trên student record là mới nhất
-    await _sync_student_stats(student, db)
+    await warning_engine.sync_current_warning_level(db, student)
     await db.refresh(student)
 
     result = await db.execute(
@@ -255,7 +287,7 @@ async def create_enrollment(
     return enrollment
 
 
-@router.put("/me/enrollments/{enrollment_id}/grades", response_model=EnrollmentResponse)
+@router.put("/me/enrollments/{enrollment_id}/grades", response_model=GradeUpdateOutcome)
 async def update_grades(
     enrollment_id: UUID,
     payload: GradeUpdate,
@@ -307,7 +339,38 @@ async def update_grades(
     await db.refresh(enrollment)
     await _sync_student_stats(student, db)
     await _invalidate_student_predictions(student.id, db)
-    return enrollment
+
+    # ─── M6 Step 6.10: auto-trigger warning sau khi update điểm ────
+    # Chỉ chạy khi có total_score (môn đã có điểm cuối) — tránh trigger khi SV
+    # mới nhập điểm GK chưa có CK.
+    outcome_warning_created = False
+    outcome_level = None
+    outcome_reason = None
+    outcome_ai_early = False
+    if enrollment.total_score is not None:
+        try:
+            outcome = await warning_engine.evaluate_and_persist(
+                db=db,
+                student=student,
+                semester=enrollment.semester,
+                semester_gpa=None,  # TODO: compute semester GPA nếu cần precision cao
+            )
+            outcome_warning_created = outcome.created
+            if outcome.decision and outcome.decision.level > 0:
+                outcome_level = outcome.decision.level
+                outcome_reason = outcome.decision.reason
+            outcome_ai_early = outcome.ai_early_warning
+        except Exception as exc:  # pragma: no cover - không cản trở update grade
+            from loguru import logger
+            logger.warning(f"[students.update_grades] warning_engine failed: {exc}")
+
+    return GradeUpdateOutcome(
+        enrollment=EnrollmentResponse.model_validate(enrollment),
+        warning_created=outcome_warning_created,
+        warning_level=outcome_level,
+        warning_reason=outcome_reason,
+        ai_early_warning=outcome_ai_early,
+    )
 
 
 @router.delete("/me/enrollments/{enrollment_id}", status_code=204)
@@ -539,6 +602,20 @@ async def import_mybk(
     await db.commit()
     await _sync_student_stats(student, db)
     await _invalidate_student_predictions(student.id, db)
+
+    latest_semester = max(transcript.semesters_found) if transcript.semesters_found else None
+    if latest_semester:
+        semester_gpa = await _semester_gpa_for_student(student.id, latest_semester, db)
+        try:
+            await warning_engine.evaluate_and_persist(
+                db=db,
+                student=student,
+                semester=latest_semester,
+                semester_gpa=semester_gpa,
+            )
+        except Exception as exc:  # pragma: no cover - import điểm không bị fail vì email/warning
+            from loguru import logger
+            logger.warning(f"[students.import_mybk] warning_engine failed: {exc}")
 
     return {
         "message": "Import thành công",

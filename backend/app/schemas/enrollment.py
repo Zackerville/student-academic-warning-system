@@ -84,3 +84,15 @@ class GpaHistoryEntry(BaseModel):
     semester_gpa: float
     credits_taken: int
     courses_count: int
+
+
+class GradeUpdateOutcome(BaseModel):
+    """
+    Response của PUT /me/enrollments/{id}/grades — gồm enrollment + warning info.
+    FE dùng warning_created/warning_level/ai_early_warning để toast thông báo.
+    """
+    enrollment: EnrollmentResponse
+    warning_created: bool = False
+    warning_level: Optional[int] = None
+    warning_reason: Optional[str] = None
+    ai_early_warning: bool = False

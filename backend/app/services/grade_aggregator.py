@@ -61,6 +61,19 @@ def count_unresolved_failed(effective_enrollments: list[Enrollment]) -> int:
     )
 
 
+def has_gpa_bearing_grade(enrollments: list[Enrollment]) -> bool:
+    """
+    True nếu SV đã có ít nhất một môn có tín chỉ và có điểm GPA hợp lệ.
+
+    Dùng để tránh coi tài khoản mới tinh (GPA mặc định 0.0 vì chưa import điểm)
+    là sinh viên rơi vào diện buộc thôi học.
+    """
+    return any(
+        is_credit_bearing(e) and enrollment_gpa_point(e) is not None
+        for e in enrollments
+    )
+
+
 def effective_enrollments_per_course(enrollments: list[Enrollment]) -> list[Enrollment]:
     """
     Quy chế HCMUT — học lại / học cải thiện:

@@ -73,7 +73,7 @@ export default function HomePage() {
             </button>
           </div>
 
-          <Link href="/login">
+          <Link href="/auth/login">
             <Button
               variant="outline"
               className="border-white text-white hover:bg-white hover:text-[#003087] bg-transparent text-sm font-semibold"

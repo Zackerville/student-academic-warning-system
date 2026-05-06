@@ -165,6 +165,19 @@ def test_calibration_keeps_strong_profile_low():
     assert risk_score_to_level(score) == RiskLevel.low
 
 
+def test_calibration_ignores_stale_warning_level_for_strong_profile():
+    score, factors, floor = _apply_early_warning_calibration(
+        0.05,
+        _student(gpa=3.4, warning_level=3),
+        _feature_row(pass_rate_deficit=0.0),
+    )
+
+    assert score == 0.05
+    assert floor == 0.0
+    assert factors == []
+    assert risk_score_to_level(score) == RiskLevel.low
+
+
 def test_calibration_marks_mid_low_gpa_as_medium_watch_zone():
     score, factors, floor = _apply_early_warning_calibration(
         0.04,

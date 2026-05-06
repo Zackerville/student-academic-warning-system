@@ -50,6 +50,19 @@ class Settings(BaseSettings):
     LOCAL_LLM_BASE_URL: str = "http://localhost:11434/v1"
     LOCAL_LLM_MODEL: str = "qwen2.5:7b"
 
+    # ─── Email / SMTP (M6) ────────────────────────────────────
+    EMAIL_ENABLED: bool = True
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    EMAIL_FROM: str = "noreply@hcmut.edu.vn"
+    EMAIL_FROM_NAME: str = "Hệ thống Cảnh báo Học vụ HCMUT"
+    APP_BASE_URL: str = "http://localhost:3000"
+
+    # ─── Warning thresholds (HCMUT) ───────────────────────────
+    AI_EARLY_WARNING_THRESHOLD: float = 0.6
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

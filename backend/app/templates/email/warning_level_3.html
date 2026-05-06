@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Cảnh báo buộc thôi học — HCMUT{% endblock %}
+{% block content %}
+  <h2 style="margin:0 0 14px 0;color:#b91c1c;font-size:20px;">🚨 Cảnh báo: Nguy cơ buộc thôi học</h2>
+  <p style="margin:0 0 12px 0;">Chào <strong>{{ full_name }}</strong> ({{ mssv }}),</p>
+  <p style="margin:0 0 12px 0;">
+    Hệ thống ghi nhận kết quả học tập của bạn đã chạm điều kiện
+    <strong style="color:#b91c1c;">Buộc thôi học</strong> theo Quy chế đào tạo HCMUT.
+    Đây là trạng thái <strong>khẩn cấp</strong>, bạn cần liên hệ Phòng Đào tạo NGAY.
+  </p>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:14px 0;background:#fee2e2;border:1px solid #fca5a5;border-radius:6px;">
+    <tr>
+      <td style="padding:14px 16px;color:#7f1d1d;font-size:14px;">
+        <div><strong>GPA tích lũy hiện tại:</strong> {{ "%.2f"|format(gpa_cumulative) }}</div>
+        {% if gpa_semester is not none %}
+        <div><strong>GPA học kỳ {{ semester }}:</strong> {{ "%.2f"|format(gpa_semester) }}</div>
+        {% endif %}
+        <div style="margin-top:6px;"><strong>Lý do:</strong> {{ reason }}</div>
+      </td>
+    </tr>
+  </table>
+  <p style="margin:0 0 12px 0;">
+    <strong>Bạn cần làm trong tuần này:</strong>
+  </p>
+  <ul style="margin:0 0 14px 18px;padding:0;">
+    <li>Đến văn phòng <strong>Phòng Đào tạo (AAO)</strong> để xác nhận tình trạng và làm thủ tục.</li>
+    <li>Liên hệ cố vấn học tập / chủ nhiệm khoa để được hướng dẫn về quyền khiếu nại / bảo lưu.</li>
+    <li>Đối chiếu bảng điểm trên myBK để chắc chắn không có sai sót dữ liệu.</li>
+  </ul>
+  <p style="margin:18px 0 0 0;">
+    <a href="{{ app_base_url }}/warnings" style="display:inline-block;background:#b91c1c;color:#ffffff;text-decoration:none;padding:10px 18px;border-radius:6px;font-weight:600;">
+      Xem chi tiết
+    </a>
+  </p>
+{% endblock %}
