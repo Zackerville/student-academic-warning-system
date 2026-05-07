@@ -118,10 +118,29 @@ export default function DashboardPage() {
     dashboard.unresolved_failed_courses ?? dashboard.failed_courses_total;
   const warning = WARNING_KEYS[student.warning_level] ?? WARNING_KEYS[0];
 
+  // Compute GPA trend insight from last 2 semesters
+  const gpaInsight = (() => {
+    if (history.length < 2) return null;
+    const sorted = [...history].sort((a, b) => a.semester.localeCompare(b.semester));
+    const prev = sorted[sorted.length - 2].semester_gpa;
+    const curr = sorted[sorted.length - 1].semester_gpa;
+    const delta = curr - prev;
+    if (Math.abs(delta) < 0.05) return { text: "GPA ổn định so với HK trước", color: "text-blue-600", emoji: "📊" };
+    if (delta > 0) return { text: `GPA tăng ${delta.toFixed(1)} so với HK trước`, color: "text-green-600", emoji: "🎉" };
+    return { text: `GPA giảm ${Math.abs(delta).toFixed(1)} so với HK trước`, color: "text-orange-500", emoji: "⚠️" };
+  })();
+
+  const insights: { text: string; color: string }[] = [];
+  if (student.gpa_cumulative >= 3.2) insights.push({ text: "GPA xuất sắc — tiếp tục duy trì!", color: "bg-green-50 text-green-700 border-green-200" });
+  else if (student.gpa_cumulative >= 2.5) insights.push({ text: "GPA khá — còn nhiều tiềm năng cải thiện", color: "bg-blue-50 text-blue-700 border-blue-200" });
+  else if (student.gpa_cumulative < 2.0) insights.push({ text: "GPA dưới mốc an toàn 2.0 — cần chú ý!", color: "bg-red-50 text-red-700 border-red-200" });
+  if (student.warning_level === 0 && student.credits_earned >= 30) insights.push({ text: "Không có cảnh báo học vụ", color: "bg-green-50 text-green-700 border-green-200" });
+  if (student.warning_level >= 2) insights.push({ text: "Đang bị cảnh báo — hãy tư vấn ngay!", color: "bg-red-50 text-red-700 border-red-200" });
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-primary">{t("dashboard.title")}</h1>
           <p className="text-muted-foreground text-sm mt-0.5">
@@ -129,6 +148,20 @@ export default function DashboardPage() {
             <span className="font-medium text-foreground">{student.full_name}</span> —{" "}
             {student.mssv}
           </p>
+          {gpaInsight && (
+            <p className={`text-sm mt-1 font-medium ${gpaInsight.color}`}>
+              {gpaInsight.emoji} {gpaInsight.text}
+            </p>
+          )}
+          {insights.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {insights.map((ins) => (
+                <span key={ins.text} className={`text-xs px-2 py-0.5 rounded-full border font-medium ${ins.color}`}>
+                  {ins.text}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <Badge variant={warning.variant}>{t(warning.labelKey)}</Badge>
       </div>

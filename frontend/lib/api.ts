@@ -273,6 +273,19 @@ export interface PredictionHistoryEntry {
   risk_level: "low" | "medium" | "high" | "critical";
 }
 
+export interface SimulateItem {
+  enrollment_id: string;
+  hypothetical_score: number;
+}
+
+export interface SimulateResult {
+  original_risk_score: number | null;
+  original_risk_level: "low" | "medium" | "high" | "critical" | null;
+  simulated_risk_score: number;
+  simulated_risk_level: "low" | "medium" | "high" | "critical";
+  delta_risk_score: number;
+}
+
 export const predictionsApi = {
   me: () => apiClient.get<PredictionResponse>("/predictions/me"),
   history: (limit = 30) =>
@@ -280,6 +293,8 @@ export const predictionsApi = {
       params: { limit },
     }),
   refresh: () => apiClient.post<PredictionResponse>("/predictions/me/refresh"),
+  simulate: (items: SimulateItem[]) =>
+    apiClient.post<SimulateResult>("/predictions/me/simulate", items),
 };
 
 export const coursesApi = {
@@ -784,6 +799,8 @@ export const adminApi = {
       responseType: "blob",
     }),
   threshold: () => apiClient.get<AdminThresholdConfig>("/admin/threshold"),
+  updateThreshold: (value: number) =>
+    apiClient.patch<AdminThresholdConfig>("/admin/threshold", { ai_early_warning_threshold: value }),
 };
 
 // ─── M7: Admin events (CRUD) ────────────────────────────────

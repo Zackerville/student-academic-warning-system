@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { adminApi, type PendingWarningItem } from "@/lib/api";
+import { Input } from "@/components/ui/input";
 import { useT } from "@/lib/i18n";
 
 export default function AdminWarningsPage() {
@@ -20,6 +21,9 @@ export default function AdminWarningsPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [runningBatch, setRunningBatch] = useState(false);
   const [showThreshold, setShowThreshold] = useState(false);
+  const [editingThreshold, setEditingThreshold] = useState("");
+  const [savingThreshold, setSavingThreshold] = useState(false);
+  const [thresholdError, setThresholdError] = useState<string | null>(null);
 
   const reload = async () => {
     setLoading(true);
@@ -53,6 +57,26 @@ export default function AdminWarningsPage() {
       alert("Không duyệt được. Thử lại.");
     } finally {
       setBusyId(null);
+    }
+  };
+
+  const handleSaveThreshold = async () => {
+    const val = parseFloat(editingThreshold);
+    if (isNaN(val) || val <= 0 || val >= 1) {
+      setThresholdError("Ngưỡng phải là số trong khoảng (0, 1), ví dụ: 0.6");
+      return;
+    }
+    setSavingThreshold(true);
+    setThresholdError(null);
+    try {
+      const r = await adminApi.updateThreshold(val);
+      setThreshold(r.data.ai_early_warning_threshold);
+      setEditingThreshold("");
+      setShowThreshold(false);
+    } catch {
+      setThresholdError("Lưu thất bại, thử lại.");
+    } finally {
+      setSavingThreshold(false);
     }
   };
 
@@ -99,14 +123,31 @@ export default function AdminWarningsPage() {
 
       {showThreshold && (
         <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="pt-6 text-sm space-y-1">
-            <p className="font-medium text-blue-900">Ngưỡng AI Early Warning</p>
-            <p className="text-blue-900/80">
-              Hiện tại: <span className="font-semibold">{(threshold * 100).toFixed(0)}%</span> — predictions có risk_score ≥ ngưỡng sẽ xuất hiện ở danh sách &quot;Chờ duyệt&quot;.
+          <CardContent className="pt-5 pb-5 space-y-3">
+            <p className="font-medium text-blue-900 text-sm">Ngưỡng AI Early Warning</p>
+            <p className="text-blue-900/80 text-sm">
+              Hiện tại: <span className="font-bold text-blue-900">{(threshold * 100).toFixed(0)}%</span>
+              <span className="text-blue-900/60"> — predictions có risk_score ≥ ngưỡng xuất hiện ở danh sách &quot;Chờ duyệt&quot;.</span>
             </p>
-            <p className="text-xs text-blue-900/60 italic mt-2">
-              Sửa ngưỡng tại <code>backend/.env</code> → <code>AI_EARLY_WARNING_THRESHOLD</code>, restart backend.
-            </p>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                step="0.05"
+                min="0.05"
+                max="0.95"
+                placeholder={`Ngưỡng mới (VD: ${threshold})`}
+                value={editingThreshold}
+                onChange={(e) => { setEditingThreshold(e.target.value); setThresholdError(null); }}
+                className="h-8 w-40 text-sm bg-white"
+              />
+              <Button size="sm" onClick={handleSaveThreshold} disabled={savingThreshold || !editingThreshold}>
+                {savingThreshold ? "Đang lưu..." : "Lưu"}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => { setShowThreshold(false); setEditingThreshold(""); setThresholdError(null); }}>
+                Huỷ
+              </Button>
+            </div>
+            {thresholdError && <p className="text-xs text-destructive">{thresholdError}</p>}
           </CardContent>
         </Card>
       )}

@@ -30,6 +30,8 @@ export default function ChatbotPage() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const justSubmittedRef = useRef(false);
 
   const loadInitialData = useCallback(async () => {
     try {
@@ -61,7 +63,10 @@ export default function ChatbotPage() {
     if (!text || sending) return;
 
     const assistantId = crypto.randomUUID();
+    justSubmittedRef.current = true;
+    setTimeout(() => { justSubmittedRef.current = false; }, 0);
     setQuestion("");
+    if (textareaRef.current) textareaRef.current.value = "";
     setError("");
     setSending(true);
     setMessages((current) => [
@@ -229,8 +234,12 @@ export default function ChatbotPage() {
           <form onSubmit={(event) => void handleSubmit(event)} className="border-t p-4">
             <div className="flex gap-2">
               <textarea
+                ref={textareaRef}
                 value={question}
-                onChange={(event) => setQuestion(event.target.value)}
+                onChange={(event) => {
+                    if (justSubmittedRef.current) { if (textareaRef.current) textareaRef.current.value = ""; return; }
+                    setQuestion(event.target.value);
+                }}
                 onKeyDown={handleQuestionKeyDown}
                 placeholder="Nhập câu hỏi của bạn..."
                 className="min-h-11 flex-1 resize-none rounded-md border border-input bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30"

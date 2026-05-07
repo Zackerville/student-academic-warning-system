@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { studentApi, apiClient, type EnrollmentResponse, type ImportResult } from "@/lib/api";
+import { studentApi, apiClient, type EnrollmentResponse, type ImportResult, type GpaHistoryEntry } from "@/lib/api";
 import { useT, type TKey } from "@/lib/i18n";
 
 // ─── Helpers ─────────────────────────────────────────────────
@@ -600,9 +600,17 @@ function DeleteAllDialog({
 
 // ─── Main page ───────────────────────────────────────────────
 
+function semesterGpaColor(gpa: number) {
+  if (gpa >= 3.0) return "text-green-600 bg-green-50 border-green-200";
+  if (gpa >= 2.0) return "text-blue-600 bg-blue-50 border-blue-200";
+  if (gpa >= 1.0) return "text-orange-500 bg-orange-50 border-orange-200";
+  return "text-destructive bg-destructive/5 border-destructive/20";
+}
+
 export default function GradesPage() {
   const t = useT();
   const [enrollments, setEnrollments] = useState<EnrollmentResponse[]>([]);
+  const [gpaHistory, setGpaHistory] = useState<GpaHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterSemester, setFilterSemester] = useState<string>("");
   const [importOpen, setImportOpen] = useState(false);
@@ -611,12 +619,18 @@ export default function GradesPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await studentApi.enrollments();
-      setEnrollments(res.data);
+      const [enrollRes, gpaRes] = await Promise.all([
+        studentApi.enrollments(),
+        studentApi.gpaHistory(),
+      ]);
+      setEnrollments(enrollRes.data);
+      setGpaHistory(gpaRes.data);
     } finally {
       setLoading(false);
     }
   }, []);
+
+  const gpaMap = Object.fromEntries(gpaHistory.map((g) => [g.semester, g]));
 
   useEffect(() => { load(); }, [load]);
 
@@ -689,11 +703,46 @@ export default function GradesPage() {
             </div>
           </CardContent>
         </Card>
-      ) : (
+      ) : filterSemester ? (
         <div className="space-y-3">
+          {gpaMap[filterSemester] && (
+            <div className={`flex items-center gap-3 rounded-lg border px-4 py-2.5 ${semesterGpaColor(gpaMap[filterSemester].semester_gpa)}`}>
+              <span className="text-sm font-medium">GPA học kỳ {filterSemester}</span>
+              <span className="text-2xl font-bold">{gpaMap[filterSemester].semester_gpa.toFixed(2)}</span>
+              <span className="text-xs opacity-70">/ 4.0 · {gpaMap[filterSemester].credits_taken} TC · {gpaMap[filterSemester].courses_count} môn</span>
+            </div>
+          )}
           {filtered.map((e) => (
             <ManualGradeRow key={e.id} enrollment={e} onUpdated={load} />
           ))}
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {semesters.map((sem) => {
+            const semEnrollments = enrollments.filter((e) => e.semester === sem);
+            const g = gpaMap[sem];
+            return (
+              <div key={sem} className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                    Học kỳ {sem}
+                  </h2>
+                  {g && (
+                    <span className={`text-sm font-bold px-2.5 py-0.5 rounded-full border ${semesterGpaColor(g.semester_gpa)}`}>
+                      GPA {g.semester_gpa.toFixed(2)}
+                    </span>
+                  )}
+                  {g && (
+                    <span className="text-xs text-muted-foreground">{g.credits_taken} TC · {g.courses_count} môn</span>
+                  )}
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+                {semEnrollments.map((e) => (
+                  <ManualGradeRow key={e.id} enrollment={e} onUpdated={load} />
+                ))}
+              </div>
+            );
+          })}
         </div>
       )}
 

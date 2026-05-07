@@ -5,7 +5,8 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   RadialBarChart, RadialBar, PolarAngleAxis,
 } from "recharts";
-import { AlertTriangle, RefreshCw, TrendingDown, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { AlertTriangle, FlaskConical, RefreshCw, TrendingDown, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -222,10 +223,18 @@ export default function PredictionsPage() {
             </p>
           )}
         </div>
-        <Button size="sm" variant="outline" onClick={handleRefresh} disabled={refreshing}>
-          <RefreshCw className={`h-4 w-4 mr-1 ${refreshing ? "animate-spin" : ""}`} />
-          {refreshing ? t("predictions.refreshing") : t("predictions.refresh")}
-        </Button>
+        <div className="flex gap-2">
+          <Link href="/student/predictions/simulator">
+            <Button size="sm" variant="outline">
+              <FlaskConical className="h-4 w-4 mr-1" />
+              Mô phỏng điểm
+            </Button>
+          </Link>
+          <Button size="sm" variant="outline" onClick={handleRefresh} disabled={refreshing}>
+            <RefreshCw className={`h-4 w-4 mr-1 ${refreshing ? "animate-spin" : ""}`} />
+            {refreshing ? t("predictions.refreshing") : t("predictions.refresh")}
+          </Button>
+        </div>
       </div>
 
       {/* Risk gauge + Factors side by side */}
