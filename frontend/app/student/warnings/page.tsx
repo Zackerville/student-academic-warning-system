@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, Bot, ShieldAlert } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { SkeletonList } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { warningsApi, type WarningResponse } from "@/lib/api";
 import { useT, type TKey } from "@/lib/i18n";
@@ -68,11 +69,7 @@ export default function WarningsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground animate-pulse">{t("common.loading")}</div>
-      </div>
-    );
+    return <SkeletonList />;
   }
 
   if (error) {

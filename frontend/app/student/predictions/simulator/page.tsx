@@ -182,7 +182,7 @@ export default function SimulatorPage() {
           <CardContent className="py-12 text-center text-muted-foreground">
             <FlaskConical className="mx-auto h-10 w-10 mb-3 opacity-30" />
             <p className="font-medium">Không có môn nào đang học</p>
-            <p className="text-sm mt-1">Mô phỏng chỉ hoạt động với môn có trạng thái "đang học".</p>
+            <p className="text-sm mt-1">Mô phỏng chỉ hoạt động với môn có trạng thái &quot;đang học&quot;.</p>
           </CardContent>
         </Card>
       ) : (

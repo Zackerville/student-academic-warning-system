@@ -8,6 +8,7 @@ import {
 import Link from "next/link";
 import { AlertTriangle, FlaskConical, RefreshCw, TrendingDown, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { SkeletonDashboard } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -183,11 +184,7 @@ export default function PredictionsPage() {
   useEffect(() => { load(); }, [load]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground animate-pulse">{t("common.loading")}</div>
-      </div>
-    );
+    return <SkeletonDashboard />;
   }
 
   if (error || !pred) {

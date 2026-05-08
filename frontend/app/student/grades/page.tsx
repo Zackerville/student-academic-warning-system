@@ -2,11 +2,13 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { ClipboardPaste, PenLine, CheckCircle2, Clock, XCircle, Plus, X, Trash2, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { SkeletonTable } from "@/components/ui/skeleton";
 import { studentApi, apiClient, type EnrollmentResponse, type ImportResult, type GpaHistoryEntry } from "@/lib/api";
 import { useT, type TKey } from "@/lib/i18n";
 
@@ -33,23 +35,46 @@ function gradeBadge(letter: string | null) {
   return <span className={`font-bold ${GRADE_COLOR[letter] ?? "text-foreground"}`}>{letter}</span>;
 }
 
-// ─── Import myBK Modal ───────────────────────────────────────
+// ─── Import myBK Modal (3-tab: Hướng dẫn → Preview → Xác nhận) ──
+
+type ImportTab = "guide" | "preview" | "done";
 
 function ImportMyBKDialog({ open, onClose, onSuccess }: { open: boolean; onClose: () => void; onSuccess: () => void }) {
   const t = useT();
+  const [tab, setTab] = useState<ImportTab>("guide");
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [preview, setPreview] = useState<ImportResult | null>(null);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleImport = async () => {
+  const handleReset = () => { setTab("guide"); setText(""); setPreview(null); setResult(null); setError(null); };
+  const handleClose = () => { handleReset(); onClose(); };
+
+  const handlePreview = async () => {
     if (!text.trim()) return;
     setLoading(true);
     setError(null);
-    setResult(null);
+    setPreview(null);
     try {
-      const res = await studentApi.importMyBK(text);
+      const res = await studentApi.importMyBK(text, true);
+      setPreview(res.data);
+      setTab("preview");
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      setError(msg ?? t("mybk.error"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirm = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await studentApi.importMyBK(text, false);
       setResult(res.data);
+      setTab("done");
       onSuccess();
     } catch (e: unknown) {
       const msg = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
@@ -61,40 +86,121 @@ function ImportMyBKDialog({ open, onClose, onSuccess }: { open: boolean; onClose
 
   if (!open) return null;
 
+  const TABS: { id: ImportTab; label: string }[] = [
+    { id: "guide", label: "1. Hướng dẫn" },
+    { id: "preview", label: "2. Preview" },
+    { id: "done", label: "3. Xác nhận" },
+  ];
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b shrink-0">
           <h2 className="font-semibold text-lg">{t("mybk.title")}</h2>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <button onClick={handleClose} className="text-muted-foreground hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="px-6 py-4 space-y-4">
-          <div className="rounded-md bg-blue-50 border border-blue-200 text-blue-800 text-sm px-4 py-3 space-y-1">
-            <p className="font-medium">{t("mybk.guideTitle")}</p>
-            <ol className="list-decimal list-inside space-y-0.5 text-xs">
-              <li>{t("mybk.guide1")}</li>
-              <li>
-                {t("mybk.guide2")} <kbd className="bg-blue-100 px-1 rounded">Ctrl+A</kbd> {t("mybk.guide2b")}{" "}
-                <kbd className="bg-blue-100 px-1 rounded">Ctrl+C</kbd>
-              </li>
-              <li>{t("mybk.guide3")}</li>
-            </ol>
-          </div>
+        {/* Tab bar */}
+        <div className="flex border-b shrink-0">
+          {TABS.map((tp) => (
+            <button
+              key={tp.id}
+              onClick={() => tp.id !== "done" && setTab(tp.id)}
+              className={`px-5 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                tab === tp.id
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              } ${tp.id === "done" ? "cursor-default" : ""}`}
+            >
+              {tp.label}
+            </button>
+          ))}
+        </div>
 
-          <div className="space-y-2">
-            <Label>{t("mybk.pasteLabel")}</Label>
-            <textarea
-              className="w-full min-h-[200px] rounded-md border border-input bg-transparent px-3 py-2 text-sm font-mono shadow-sm focus:outline-none focus:ring-1 focus:ring-ring resize-y"
-              placeholder={"Học kỳ 1 năm học 2021-2022\nCO1007  Cấu trúc rời rạc    3   8.5   A   Đạt\n..."}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-            />
-          </div>
+        {/* Tab content */}
+        <div className="px-6 py-4 space-y-4 overflow-y-auto flex-1">
 
-          {result && (
+          {/* Tab 1: Hướng dẫn + paste */}
+          {tab === "guide" && (
+            <>
+              <div className="rounded-md bg-blue-50 border border-blue-200 text-blue-800 text-sm px-4 py-3 space-y-1">
+                <p className="font-medium">{t("mybk.guideTitle")}</p>
+                <ol className="list-decimal list-inside space-y-0.5 text-xs">
+                  <li>{t("mybk.guide1")}</li>
+                  <li>
+                    {t("mybk.guide2")} <kbd className="bg-blue-100 px-1 rounded">Ctrl+A</kbd> {t("mybk.guide2b")}{" "}
+                    <kbd className="bg-blue-100 px-1 rounded">Ctrl+C</kbd>
+                  </li>
+                  <li>{t("mybk.guide3")}</li>
+                </ol>
+              </div>
+              <div className="space-y-2">
+                <Label>{t("mybk.pasteLabel")}</Label>
+                <textarea
+                  className="w-full min-h-[200px] rounded-md border border-input bg-transparent px-3 py-2 text-sm font-mono shadow-sm focus:outline-none focus:ring-1 focus:ring-ring resize-y"
+                  placeholder={"Học kỳ 1 năm học 2021-2022\nCO1007  Cấu trúc rời rạc    3   8.5   A   Đạt\n..."}
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                />
+              </div>
+              {error && <div className="rounded-md bg-destructive/10 text-destructive text-sm px-3 py-2">{error}</div>}
+            </>
+          )}
+
+          {/* Tab 2: Preview */}
+          {tab === "preview" && preview && (
+            <>
+              <div className="rounded-md bg-blue-50 border border-blue-200 text-blue-800 text-sm px-4 py-3">
+                <p className="font-medium">Preview — chưa lưu dữ liệu</p>
+                <p className="text-xs mt-1">
+                  {preview.semesters.join(", ")} · {preview.total_courses} môn ·{" "}
+                  <span className="text-green-700">+{preview.created} mới</span>{" "}
+                  · <span className="text-amber-700">~{preview.updated} cập nhật</span>
+                </p>
+              </div>
+              <div className="overflow-x-auto rounded-md border text-sm">
+                <table className="w-full">
+                  <thead className="bg-muted/40">
+                    <tr className="text-left text-xs text-muted-foreground">
+                      <th className="px-3 py-2">Mã môn</th>
+                      <th className="px-3 py-2">Tên môn</th>
+                      <th className="px-3 py-2 text-center">HK</th>
+                      <th className="px-3 py-2 text-right">Điểm</th>
+                      <th className="px-3 py-2 text-center">Xếp loại</th>
+                      <th className="px-3 py-2 text-center">Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {(preview.courses ?? []).map((c, i) => (
+                      <tr key={i} className="hover:bg-muted/20">
+                        <td className="px-3 py-1.5 font-mono text-xs">{c.course_code}</td>
+                        <td className="px-3 py-1.5 max-w-[200px] truncate">{c.name}</td>
+                        <td className="px-3 py-1.5 text-center text-xs">{c.semester}</td>
+                        <td className="px-3 py-1.5 text-right">{c.total_score ?? "—"}</td>
+                        <td className="px-3 py-1.5 text-center font-semibold">{c.grade_letter ?? "—"}</td>
+                        <td className="px-3 py-1.5 text-center">
+                          <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
+                            c.action === "create"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-amber-100 text-amber-700"
+                          }`}>
+                            {c.action === "create" ? "Tạo mới" : "Cập nhật"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {error && <div className="rounded-md bg-destructive/10 text-destructive text-sm px-3 py-2">{error}</div>}
+            </>
+          )}
+
+          {/* Tab 3: Done */}
+          {tab === "done" && result && (
             <div className="rounded-md bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3">
               <p className="font-medium">{result.message}</p>
               <p className="text-xs mt-1">
@@ -104,22 +210,72 @@ function ImportMyBKDialog({ open, onClose, onSuccess }: { open: boolean; onClose
               </p>
             </div>
           )}
-          {error && (
-            <div className="rounded-md bg-destructive/10 text-destructive text-sm px-3 py-2">{error}</div>
-          )}
         </div>
 
-        <div className="px-6 pb-5 flex gap-2 justify-end">
-          <Button variant="outline" onClick={onClose}>
-            {t("common.cancel")}
-          </Button>
-          <Button onClick={handleImport} disabled={loading || !text.trim()}>
-            {loading ? t("mybk.importing") : t("mybk.import")}
-          </Button>
+        {/* Footer buttons */}
+        <div className="px-6 pb-5 flex gap-2 justify-end shrink-0 border-t pt-4">
+          {tab === "guide" && (
+            <>
+              <Button variant="outline" onClick={handleClose}>{t("common.cancel")}</Button>
+              <Button onClick={handlePreview} disabled={loading || !text.trim()}>
+                {loading ? "Đang phân tích..." : "Xem trước →"}
+              </Button>
+            </>
+          )}
+          {tab === "preview" && (
+            <>
+              <Button variant="outline" onClick={() => setTab("guide")}>← Quay lại</Button>
+              <Button onClick={handleConfirm} disabled={loading}>
+                {loading ? t("mybk.importing") : "Xác nhận import"}
+              </Button>
+            </>
+          )}
+          {tab === "done" && (
+            <Button onClick={handleClose}>Đóng</Button>
+          )}
         </div>
       </div>
     </div>
   );
+}
+
+// ─── What-if calculator helper ───────────────────────────────
+
+const GRADE_TARGETS = [
+  { label: "A (8.5)", min: 8.5 },
+  { label: "B+ (8.0)", min: 8.0 },
+  { label: "B (7.0)", min: 7.0 },
+  { label: "C+ (6.5)", min: 6.5 },
+  { label: "C (5.5)", min: 5.5 },
+  { label: "D (4.0)", min: 4.0 },
+];
+
+function calcNeededFinal(
+  form: { midterm_score: string; lab_score: string; other_score: string; final_score: string },
+  e: { midterm_weight: number; lab_weight: number; other_weight: number; final_weight: number },
+): { targetLabel: string; needed: number } | null {
+  if (e.final_weight <= 0) return null;
+
+  const mid = parseFloat(form.midterm_score);
+  const lab = parseFloat(form.lab_score);
+  const oth = parseFloat(form.other_score);
+  const hasMid = !isNaN(mid) && e.midterm_weight > 0;
+  const hasLab = !isNaN(lab) && e.lab_weight > 0;
+  const hasOth = !isNaN(oth) && e.other_weight > 0;
+
+  const knownSum =
+    (hasMid ? mid * e.midterm_weight : 0) +
+    (hasLab ? lab * e.lab_weight : 0) +
+    (hasOth ? oth * e.other_weight : 0);
+
+  // Find next achievable target (ck must be 0–10)
+  for (const tgt of GRADE_TARGETS) {
+    const needed = (tgt.min - knownSum) / e.final_weight;
+    if (needed >= 0 && needed <= 10) {
+      return { targetLabel: tgt.label, needed: Math.ceil(needed * 10) / 10 };
+    }
+  }
+  return null;
 }
 
 // ─── Manual grade entry ──────────────────────────────────────
@@ -142,31 +298,46 @@ function ManualGradeRow({ enrollment, onUpdated }: { enrollment: EnrollmentRespo
   const handleSave = async () => {
     setSaving(true);
     try {
-      await studentApi.updateGrades(enrollment.id, {
+      const result = await studentApi.updateGrades(enrollment.id, {
         midterm_score: parseScore(form.midterm_score),
         lab_score: parseScore(form.lab_score),
         other_score: parseScore(form.other_score),
         final_score: parseScore(form.final_score),
         attendance_rate: parseScore(form.attendance_rate),
       });
+      toast.success("Đã lưu điểm thành công");
+      if (result.data.warning_created) {
+        toast.warning(`Cảnh báo học vụ mức ${result.data.warning_level} vừa được tạo!`, { duration: 6000 });
+      } else if (result.data.ai_early_warning) {
+        toast.warning("AI phát hiện nguy cơ học vụ sớm. Kiểm tra trang Dự đoán.", { duration: 5000 });
+      }
       setEditing(false);
       onUpdated();
     } catch {
-      // keep editing on error
+      toast.error("Lưu điểm thất bại. Vui lòng thử lại.");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm(t("grades.deleteConfirm"))) return;
-    setDeleting(true);
-    try {
-      await studentApi.deleteEnrollment(enrollment.id);
-      onUpdated();
-    } catch {
-      setDeleting(false);
-    }
+  const handleDelete = () => {
+    toast(t("grades.deleteConfirm"), {
+      action: {
+        label: "Xóa",
+        onClick: async () => {
+          setDeleting(true);
+          try {
+            await studentApi.deleteEnrollment(enrollment.id);
+            onUpdated();
+          } catch {
+            toast.error("Xóa thất bại. Vui lòng thử lại.");
+            setDeleting(false);
+          }
+        },
+      },
+      cancel: { label: "Hủy", onClick: () => {} },
+      duration: 8000,
+    });
   };
 
   const sc = STATUS_CONFIG[enrollment.status] ?? STATUS_CONFIG.enrolled;
@@ -203,30 +374,41 @@ function ManualGradeRow({ enrollment, onUpdated }: { enrollment: EnrollmentRespo
       {!enrollment.is_finalized ? (
         <>
           {editing ? (
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-              {[
-                { key: "midterm_score", label: `${t("grades.scoreMidterm")} (${Math.round(enrollment.midterm_weight * 100)}%)`, show: enrollment.midterm_weight > 0 },
-                { key: "lab_score",     label: `${t("grades.scoreLab")} (${Math.round(enrollment.lab_weight * 100)}%)`,         show: enrollment.lab_weight > 0 },
-                { key: "other_score",   label: `${t("grades.scoreOther")} (${Math.round(enrollment.other_weight * 100)}%)`,     show: enrollment.other_weight > 0 },
-                { key: "final_score",   label: `${t("grades.scoreFinal")} (${Math.round(enrollment.final_weight * 100)}%)`,     show: enrollment.final_weight > 0 },
-                { key: "attendance_rate", label: t("grades.attendance"), show: true },
-              ]
-                .filter((f) => f.show)
-                .map(({ key, label }) => (
-                  <div key={key} className="space-y-1">
-                    <Label className="text-xs">{label}</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max={key === "attendance_rate" ? "100" : "10"}
-                      className="h-8 text-sm"
-                      value={(form as Record<string, string>)[key]}
-                      onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                    />
-                  </div>
-                ))}
-            </div>
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                {[
+                  { key: "midterm_score", label: `${t("grades.scoreMidterm")} (${Math.round(enrollment.midterm_weight * 100)}%)`, show: enrollment.midterm_weight > 0 },
+                  { key: "lab_score",     label: `${t("grades.scoreLab")} (${Math.round(enrollment.lab_weight * 100)}%)`,         show: enrollment.lab_weight > 0 },
+                  { key: "other_score",   label: `${t("grades.scoreOther")} (${Math.round(enrollment.other_weight * 100)}%)`,     show: enrollment.other_weight > 0 },
+                  { key: "final_score",   label: `${t("grades.scoreFinal")} (${Math.round(enrollment.final_weight * 100)}%)`,     show: enrollment.final_weight > 0 },
+                  { key: "attendance_rate", label: t("grades.attendance"), show: true },
+                ]
+                  .filter((f) => f.show)
+                  .map(({ key, label }) => (
+                    <div key={key} className="space-y-1">
+                      <Label className="text-xs">{label}</Label>
+                      <Input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max={key === "attendance_rate" ? "100" : "10"}
+                        className="h-8 text-sm"
+                        value={(form as Record<string, string>)[key]}
+                        onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+                      />
+                    </div>
+                  ))}
+              </div>
+              {(() => {
+                const hint = calcNeededFinal(form, enrollment);
+                if (!hint) return null;
+                return (
+                  <p className="text-xs text-blue-600 mt-1">
+                    💡 Cần CK ≥ <strong>{hint.needed.toFixed(1)}</strong> để đạt <strong>{hint.targetLabel}</strong>
+                  </p>
+                );
+              })()}
+            </>
           ) : (
             <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
               {enrollment.midterm_weight > 0 && (
@@ -689,7 +871,7 @@ export default function GradesPage() {
       )}
 
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground animate-pulse">{t("common.loading")}</div>
+        <SkeletonTable rows={8} />
       ) : filtered.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground space-y-3">

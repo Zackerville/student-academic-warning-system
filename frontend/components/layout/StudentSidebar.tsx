@@ -9,14 +9,14 @@ import { useT, type TKey } from "@/lib/i18n";
 import LanguageToggle from "@/components/LanguageToggle";
 import NotificationBell from "@/components/layout/NotificationBell";
 
-const NAV_ITEMS: { href: string; labelKey: TKey; icon: string }[] = [
-  { href: "/student/dashboard",   labelKey: "nav.dashboard",   icon: "📊" },
-  { href: "/student/grades",      labelKey: "nav.grades",      icon: "📝" },
-  { href: "/student/warnings",    labelKey: "nav.warnings",    icon: "⚠️" },
-  { href: "/student/predictions", labelKey: "nav.predictions", icon: "🤖" },
-  { href: "/student/study-plan",  labelKey: "nav.studyPlan",   icon: "🎯" },
-  { href: "/student/chatbot",     labelKey: "nav.chatbot",     icon: "💬" },
-  { href: "/student/events",      labelKey: "nav.events",      icon: "📅" },
+const NAV_ITEMS: { href: string; labelKey: TKey; icon: string; tourId?: string }[] = [
+  { href: "/student/dashboard",     labelKey: "nav.dashboard",     icon: "📊", tourId: "sidebar-dashboard" },
+  { href: "/student/grades",        labelKey: "nav.grades",        icon: "📝", tourId: "sidebar-grades" },
+  { href: "/student/warnings",      labelKey: "nav.warnings",      icon: "⚠️", tourId: "sidebar-warnings" },
+  { href: "/student/predictions",   labelKey: "nav.predictions",   icon: "🤖", tourId: "sidebar-predictions" },
+  { href: "/student/study-plan",    labelKey: "nav.studyPlan",     icon: "🎯" },
+  { href: "/student/chatbot",       labelKey: "nav.chatbot",       icon: "💬", tourId: "sidebar-chatbot" },
+  { href: "/student/events",        labelKey: "nav.events",        icon: "📅" },
   { href: "/student/notifications", labelKey: "nav.notifications", icon: "🔔" },
 ];
 
@@ -53,6 +53,7 @@ export default function StudentSidebar() {
           <Link
             key={item.href}
             href={item.href}
+            {...(item.tourId ? { "data-tour": item.tourId } : {})}
             className={cn(
               "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
               pathname === item.href

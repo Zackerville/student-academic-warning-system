@@ -1,7 +1,8 @@
 "use client";
 
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
-import { FileUp, Loader2, RefreshCw, ShieldAlert, Trash2 } from "lucide-react";
+import { FileUp, Loader2, RefreshCw, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -14,17 +15,17 @@ export default function AdminDocumentsPage() {
   const [documents, setDocuments] = useState<DocumentGroupResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState("");
   const [uploadSummary, setUploadSummary] = useState<DocumentBatchUploadResponse | null>(null);
 
   const loadDocuments = useCallback(async () => {
     try {
       setLoading(true);
-      setError("");
       const response = await documentsApi.list();
       setDocuments(response.data);
-    } catch {
-      setError("Không tải được danh sách tài liệu. Tài khoản hiện tại cần quyền admin.");
+    } catch (err: unknown) {
+      toast.error(
+        formatApiError(err, "Không tải được danh sách tài liệu. Tài khoản hiện tại cần quyền admin.")
+      );
     } finally {
       setLoading(false);
     }
@@ -37,15 +38,30 @@ export default function AdminDocumentsPage() {
   const handleFiles = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
     if (files.length === 0) return;
+    const toastId = toast.loading(`Đang nạp ${files.length} file...`);
     try {
       setUploading(true);
-      setError("");
       setUploadSummary(null);
       const response = await documentsApi.uploadBatch(files);
-      setUploadSummary(response.data);
+      const data = response.data;
+      setUploadSummary(data);
+      if (data.failed > 0) {
+        toast.warning(
+          `Đã nạp ${data.uploaded} file, ${data.failed} file lỗi (${data.total_chunks} chunks).`,
+          { id: toastId }
+        );
+      } else {
+        toast.success(
+          `Đã nạp ${data.uploaded} file thành công (${data.total_chunks} chunks).`,
+          { id: toastId }
+        );
+      }
       await loadDocuments();
     } catch (err: unknown) {
-      setError(formatApiError(err, "Upload batch thất bại. Hãy kiểm tra định dạng file và backend."));
+      toast.error(
+        formatApiError(err, "Upload batch thất bại. Hãy kiểm tra định dạng file và backend."),
+        { id: toastId }
+      );
     } finally {
       setUploading(false);
       event.target.value = "";
@@ -53,24 +69,38 @@ export default function AdminDocumentsPage() {
   };
 
   const toggleDocument = async (document: DocumentGroupResponse) => {
+    const nextActive = !document.is_active;
     try {
-      setError("");
-      await documentsApi.toggle(document.source_file, !document.is_active);
+      await documentsApi.toggle(document.source_file, nextActive);
+      toast.success(
+        nextActive ? `Đã bật "${document.filename}"` : `Đã tắt "${document.filename}"`
+      );
       await loadDocuments();
     } catch (err: unknown) {
-      setError(formatApiError(err, `Không thể ${document.is_active ? "tắt" : "bật"} tài liệu.`));
+      toast.error(
+        formatApiError(err, `Không thể ${nextActive ? "bật" : "tắt"} tài liệu.`)
+      );
     }
   };
 
-  const deleteDocument = async (document: DocumentGroupResponse) => {
-    if (!confirm(`Xóa tài liệu ${document.filename}?`)) return;
-    try {
-      setError("");
-      await documentsApi.delete(document.source_file);
-      await loadDocuments();
-    } catch (err: unknown) {
-      setError(formatApiError(err, "Xóa tài liệu thất bại."));
-    }
+  const deleteDocument = (document: DocumentGroupResponse) => {
+    toast(`Xóa "${document.filename}"?`, {
+      description: "Hành động này sẽ xóa toàn bộ chunks và embeddings liên quan.",
+      action: {
+        label: "Xóa",
+        onClick: async () => {
+          try {
+            await documentsApi.delete(document.source_file);
+            toast.success(`Đã xóa "${document.filename}"`);
+            await loadDocuments();
+          } catch (err: unknown) {
+            toast.error(formatApiError(err, "Xóa tài liệu thất bại."));
+          }
+        },
+      },
+      cancel: { label: "Hủy", onClick: () => undefined },
+      duration: 8000,
+    });
   };
 
   return (
@@ -106,13 +136,6 @@ export default function AdminDocumentsPage() {
             </label>
           </div>
         </div>
-
-        {error && (
-          <div className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            <ShieldAlert className="h-4 w-4" />
-            {error}
-          </div>
-        )}
 
         {uploadSummary && (
           <div className="rounded-md border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">

@@ -1,4 +1,5 @@
 "use client";
+import { SkeletonTable } from "@/components/ui/skeleton";
 
 import { useEffect, useState } from "react";
 import { Bot, Hourglass, Mail, CheckCheck, Settings, Play } from "lucide-react";
@@ -166,7 +167,7 @@ export default function AdminWarningsPage() {
 
       {/* Pending list */}
       {loading ? (
-        <div className="text-muted-foreground animate-pulse">{t("common.loading")}</div>
+        <SkeletonTable rows={6} />
       ) : error ? (
         <div className="rounded-md bg-destructive/10 text-destructive px-4 py-3">{error}</div>
       ) : (

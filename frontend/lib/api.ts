@@ -190,13 +190,26 @@ export interface GradeUpdateOutcome {
   ai_early_warning: boolean;
 }
 
+export interface ImportPreviewCourse {
+  course_code: string;
+  name: string;
+  credits: number;
+  semester: string;
+  total_score: number | null;
+  grade_letter: string | null;
+  status: string;
+  action: "create" | "update";
+}
+
 export interface ImportResult {
+  dry_run?: boolean;
   message: string;
   semesters: string[];
   created: number;
   updated: number;
   skipped: number;
   total_courses: number;
+  courses?: ImportPreviewCourse[];
 }
 
 export const studentApi = {
@@ -230,10 +243,12 @@ export const studentApi = {
 
   gpaHistory: () => apiClient.get<GpaHistoryEntry[]>("/students/me/gpa/history"),
 
-  importMyBK: (rawText: string) =>
-    apiClient.post<ImportResult>("/students/me/grades/import-mybk", rawText, {
-      headers: { "Content-Type": "text/plain" },
-    }),
+  importMyBK: (rawText: string, dryRun = false) =>
+    apiClient.post<ImportResult>(
+      `/students/me/grades/import-mybk${dryRun ? "?dry_run=true" : ""}`,
+      rawText,
+      { headers: { "Content-Type": "text/plain" } },
+    ),
 };
 
 // ─── Predictions ─────────────────────────────────────────────
@@ -798,9 +813,21 @@ export const adminApi = {
       params: { report_type: reportType, format },
       responseType: "blob",
     }),
+  exportWarnedStudents: (format: "xlsx" | "pdf" = "xlsx", minLevel: 1 | 2 | 3 = 1) =>
+    apiClient.get<Blob>("/admin/reports/warned-students", {
+      params: { format, min_level: minLevel },
+      responseType: "blob",
+    }),
   threshold: () => apiClient.get<AdminThresholdConfig>("/admin/threshold"),
-  updateThreshold: (value: number) =>
-    apiClient.patch<AdminThresholdConfig>("/admin/threshold", { ai_early_warning_threshold: value }),
+  updateThreshold: (aiThreshold: number) =>
+    apiClient.put<AdminThresholdConfig>("/admin/threshold", {
+      ai_early_warning_threshold: aiThreshold,
+      gpa_safe: 2.0,
+      gpa_warning_l1: 1.2,
+      gpa_warning_l2: 1.0,
+      gpa_dismissal: 0.8,
+      semester_gpa_l1: 0.8,
+    }),
 };
 
 // ─── M7: Admin events (CRUD) ────────────────────────────────

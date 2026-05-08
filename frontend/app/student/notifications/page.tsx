@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Bell, AlertTriangle, Calendar, Clock, CheckCheck, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SkeletonList } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -77,11 +78,7 @@ export default function NotificationsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground animate-pulse">{t("common.loading")}</div>
-      </div>
-    );
+    return <SkeletonList />;
   }
 
   if (error) {

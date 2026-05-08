@@ -14,6 +14,7 @@ import Link from "next/link";
 import { GraduationCap, BookOpen, AlertTriangle, TrendingUp, Bot } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { SkeletonDashboard } from "@/components/ui/skeleton";
 import {
   studentApi,
   predictionsApi,
@@ -99,8 +100,9 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground animate-pulse">{t("common.loading")}</div>
+      <div className="space-y-6">
+        <div className="h-8 w-48 rounded-md bg-muted animate-pulse" />
+        <SkeletonDashboard />
       </div>
     );
   }
@@ -117,6 +119,19 @@ export default function DashboardPage() {
   const failed_courses_total =
     dashboard.unresolved_failed_courses ?? dashboard.failed_courses_total;
   const warning = WARNING_KEYS[student.warning_level] ?? WARNING_KEYS[0];
+
+  // Personalized greeting — picks tone based on warning_level + GPA
+  const firstName = student.full_name.split(" ").pop() ?? student.full_name;
+  const personalizedGreeting = (() => {
+    if (student.warning_level >= 3) return { text: `Chào ${firstName} — hệ thống nhận thấy tình trạng học vụ đang rất đáng lo ngại.`, emoji: "🚨" };
+    if (student.warning_level === 2) return { text: `Chào ${firstName} — bạn đang ở mức cảnh báo 2, hãy liên hệ cố vấn học tập ngay.`, emoji: "⚠️" };
+    if (student.warning_level === 1) return { text: `Chào ${firstName} — bạn đang bị cảnh báo học vụ, cần cải thiện GPA trong kỳ này.`, emoji: "📢" };
+    if (student.gpa_cumulative >= 3.6) return { text: `Chào ${firstName}! Thành tích xuất sắc — tiếp tục phát huy nhé!`, emoji: "🌟" };
+    if (student.gpa_cumulative >= 3.2) return { text: `Chào ${firstName}! GPA rất tốt — bạn đang trên đà học tập ổn định.`, emoji: "🎓" };
+    if (student.gpa_cumulative >= 2.5) return { text: `Chào ${firstName}! Học tập ổn định — còn nhiều tiềm năng để cải thiện hơn.`, emoji: "📈" };
+    if (student.gpa_cumulative >= 2.0) return { text: `Chào ${firstName} — GPA đang ở mức an toàn, hãy cố gắng nâng cao thêm.`, emoji: "💪" };
+    return { text: `Chào ${firstName} — GPA dưới 2.0, cần tập trung cải thiện trong kỳ này.`, emoji: "📚" };
+  })();
 
   // Compute GPA trend insight from last 2 semesters
   const gpaInsight = (() => {
@@ -143,10 +158,11 @@ export default function DashboardPage() {
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-primary">{t("dashboard.title")}</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">
-            {t("dashboard.greeting")}{" "}
-            <span className="font-medium text-foreground">{student.full_name}</span> —{" "}
-            {student.mssv}
+          <p className="text-sm font-medium text-foreground mt-0.5">
+            {personalizedGreeting.emoji} {personalizedGreeting.text}
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {student.full_name} — {student.mssv}
           </p>
           {gpaInsight && (
             <p className={`text-sm mt-1 font-medium ${gpaInsight.color}`}>

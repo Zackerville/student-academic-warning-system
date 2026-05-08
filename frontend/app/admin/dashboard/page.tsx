@@ -1,4 +1,5 @@
 "use client";
+import { SkeletonDashboard } from "@/components/ui/skeleton";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -31,7 +32,7 @@ export default function AdminDashboardPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="text-muted-foreground animate-pulse">{t("common.loading")}</div>;
+  if (loading) return <SkeletonDashboard />;
   if (error || !data) return <div className="rounded-md bg-destructive/10 text-destructive px-4 py-3">{error}</div>;
 
   const totalRisk = data.by_risk_level.reduce((s, b) => s + b.count, 0) || 1;

@@ -1,4 +1,5 @@
 "use client";
+import { SkeletonList } from "@/components/ui/skeleton";
 
 import { useEffect, useState } from "react";
 import { Calendar, Plus, FileText, Upload, Star, PartyPopper, Pin, Pencil, Trash2 } from "lucide-react";
@@ -223,7 +224,7 @@ export default function AdminEventsPage() {
       )}
 
       {loading ? (
-        <div className="text-muted-foreground animate-pulse">{t("common.loading")}</div>
+        <SkeletonList />
       ) : error ? (
         <div className="rounded-md bg-destructive/10 text-destructive px-4 py-3">{error}</div>
       ) : items.length === 0 ? (

@@ -1,4 +1,5 @@
 "use client";
+import { SkeletonList } from "@/components/ui/skeleton";
 
 import { useEffect, useState } from "react";
 import {
@@ -10,7 +11,9 @@ import {
   FileText,
   GraduationCap,
   TrendingUp,
+  Users,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   Bar,
   BarChart,
@@ -70,13 +73,28 @@ export default function AdminReportsPage() {
         ?? `${reportType}_report.${format === "xlsx" ? "xlsx" : "pdf"}`;
       downloadBlob(response.data, filename);
     } catch {
-      alert(t("adminReports.exportError"));
+      toast.error(t("adminReports.exportError"));
     } finally {
       setExporting(null);
     }
   };
 
-  if (loading) return <div className="text-muted-foreground animate-pulse">{t("common.loading")}</div>;
+  const handleExportWarned = async (format: ExportFormat) => {
+    const key = `warned-${format}`;
+    setExporting(key);
+    try {
+      const response = await adminApi.exportWarnedStudents(format);
+      const disposition = response.headers["content-disposition"];
+      const filename = filenameFromDisposition(disposition) ?? `warned_students.${format}`;
+      downloadBlob(response.data, filename);
+    } catch {
+      toast.error(t("adminReports.exportError"));
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  if (loading) return <SkeletonList />;
   if (error || !stats) return <div className="rounded-md bg-destructive/10 text-destructive px-4 py-3">{error}</div>;
 
   const warningChart = stats.by_semester.map((s) => ({
@@ -234,7 +252,7 @@ export default function AdminReportsPage() {
           <CardTitle className="text-base">{t("adminReports.exportTitle")}</CardTitle>
           <p className="text-xs text-muted-foreground">{t("adminReports.exportHint")}</p>
         </CardHeader>
-        <CardContent className="grid gap-3 md:grid-cols-3">
+        <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <ExportPanel
             icon={FileText}
             title={t("adminReports.export.warnings")}
@@ -258,6 +276,13 @@ export default function AdminReportsPage() {
             busyKey={exporting}
             reportType="ai"
             onExport={handleExport}
+          />
+          <WarnedExportPanel
+            icon={Users}
+            title="SV đang bị cảnh báo"
+            description="Danh sách sinh viên có warning_level ≥ 1 hiện tại"
+            busyKey={exporting}
+            onExport={handleExportWarned}
           />
         </CardContent>
       </Card>
@@ -387,6 +412,49 @@ function ExportPanel({
           <Download className="h-3.5 w-3.5 mr-1" />
           {busyKey === xlsxKey ? t("common.loading") : t("adminReports.exportExcel")}
         </Button>
+      </div>
+    </div>
+  );
+}
+
+function WarnedExportPanel({
+  icon: Icon,
+  title,
+  description,
+  busyKey,
+  onExport,
+}: {
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  busyKey: string | null;
+  onExport: (format: ExportFormat) => void;
+}) {
+  const t = useT();
+  return (
+    <div className="rounded-lg border bg-amber-50/50 border-amber-200 p-5 space-y-3">
+      <Icon className="h-6 w-6 text-amber-600" />
+      <div>
+        <p className="font-medium text-sm">{title}</p>
+        <p className="text-xs text-muted-foreground mt-1">{description}</p>
+      </div>
+      <div className="flex gap-2 pt-1">
+        <button
+          className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-md border border-amber-300 bg-white hover:bg-amber-50 disabled:opacity-50 transition-colors"
+          disabled={!!busyKey}
+          onClick={() => onExport("pdf")}
+        >
+          <Download className="h-3.5 w-3.5" />
+          {busyKey === "warned-pdf" ? t("common.loading") : t("adminReports.exportPdf")}
+        </button>
+        <button
+          className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-md border border-amber-300 bg-white hover:bg-amber-50 disabled:opacity-50 transition-colors"
+          disabled={!!busyKey}
+          onClick={() => onExport("xlsx")}
+        >
+          <Download className="h-3.5 w-3.5" />
+          {busyKey === "warned-xlsx" ? t("common.loading") : t("adminReports.exportExcel")}
+        </button>
       </div>
     </div>
   );

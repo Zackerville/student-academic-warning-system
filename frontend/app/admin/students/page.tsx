@@ -1,4 +1,5 @@
 "use client";
+import { SkeletonTable } from "@/components/ui/skeleton";
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -113,7 +114,7 @@ export default function AdminStudentsPage() {
       </Card>
 
       {loading ? (
-        <div className="text-muted-foreground animate-pulse">{t("common.loading")}</div>
+        <SkeletonTable rows={6} />
       ) : error ? (
         <div className="rounded-md bg-destructive/10 text-destructive px-4 py-3">{error}</div>
       ) : items.length === 0 ? (

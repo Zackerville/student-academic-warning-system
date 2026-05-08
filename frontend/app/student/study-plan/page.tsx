@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { studyPlanApi, type StudyPlanResponse } from "@/lib/api";
 import { useT, type TKey } from "@/lib/i18n";
+import { SkeletonList } from "@/components/ui/skeleton";
 
 const PRIORITY_META: Record<number, { variant: "default" | "secondary" | "destructive"; labelKey: TKey; ring: string }> = {
   1: { variant: "destructive", labelKey: "studyPlan.priority.high",   ring: "ring-red-300 bg-red-50" },
@@ -29,11 +30,7 @@ export default function StudyPlanPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground animate-pulse">{t("common.loading")}</div>
-      </div>
-    );
+    return <SkeletonList />;
   }
 
   if (error || !plan) {

@@ -1,4 +1,5 @@
 "use client";
+import { SkeletonDashboard } from "@/components/ui/skeleton";
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -39,7 +40,7 @@ export default function AdminStudentDetailPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { reload(); }, [studentId]);
 
-  if (loading) return <div className="text-muted-foreground animate-pulse">{t("common.loading")}</div>;
+  if (loading) return <SkeletonDashboard />;
   if (error || !data) return <div className="rounded-md bg-destructive/10 text-destructive px-4 py-3">{error}</div>;
 
   return (

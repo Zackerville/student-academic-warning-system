@@ -3,12 +3,13 @@
 import {
   type FormEvent,
   type KeyboardEvent,
-  type ReactNode,
   useCallback,
   useEffect,
   useRef,
   useState,
 } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Bot, FileText, Loader2, RotateCcw, Send, UserRound } from "lucide-react";
 import { API_BASE, chatbotApi, type ChatCitation, type ChatMessageResponse } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -289,10 +290,13 @@ function MessageBubble({ message }: { message: UiMessage }) {
                 key={`${citation.document_id}-${citation.index}`}
                 className="rounded-md border bg-gray-50 px-3 py-2 text-xs text-gray-600"
               >
-                <div className="mb-1 flex items-center gap-2 font-medium text-gray-800">
+                <div className="mb-1 flex flex-wrap items-center gap-2 font-medium text-gray-800">
                   <FileText className="h-3.5 w-3.5" />
-                  [{citation.index}] {citation.filename}
-                  {citation.page_number ? `, trang ${citation.page_number}` : ""}
+                  <span>
+                    [{citation.index}] {citation.filename}
+                    {citation.page_number ? `, trang ${citation.page_number}` : ""}
+                  </span>
+                  <MatchTypeBadge matchType={citation.match_type} />
                 </div>
                 <p className="line-clamp-3">{citation.snippet}</p>
               </div>
@@ -309,6 +313,36 @@ function MessageBubble({ message }: { message: UiMessage }) {
   );
 }
 
+function MatchTypeBadge({ matchType }: { matchType?: ChatCitation["match_type"] }) {
+  if (!matchType) return null;
+  const config: Record<NonNullable<ChatCitation["match_type"]>, { label: string; className: string }> = {
+    vector: {
+      label: "Vector",
+      className: "bg-blue-50 text-blue-700 ring-blue-200",
+    },
+    keyword: {
+      label: "Từ khóa",
+      className: "bg-amber-50 text-amber-700 ring-amber-200",
+    },
+    merged: {
+      label: "Vector + Từ khóa",
+      className: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    },
+  };
+  const { label, className } = config[matchType];
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ring-1 ring-inset",
+        className
+      )}
+      title={`Nguồn match: ${label}`}
+    >
+      {label}
+    </span>
+  );
+}
+
 function toUiMessage(message: ChatMessageResponse): UiMessage {
   return {
     id: message.id,
@@ -319,93 +353,63 @@ function toUiMessage(message: ChatMessageResponse): UiMessage {
 }
 
 function MarkdownMessage({ content }: { content: string }) {
-  const blocks = toMarkdownBlocks(content);
   return (
-    <div className="space-y-2">
-      {blocks.map((block, index) => {
-        if (block.type === "list") {
-          return (
-            <ul key={index} className="list-disc space-y-1 pl-5">
-              {block.items.map((item, itemIndex) => (
-                <li key={itemIndex}>{renderInlineMarkdown(item, `${index}-${itemIndex}`)}</li>
-              ))}
-            </ul>
-          );
-        }
-
-        return (
-          <p key={index} className="whitespace-pre-wrap">
-            {renderInlineMarkdown(block.text, String(index))}
-          </p>
-        );
-      })}
+    <div className="space-y-2 text-sm leading-6">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          p: ({ children }) => <p className="whitespace-pre-wrap">{children}</p>,
+          ul: ({ children }) => <ul className="list-disc space-y-1 pl-5">{children}</ul>,
+          ol: ({ children }) => <ol className="list-decimal space-y-1 pl-5">{children}</ol>,
+          li: ({ children }) => <li className="leading-6">{children}</li>,
+          strong: ({ children }) => (
+            <strong className="font-semibold text-gray-950">{children}</strong>
+          ),
+          em: ({ children }) => <em className="italic">{children}</em>,
+          a: ({ href, children }) => (
+            <a
+              href={href}
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary underline underline-offset-2 hover:text-primary/80"
+            >
+              {children}
+            </a>
+          ),
+          code: ({ children }) => (
+            <code className="rounded bg-gray-100 px-1 py-0.5 font-mono text-[13px] text-gray-900">
+              {children}
+            </code>
+          ),
+          pre: ({ children }) => (
+            <pre className="overflow-x-auto rounded-md border bg-gray-50 p-3 text-[13px]">
+              {children}
+            </pre>
+          ),
+          blockquote: ({ children }) => (
+            <blockquote className="border-l-2 border-gray-300 pl-3 italic text-gray-700">
+              {children}
+            </blockquote>
+          ),
+          h1: ({ children }) => <h3 className="text-base font-semibold text-gray-900">{children}</h3>,
+          h2: ({ children }) => <h3 className="text-base font-semibold text-gray-900">{children}</h3>,
+          h3: ({ children }) => <h3 className="text-sm font-semibold text-gray-900">{children}</h3>,
+          h4: ({ children }) => <h4 className="text-sm font-semibold text-gray-900">{children}</h4>,
+          table: ({ children }) => (
+            <div className="overflow-x-auto">
+              <table className="min-w-full border-collapse text-xs">{children}</table>
+            </div>
+          ),
+          th: ({ children }) => (
+            <th className="border bg-gray-100 px-2 py-1 text-left font-semibold text-gray-800">
+              {children}
+            </th>
+          ),
+          td: ({ children }) => <td className="border px-2 py-1">{children}</td>,
+        }}
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   );
-}
-
-type MarkdownBlock =
-  | { type: "paragraph"; text: string }
-  | { type: "list"; items: string[] };
-
-function toMarkdownBlocks(content: string): MarkdownBlock[] {
-  const blocks: MarkdownBlock[] = [];
-  const lines = content.split("\n");
-  let paragraph: string[] = [];
-  let listItems: string[] = [];
-
-  const flushParagraph = () => {
-    if (paragraph.length === 0) return;
-    blocks.push({ type: "paragraph", text: paragraph.join("\n") });
-    paragraph = [];
-  };
-
-  const flushList = () => {
-    if (listItems.length === 0) return;
-    blocks.push({ type: "list", items: listItems });
-    listItems = [];
-  };
-
-  for (const line of lines) {
-    const bullet = line.match(/^\s*(?:[-*]|\d+\.)\s+(.+)$/);
-    if (bullet) {
-      flushParagraph();
-      listItems.push(bullet[1]);
-      continue;
-    }
-
-    flushList();
-    if (line.trim()) {
-      paragraph.push(line);
-    } else {
-      flushParagraph();
-    }
-  }
-
-  flushParagraph();
-  flushList();
-  return blocks;
-}
-
-function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
-  const nodes: ReactNode[] = [];
-  const pattern = /\*\*(.+?)\*\*/g;
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-
-  while ((match = pattern.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      nodes.push(text.slice(lastIndex, match.index));
-    }
-    nodes.push(
-      <strong key={`${keyPrefix}-${match.index}`} className="font-semibold text-gray-950">
-        {match[1]}
-      </strong>
-    );
-    lastIndex = match.index + match[0].length;
-  }
-
-  if (lastIndex < text.length) {
-    nodes.push(text.slice(lastIndex));
-  }
-  return nodes;
 }
