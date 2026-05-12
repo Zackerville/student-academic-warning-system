@@ -16,6 +16,7 @@ const NAV_ITEMS: { href: string; labelKey: TKey; icon: string; tourId?: string }
   { href: "/student/predictions",   labelKey: "nav.predictions",   icon: "🤖", tourId: "sidebar-predictions" },
   { href: "/student/study-plan",    labelKey: "nav.studyPlan",     icon: "🎯" },
   { href: "/student/chatbot",       labelKey: "nav.chatbot",       icon: "💬", tourId: "sidebar-chatbot" },
+  { href: "/student/schedule",      labelKey: "nav.schedule",      icon: "🗓️" },
   { href: "/student/events",        labelKey: "nav.events",        icon: "📅" },
   { href: "/student/notifications", labelKey: "nav.notifications", icon: "🔔" },
 ];

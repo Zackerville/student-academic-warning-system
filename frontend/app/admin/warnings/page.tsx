@@ -2,11 +2,13 @@
 import { SkeletonTable } from "@/components/ui/skeleton";
 
 import { useEffect, useState } from "react";
-import { Bot, Hourglass, Mail, CheckCheck, Settings, Play } from "lucide-react";
+import { Bot, Hourglass, Mail, CheckCheck, Settings, Play, Eye, AlertTriangle, GraduationCap, BookOpen, TrendingDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { adminApi, type PendingWarningItem } from "@/lib/api";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { adminApi, type PendingWarningItem, type AdminStudentDetail } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/lib/i18n";
 
@@ -25,6 +27,24 @@ export default function AdminWarningsPage() {
   const [editingThreshold, setEditingThreshold] = useState("");
   const [savingThreshold, setSavingThreshold] = useState(false);
   const [thresholdError, setThresholdError] = useState<string | null>(null);
+
+  const [detailItem, setDetailItem] = useState<PendingWarningItem | null>(null);
+  const [studentDetail, setStudentDetail] = useState<AdminStudentDetail | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  const openDetail = async (item: PendingWarningItem) => {
+    setDetailItem(item);
+    setStudentDetail(null);
+    setDetailLoading(true);
+    try {
+      const r = await adminApi.studentDetail(item.student_id);
+      setStudentDetail(r.data);
+    } catch {
+      // show what we have from the list item
+    } finally {
+      setDetailLoading(false);
+    }
+  };
 
   const reload = async () => {
     setLoading(true);
@@ -209,6 +229,10 @@ export default function AdminWarningsPage() {
                       <span className="font-bold text-destructive">
                         {(it.risk_score * 100).toFixed(0)}%
                       </span>
+                      <Button size="sm" variant="outline" onClick={() => openDetail(it)}>
+                        <Eye className="h-3.5 w-3.5 mr-1" />
+                        Chi tiết
+                      </Button>
                       <Button
                         size="sm"
                         onClick={() => handleApprove(it)}
@@ -227,6 +251,141 @@ export default function AdminWarningsPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Detail Dialog */}
+      <Dialog open={!!detailItem} onOpenChange={(open: boolean) => { if (!open) setDetailItem(null); }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              Chi tiết cảnh báo học vụ
+            </DialogTitle>
+          </DialogHeader>
+
+          {detailItem && (
+            <div className="space-y-4 text-sm">
+              {/* Student basic info */}
+              <div className="rounded-lg border p-4 space-y-2">
+                <p className="font-semibold text-base flex items-center gap-2">
+                  <GraduationCap className="h-4 w-4 text-primary" />
+                  {detailItem.full_name}
+                  <span className="font-mono text-xs text-muted-foreground">{detailItem.mssv}</span>
+                </p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-muted-foreground">
+                  <span>Khoa</span>
+                  <span className="text-foreground font-medium">{detailItem.faculty}</span>
+                  {studentDetail?.major && (
+                    <>
+                      <span>Ngành</span>
+                      <span className="text-foreground font-medium">{studentDetail.major}</span>
+                    </>
+                  )}
+                  {studentDetail?.cohort && (
+                    <>
+                      <span>Khóa</span>
+                      <span className="text-foreground font-medium">{studentDetail.cohort}</span>
+                    </>
+                  )}
+                  {studentDetail?.email && (
+                    <>
+                      <span>Email</span>
+                      <span className="text-foreground font-medium break-all">{studentDetail.email}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Academic stats */}
+              <div className="rounded-lg border p-4 space-y-2">
+                <p className="font-semibold flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-primary" />
+                  Tình trạng học tập
+                </p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-muted-foreground">
+                  <span>GPA tích lũy</span>
+                  <span className={`font-bold ${detailItem.gpa_cumulative < 1.2 ? "text-destructive" : detailItem.gpa_cumulative < 2.0 ? "text-orange-600" : "text-green-600"}`}>
+                    {detailItem.gpa_cumulative.toFixed(2)}
+                  </span>
+                  {studentDetail && (
+                    <>
+                      <span>Tín chỉ tích lũy</span>
+                      <span className="text-foreground font-medium">{studentDetail.credits_earned} TC</span>
+                      <span>Môn F hiện tại</span>
+                      <span className={`font-medium ${studentDetail.failed_courses_total > 0 ? "text-destructive" : "text-foreground"}`}>
+                        {studentDetail.failed_courses_total} môn
+                      </span>
+                      <span>Mức cảnh báo hiện tại</span>
+                      <span className="font-medium">
+                        {studentDetail.warning_level === 0 ? "Không cảnh báo" : `Mức ${studentDetail.warning_level}`}
+                      </span>
+                    </>
+                  )}
+                  {detailLoading && <span className="col-span-2 text-muted-foreground italic">Đang tải thêm thông tin...</span>}
+                </div>
+              </div>
+
+              {/* Warning being reviewed */}
+              <div className={`rounded-lg border-l-4 p-4 space-y-2 ${
+                detailItem.suggested_level >= 3 ? "border-l-red-600 bg-red-50/50"
+                : detailItem.suggested_level >= 2 ? "border-l-orange-500 bg-orange-50/50"
+                : "border-l-yellow-500 bg-yellow-50/50"
+              }`}>
+                <p className="font-semibold flex items-center gap-2">
+                  <TrendingDown className="h-4 w-4 text-destructive" />
+                  Cảnh báo đề xuất
+                </p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-muted-foreground">
+                  <span>Mức đề xuất</span>
+                  <Badge variant={detailItem.suggested_level >= 2 ? "destructive" : "secondary"} className="w-fit">
+                    {detailItem.suggested_level === 3 ? "Buộc thôi học" : `Cảnh báo mức ${detailItem.suggested_level}`}
+                  </Badge>
+                  <span>Risk score AI</span>
+                  <span className="font-bold text-destructive">{(detailItem.risk_score * 100).toFixed(1)}%</span>
+                  <span>Mức rủi ro</span>
+                  <span className="font-medium capitalize">{detailItem.risk_level}</span>
+                  <span>Học kỳ</span>
+                  <span className="font-medium">{detailItem.semester}</span>
+                </div>
+                <Separator className="my-1" />
+                <p className="font-medium text-foreground">Lý do:</p>
+                <p className="text-foreground leading-relaxed">{detailItem.reason}</p>
+              </div>
+
+              {/* Warning history */}
+              {studentDetail?.warnings && studentDetail.warnings.length > 0 && (
+                <div className="rounded-lg border p-4 space-y-2">
+                  <p className="font-semibold">Lịch sử cảnh báo ({studentDetail.warnings.length})</p>
+                  <div className="space-y-1.5">
+                    {studentDetail.warnings.slice(0, 5).map((w, i) => (
+                      <div key={i} className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">HK {w.semester}</span>
+                        <Badge variant={w.level >= 2 ? "destructive" : "secondary"} className="text-xs">
+                          {w.level === 3 ? "Buộc thôi học" : `Mức ${w.level}`}
+                        </Badge>
+                        <span className={w.is_resolved ? "text-green-600" : "text-orange-600"}>
+                          {w.is_resolved ? "Đã xử lý" : "Chưa xử lý"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-2 pt-1">
+                <Button
+                  className="flex-1"
+                  onClick={() => { handleApprove(detailItem); setDetailItem(null); }}
+                  disabled={busyId === detailItem.student_id}
+                >
+                  {busyId === detailItem.student_id ? t("adminWarnings.approving") : "Duyệt cảnh báo"}
+                </Button>
+                <Button variant="outline" onClick={() => setDetailItem(null)}>Đóng</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

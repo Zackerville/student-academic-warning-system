@@ -249,7 +249,95 @@ export const studentApi = {
       rawText,
       { headers: { "Content-Type": "text/plain" } },
     ),
+
+  // ─── M9 Schedule ────────────────────────────────────────────
+  getTimetable: () => apiClient.get<TimetableResponse>("/students/me/timetable"),
+  importTimetable: (pasteText: string) =>
+    apiClient.post<TimetableImportResponse>("/students/me/timetable/import", { paste_text: pasteText }),
+  clearTimetable: () => apiClient.delete("/students/me/timetable"),
+
+  getExamSchedule: () => apiClient.get<ExamScheduleResponse>("/students/me/exam-schedule"),
+  importExamSchedule: (pasteText: string) =>
+    apiClient.post<ExamScheduleImportResponse>("/students/me/exam-schedule/import", { paste_text: pasteText }),
+  clearExamSchedule: () => apiClient.delete("/students/me/exam-schedule"),
+
+  listPersonalEvents: () =>
+    apiClient.get<{ items: PersonalEvent[] }>("/students/me/personal-events"),
+  createPersonalEvent: (payload: PersonalEventCreatePayload) =>
+    apiClient.post<PersonalEvent>("/students/me/personal-events", payload),
+  deletePersonalEvent: (id: string) =>
+    apiClient.delete(`/students/me/personal-events/${id}`),
 };
+
+// ─── M9 Schedule types ─────────────────────────────────────────
+
+export interface TimetableSession {
+  course_code: string;
+  course_name: string;
+  credits: number;
+  group: string;
+  day_of_week: number | null;
+  start_period: number | null;
+  end_period: number | null;
+  start_time: string | null;
+  end_time: string | null;
+  room: string;
+  campus: string;
+  active_weeks: number[];
+}
+export interface TimetableResponse {
+  semester: string;
+  sessions: TimetableSession[];
+  week_1_monday: string | null;  // ISO date — Monday of academic week 1
+  updated_at: string | null;
+}
+export interface TimetableImportResponse {
+  semester: string;
+  sessions_count: number;
+  enrollments_created: number;
+  enrollments_skipped: number;
+  timetable: TimetableResponse;
+}
+
+export interface ExamEntry {
+  course_code: string;
+  course_name: string;
+  group: string;
+  exam_date: string;       // ISO "2026-05-25"
+  exam_type: string;       // "CK" | "GK"
+  campus: string;
+  room: string;
+  day_of_week: number | null;
+  start_time: string;
+  duration_min: number;
+}
+export interface ExamScheduleResponse {
+  semester: string;
+  exams: ExamEntry[];
+  updated_at: string | null;
+}
+export interface ExamScheduleImportResponse {
+  semester: string;
+  exams_count: number;
+  exam_schedule: ExamScheduleResponse;
+}
+
+export interface PersonalEvent {
+  id: string;
+  title: string;
+  start_time: string;
+  end_time: string | null;
+  description: string | null;
+  color: string | null;
+  created_at: string;
+}
+export interface PersonalEventCreatePayload {
+  title: string;
+  start_time: string;
+  end_time?: string | null;
+  description?: string | null;
+  color?: string | null;
+}
 
 // ─── Predictions ─────────────────────────────────────────────
 
