@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Upload, CalendarDays, ListTodo, Trash2, Plus, Sparkles, ChevronLeft, ChevronRight, Pencil } from "lucide-react";
+import { Upload, CalendarDays, ListTodo, Trash2, Plus, Sparkles, ChevronLeft, ChevronRight, Pencil, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -89,6 +89,26 @@ export default function SchedulePage() {
     }
   }, []);
 
+  const handleDeleteSessions: DeleteSessionFn = useCallback(async (params) => {
+    try {
+      await studentApi.deleteTimetableSessions(params);
+      toast.success("Đã xóa khỏi TKB");
+      await reload();
+    } catch {
+      toast.error("Xóa thất bại");
+    }
+  }, [reload]);
+
+  const handleDeleteExam: DeleteExamFn = useCallback(async (params) => {
+    try {
+      await studentApi.deleteExamEntries(params);
+      toast.success("Đã xóa lịch thi");
+      await reload();
+    } catch {
+      toast.error("Xóa thất bại");
+    }
+  }, [reload]);
+
   useEffect(() => { reload(); }, [reload]);
 
   const sessionsWithSchedule = useMemo(
@@ -105,7 +125,7 @@ export default function SchedulePage() {
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-primary flex items-center gap-2">
-            <CalendarDays className="h-6 w-6" /> Lịch học & Lịch thi
+            <CalendarDays className="h-6 w-6" /> Thời khóa biểu và lịch
           </h1>
           <p className="text-muted-foreground text-sm mt-0.5">
             Quản lý thời khóa biểu, lịch thi và các sự kiện học vụ {semester && <Badge variant="outline" className="ml-2">HK {semester}</Badge>}
@@ -151,6 +171,7 @@ export default function SchedulePage() {
             <WeekView
               sessions={sessionsWithSchedule}
               noScheduleSessions={sessionsNoSchedule}
+              onDeleteSessions={handleDeleteSessions}
             />
           )}
           {tab === "month" && (
@@ -165,6 +186,8 @@ export default function SchedulePage() {
                 toast.success("Đã xóa sự kiện");
                 reload();
               }}
+              onDeleteSessions={handleDeleteSessions}
+              onDeleteExam={handleDeleteExam}
             />
           )}
           {tab === "list" && (
@@ -177,6 +200,7 @@ export default function SchedulePage() {
                 toast.success("Đã xóa sự kiện");
                 reload();
               }}
+              onDeleteExam={handleDeleteExam}
             />
           )}
         </>
@@ -193,8 +217,18 @@ export default function SchedulePage() {
 // ───────────────────────────────────────────────────────────────
 // Week View
 // ───────────────────────────────────────────────────────────────
-function WeekView({ sessions, noScheduleSessions }: { sessions: TimetableSession[]; noScheduleSessions: TimetableSession[] }) {
-  // Build a grid: for each (day, period), find the session that occupies it
+type DeleteSessionFn = (params: { course_code: string; group?: string; day_of_week?: number; start_period?: number }) => Promise<void>;
+type DeleteExamFn = (params: { course_code: string; exam_date?: string; exam_type?: string }) => Promise<void>;
+
+function WeekView({
+  sessions, noScheduleSessions, onDeleteSessions,
+}: {
+  sessions: TimetableSession[];
+  noScheduleSessions: TimetableSession[];
+  onDeleteSessions: DeleteSessionFn;
+}) {
+  const [deleteTarget, setDeleteTarget] = useState<TimetableSession | null>(null);
+
   const grid = useMemo(() => {
     const g: Record<string, TimetableSession & { isStart: boolean; span: number }> = {};
     for (const s of sessions) {
@@ -220,71 +254,169 @@ function WeekView({ sessions, noScheduleSessions }: { sessions: TimetableSession
   }
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardContent className="p-0 overflow-x-auto">
-          <table className="w-full text-xs border-collapse">
-            <thead className="bg-muted/40">
-              <tr>
-                <th className="w-20 px-2 py-2 border text-muted-foreground font-medium">Tiết</th>
-                {DAY_VALUES.map((d) => (
-                  <th key={d} className="px-2 py-2 border text-foreground font-medium">{DAYS_VI[d]}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {PERIODS.map((p) => (
-                <tr key={p}>
-                  <td className="border px-2 py-1 text-center bg-muted/20">
-                    <div className="font-medium">{p}</div>
-                    <div className="text-muted-foreground text-[10px]">{PERIOD_TIMES[p]}</div>
-                  </td>
-                  {DAY_VALUES.map((d) => {
-                    const key = `${d}-${p}`;
-                    const cell = grid[key];
-                    if (!cell) return <td key={d} className="border h-12"></td>;
-                    if (!cell.isStart) return null;
-                    return (
-                      <td
-                        key={d}
-                        rowSpan={cell.span}
-                        className={`border-2 px-2 py-1.5 align-top ${courseColor(cell.course_code)}`}
-                      >
-                        <div className="font-semibold text-xs leading-tight">{cell.course_code}</div>
-                        <div className="text-[11px] mt-0.5 leading-tight line-clamp-2">{cell.course_name}</div>
-                        <div className="text-[10px] mt-1 opacity-80">
-                          📍 {cell.room} · {cell.start_time}–{cell.end_time}
-                        </div>
-                        <div className="text-[10px] opacity-70">Nhóm {cell.group}</div>
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </CardContent>
-      </Card>
-
-      {noScheduleSessions.length > 0 && (
+    <>
+      <div className="space-y-4">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Môn không có lịch cố định ({noScheduleSessions.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {noScheduleSessions.map((s) => (
-                <div key={`${s.course_code}-${s.group}`} className={`p-3 rounded border-2 ${courseColor(s.course_code)}`}>
-                  <div className="font-semibold text-sm">{s.course_code}</div>
-                  <div className="text-xs mt-0.5">{s.course_name}</div>
-                  <div className="text-xs opacity-70 mt-1">Nhóm {s.group} · {s.credits} TC</div>
-                </div>
-              ))}
-            </div>
+          <CardContent className="p-0 overflow-x-auto">
+            <table className="w-full text-xs border-collapse">
+              <thead className="bg-muted/40">
+                <tr>
+                  <th className="w-20 px-2 py-2 border text-muted-foreground font-medium">Tiết</th>
+                  {DAY_VALUES.map((d) => (
+                    <th key={d} className="px-2 py-2 border text-foreground font-medium">{DAYS_VI[d]}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {PERIODS.map((p) => (
+                  <tr key={p}>
+                    <td className="border px-2 py-1 text-center bg-muted/20">
+                      <div className="font-medium">{p}</div>
+                      <div className="text-muted-foreground text-[10px]">{PERIOD_TIMES[p]}</div>
+                    </td>
+                    {DAY_VALUES.map((d) => {
+                      const key = `${d}-${p}`;
+                      const cell = grid[key];
+                      if (!cell) return <td key={d} className="border h-12"></td>;
+                      if (!cell.isStart) return null;
+                      return (
+                        <td
+                          key={d}
+                          rowSpan={cell.span}
+                          className={`border-2 px-2 py-1.5 align-top relative group ${courseColor(cell.course_code)}`}
+                        >
+                          <button
+                            onClick={() => setDeleteTarget(cell)}
+                            className="absolute top-1 right-1 hidden group-hover:flex items-center justify-center w-4 h-4 rounded-full bg-white/80 hover:bg-red-100 text-red-500 shadow-sm"
+                            title="Xóa khỏi TKB"
+                          >
+                            <X className="w-2.5 h-2.5" />
+                          </button>
+                          <div className="font-semibold text-xs leading-tight">{cell.course_code}</div>
+                          <div className="text-[11px] mt-0.5 leading-tight line-clamp-2">{cell.course_name}</div>
+                          <div className="text-[10px] mt-1 opacity-80">
+                            📍 {cell.room} · {cell.start_time}–{cell.end_time}
+                          </div>
+                          <div className="text-[10px] opacity-70">Nhóm {cell.group}</div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </CardContent>
         </Card>
+
+        {noScheduleSessions.length > 0 && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Môn không có lịch cố định ({noScheduleSessions.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {noScheduleSessions.map((s) => (
+                  <div key={`${s.course_code}-${s.group}`} className={`p-3 rounded border-2 relative group ${courseColor(s.course_code)}`}>
+                    <button
+                      onClick={() => setDeleteTarget(s)}
+                      className="absolute top-1 right-1 hidden group-hover:flex items-center justify-center w-5 h-5 rounded-full bg-white/80 hover:bg-red-100 text-red-500 shadow-sm"
+                      title="Xóa khỏi TKB"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                    <div className="font-semibold text-sm">{s.course_code}</div>
+                    <div className="text-xs mt-0.5">{s.course_name}</div>
+                    <div className="text-xs opacity-70 mt-1">Nhóm {s.group} · {s.credits} TC</div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {deleteTarget && (
+        <DeleteSessionDialog
+          session={deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          onDeleteOne={async () => {
+            await onDeleteSessions({
+              course_code: deleteTarget.course_code,
+              group: deleteTarget.group,
+              day_of_week: deleteTarget.day_of_week ?? undefined,
+              start_period: deleteTarget.start_period ?? undefined,
+            });
+            setDeleteTarget(null);
+          }}
+          onDeleteAll={async () => {
+            await onDeleteSessions({ course_code: deleteTarget.course_code });
+            setDeleteTarget(null);
+          }}
+        />
       )}
-    </div>
+    </>
+  );
+}
+
+// ───────────────────────────────────────────────────────────────
+// Delete Session Confirm Dialog
+// ───────────────────────────────────────────────────────────────
+function DeleteSessionDialog({
+  session, onClose, onDeleteOne, onDeleteAll,
+}: {
+  session: TimetableSession;
+  onClose: () => void;
+  onDeleteOne: () => Promise<void>;
+  onDeleteAll: () => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+  const dayLabel = session.day_of_week != null ? DAYS_VI[session.day_of_week] : null;
+  const periodLabel = session.start_period != null
+    ? `tiết ${session.start_period}${session.end_period && session.end_period !== session.start_period ? `–${session.end_period}` : ""}`
+    : null;
+
+  const run = async (fn: () => Promise<void>) => {
+    setBusy(true);
+    try { await fn(); } finally { setBusy(false); }
+  };
+
+  return (
+    <Dialog open onOpenChange={(o) => { if (!o && !busy) onClose(); }}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Trash2 className="h-4 w-4 text-destructive" /> Xóa khỏi TKB
+          </DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground">
+          Môn <strong>{session.course_code}</strong> — {session.course_name}
+          {dayLabel && periodLabel && <> · {dayLabel} {periodLabel}</>}
+        </p>
+        <div className="flex flex-col gap-2 pt-1">
+          {session.day_of_week != null && (
+            <Button
+              variant="outline"
+              className="justify-start text-sm"
+              disabled={busy}
+              onClick={() => run(onDeleteOne)}
+            >
+              <X className="h-4 w-4 mr-2 text-orange-500" />
+              Xóa buổi {dayLabel} {periodLabel} của nhóm {session.group}
+            </Button>
+          )}
+          <Button
+            variant="destructive"
+            className="justify-start text-sm"
+            disabled={busy}
+            onClick={() => run(onDeleteAll)}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Xóa toàn bộ môn {session.course_code} khỏi TKB
+          </Button>
+          <Button variant="ghost" onClick={onClose} disabled={busy}>Hủy</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -292,7 +424,7 @@ function WeekView({ sessions, noScheduleSessions }: { sessions: TimetableSession
 // Month View
 // ───────────────────────────────────────────────────────────────
 function MonthView({
-  exams, adminEvents, personalEvents, sessions, week1Monday, onDeletePersonal,
+  exams, adminEvents, personalEvents, sessions, week1Monday, onDeletePersonal, onDeleteSessions, onDeleteExam,
 }: {
   exams: ExamEntry[];
   adminEvents: EventResponse[];
@@ -300,6 +432,8 @@ function MonthView({
   sessions: TimetableSession[];
   week1Monday: string | null;
   onDeletePersonal: (id: string) => Promise<void>;
+  onDeleteSessions: DeleteSessionFn;
+  onDeleteExam: DeleteExamFn;
 }) {
   const [cursor, setCursor] = useState(() => {
     const now = new Date();
@@ -401,7 +535,9 @@ function MonthView({
                   <div className="space-y-0.5 mt-1">
                     {evs.classes.slice(0, 2).map((s, idx) => (
                       <div key={`c${idx}`} className={`text-[10px] truncate px-1 py-0.5 rounded ${courseColor(s.course_code)}`}>
-                        {s.course_code} {s.start_time && `· ${s.start_time}`}
+                        <span className="font-medium">{s.course_code}</span>
+                        {s.course_name && <span className="opacity-75"> · {s.course_name}</span>}
+                        {s.start_time && <span className="opacity-60"> {s.start_time}</span>}
                       </div>
                     ))}
                     {evs.classes.length > 2 && (
@@ -435,6 +571,8 @@ function MonthView({
             events={dayEvents[selectedDay]}
             onClose={() => setSelectedDay(null)}
             onDeletePersonal={onDeletePersonal}
+            onDeleteSessions={onDeleteSessions}
+            onDeleteExam={onDeleteExam}
           />
         )}
       </CardContent>
@@ -443,12 +581,14 @@ function MonthView({
 }
 
 function DayDetailDialog({
-  dayKey, events, onClose, onDeletePersonal,
+  dayKey, events, onClose, onDeletePersonal, onDeleteSessions, onDeleteExam,
 }: {
   dayKey: string;
   events?: { exams: ExamEntry[]; admin: EventResponse[]; personal: PersonalEvent[]; classes: TimetableSession[] };
   onClose: () => void;
   onDeletePersonal: (id: string) => Promise<void>;
+  onDeleteSessions: DeleteSessionFn;
+  onDeleteExam: DeleteExamFn;
 }) {
   const date = new Date(dayKey);
   const dateLabel = date.toLocaleDateString("vi-VN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
@@ -474,6 +614,25 @@ function DayDetailDialog({
             <p className="text-xs opacity-80 mt-1">
               🕐 Tiết {s.start_period}–{s.end_period} ({s.start_time}–{s.end_time}) · 📍 {s.room} ({s.campus})
             </p>
+            <div className="flex gap-2 mt-2">
+              <Button
+                size="sm" variant="outline"
+                className="text-xs h-7 px-2 text-orange-700 border-orange-300 hover:bg-orange-50"
+                onClick={() => onDeleteSessions({
+                  course_code: s.course_code, group: s.group,
+                  day_of_week: s.day_of_week ?? undefined, start_period: s.start_period ?? undefined,
+                }).then(onClose)}
+              >
+                <X className="h-3 w-3 mr-1" /> Xóa buổi này
+              </Button>
+              <Button
+                size="sm" variant="outline"
+                className="text-xs h-7 px-2 text-destructive border-destructive/30 hover:bg-red-50"
+                onClick={() => onDeleteSessions({ course_code: s.course_code }).then(onClose)}
+              >
+                <Trash2 className="h-3 w-3 mr-1" /> Xóa cả môn
+              </Button>
+            </div>
           </div>
         ))}
         {events?.exams.map((e, idx) => (
@@ -485,6 +644,22 @@ function DayDetailDialog({
             <p className="text-sm mt-1">{e.course_name}</p>
             <p className="text-xs text-muted-foreground mt-1">🕐 {e.start_time} ({e.duration_min} phút) · 📍 {e.room} ({e.campus})</p>
             <p className="text-xs text-muted-foreground">Nhóm {e.group}</p>
+            <div className="flex gap-2 mt-2">
+              <Button
+                size="sm" variant="outline"
+                className="text-xs h-7 px-2 text-orange-700 border-orange-300 hover:bg-orange-50"
+                onClick={() => onDeleteExam({ course_code: e.course_code, exam_date: e.exam_date, exam_type: e.exam_type }).then(onClose)}
+              >
+                <X className="h-3 w-3 mr-1" /> Xóa lịch thi này
+              </Button>
+              <Button
+                size="sm" variant="outline"
+                className="text-xs h-7 px-2 text-destructive border-destructive/30 hover:bg-red-50"
+                onClick={() => onDeleteExam({ course_code: e.course_code }).then(onClose)}
+              >
+                <Trash2 className="h-3 w-3 mr-1" /> Xóa cả môn
+              </Button>
+            </div>
           </div>
         ))}
         {events?.admin.map((e, idx) => (
@@ -521,12 +696,13 @@ function DayDetailDialog({
 // Upcoming List
 // ───────────────────────────────────────────────────────────────
 function UpcomingList({
-  exams, adminEvents, personalEvents, onDeletePersonal,
+  exams, adminEvents, personalEvents, onDeletePersonal, onDeleteExam,
 }: {
   exams: ExamEntry[];
   adminEvents: EventResponse[];
   personalEvents: PersonalEvent[];
   onDeletePersonal: (id: string) => Promise<void>;
+  onDeleteExam: DeleteExamFn;
 }) {
   type Item = { date: Date; type: "exam" | "admin" | "personal"; data: ExamEntry | EventResponse | PersonalEvent };
   const items = useMemo<Item[]>(() => {
@@ -572,6 +748,14 @@ function UpcomingList({
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">📍 {e.room} · {e.duration_min} phút · Nhóm {e.group}</p>
                 </div>
+                <Button
+                  variant="ghost" size="sm"
+                  className="shrink-0 text-muted-foreground hover:text-destructive"
+                  onClick={() => onDeleteExam({ course_code: e.course_code, exam_date: e.exam_date, exam_type: e.exam_type })}
+                  title="Xóa lịch thi này"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             );
           }
@@ -624,14 +808,16 @@ function UpcomingList({
 // ───────────────────────────────────────────────────────────────
 function ImportTkbModal({ open, onClose, onDone }: { open: boolean; onClose: () => void; onDone: () => Promise<void> }) {
   const [text, setText] = useState("");
+  const [merge, setMerge] = useState(true);
   const [busy, setBusy] = useState(false);
 
   const handleImport = async () => {
     if (!text.trim()) { toast.warning("Hãy paste TKB từ myBK vào ô bên dưới"); return; }
     setBusy(true);
     try {
-      const r = await studentApi.importTimetable(text);
-      toast.success(`Đã import ${r.data.sessions_count} buổi học · Tạo ${r.data.enrollments_created} enrollment cho HK ${r.data.semester}`);
+      const r = await studentApi.importTimetable(text, merge);
+      const action = merge ? "Gộp thêm" : "Import";
+      toast.success(`${action} ${r.data.sessions_count} buổi học · Tạo ${r.data.enrollments_created} enrollment cho HK ${r.data.semester}`);
       setText("");
       onClose();
       await onDone();
@@ -662,6 +848,24 @@ function ImportTkbModal({ open, onClose, onDone }: { open: boolean; onClose: () 
             </ol>
             <p className="text-blue-700">Hệ thống sẽ tạo các môn này thành enrollment cho HK hiện tại với trạng thái &quot;đang học&quot;.</p>
           </div>
+
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={merge}
+              onChange={(e) => setMerge(e.target.checked)}
+              className="w-4 h-4 accent-primary"
+            />
+            <span className="text-sm">
+              <strong>Cập nhật TKB</strong>
+              <span className="text-muted-foreground ml-1">
+                {merge
+                  ? "— giữ nguyên các môn cũ, thêm môn mới"
+                  : "— xóa TKB cũ và thay bằng dữ liệu mới paste"}
+              </span>
+            </span>
+          </label>
+
           <textarea
             className="w-full border rounded p-3 font-mono text-xs"
             rows={12}
@@ -672,7 +876,7 @@ function ImportTkbModal({ open, onClose, onDone }: { open: boolean; onClose: () 
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={onClose} disabled={busy}>Hủy</Button>
             <Button onClick={handleImport} disabled={busy || !text.trim()}>
-              {busy ? "Đang import..." : "Import TKB"}
+              {busy ? "Đang import..." : merge ? "Gộp TKB" : "Import TKB"}
             </Button>
           </div>
         </div>

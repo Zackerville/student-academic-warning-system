@@ -252,14 +252,25 @@ export const studentApi = {
 
   // ─── M9 Schedule ────────────────────────────────────────────
   getTimetable: () => apiClient.get<TimetableResponse>("/students/me/timetable"),
-  importTimetable: (pasteText: string) =>
-    apiClient.post<TimetableImportResponse>("/students/me/timetable/import", { paste_text: pasteText }),
+  importTimetable: (pasteText: string, merge = false) =>
+    apiClient.post<TimetableImportResponse>("/students/me/timetable/import", { paste_text: pasteText, merge }),
   clearTimetable: () => apiClient.delete("/students/me/timetable"),
+  deleteTimetableSessions: (params: {
+    course_code: string;
+    group?: string;
+    day_of_week?: number;
+    start_period?: number;
+  }) => apiClient.delete<{ removed: number; remaining: number }>("/students/me/timetable/sessions", { params }),
 
   getExamSchedule: () => apiClient.get<ExamScheduleResponse>("/students/me/exam-schedule"),
   importExamSchedule: (pasteText: string) =>
     apiClient.post<ExamScheduleImportResponse>("/students/me/exam-schedule/import", { paste_text: pasteText }),
   clearExamSchedule: () => apiClient.delete("/students/me/exam-schedule"),
+  deleteExamEntries: (params: {
+    course_code: string;
+    exam_date?: string;
+    exam_type?: string;
+  }) => apiClient.delete<{ removed: number; remaining: number }>("/students/me/exam-schedule/exams", { params }),
 
   listPersonalEvents: () =>
     apiClient.get<{ items: PersonalEvent[] }>("/students/me/personal-events"),
