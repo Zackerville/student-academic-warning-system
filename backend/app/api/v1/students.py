@@ -42,7 +42,23 @@ from app.services.grade_aggregator import (
     sync_student_stats,
 )
 from app.services.mybk_parser import ParsedCourse, parse_mybk_text
+from app.services.tkb_parser import parse_tkb
+from app.services.exam_schedule_parser import parse_exam_schedule
 from app.services import warning_engine
+from app.schemas.schedule import (
+    TimetableResponse,
+    TimetableImportRequest,
+    TimetableImportResponse,
+    ExamScheduleResponse,
+    ExamScheduleImportRequest,
+    ExamScheduleImportResponse,
+    PersonalEventCreate,
+    PersonalEventOut,
+    PersonalEventListResponse,
+)
+from datetime import datetime, timezone as _tz
+from uuid import uuid4 as _uuid4
+from sqlalchemy.orm.attributes import flag_modified
 
 router = APIRouter(prefix="/students", tags=["students"])
 
@@ -505,11 +521,13 @@ async def get_gpa_history(
 @router.post("/me/grades/import-mybk")
 async def import_mybk(
     raw_text: str = Body(..., media_type="text/plain"),
+    dry_run: bool = False,
     student: Student = Depends(get_current_student),
     db: AsyncSession = Depends(get_db),
 ):
     """
     Nhận raw text paste từ myBK, parse thành enrollments.
+    - dry_run=true: chỉ parse + preview, không commit DB
     - Tự động tạo Course nếu chưa tồn tại (course_code làm key)
     - Tạo hoặc cập nhật Enrollment cho từng môn
     - Đánh dấu is_finalized=true, source="mybk_paste"
@@ -531,6 +549,65 @@ async def import_mybk(
                 "rồi mới Ctrl+A → Ctrl+C."
             )
         raise HTTPException(status_code=422, detail=detail)
+
+    # ── Dry-run: trả preview mà không commit ─────────────────
+    if dry_run:
+        # Count create/update by checking existing enrollments in memory
+        existing_keys: set[tuple[str, str]] = set()
+        for pc in transcript.courses:
+            existing_keys.add((pc.course_code, pc.semester))
+        enroll_result = await db.execute(
+            select(Enrollment)
+            .join(Course, Enrollment.course_id == Course.id)
+            .where(
+                Enrollment.student_id == student.id,
+                Course.course_code.in_([pc.course_code for pc in transcript.courses]),
+            )
+        )
+        existing_map = {
+            (e.course.course_code if hasattr(e, "course") else "", e.semester)
+            for e in enroll_result.scalars().all()
+        }
+        # Fallback: re-query with joined load
+        enroll_result2 = await db.execute(
+            select(Enrollment)
+            .options(selectinload(Enrollment.course))
+            .where(Enrollment.student_id == student.id)
+        )
+        existing_codes_sems = {
+            (e.course.course_code, e.semester)
+            for e in enroll_result2.scalars().all()
+        }
+        preview_created = sum(
+            1 for pc in transcript.courses
+            if (pc.course_code, pc.semester) not in existing_codes_sems
+        )
+        preview_updated = sum(
+            1 for pc in transcript.courses
+            if (pc.course_code, pc.semester) in existing_codes_sems
+        )
+        return {
+            "dry_run": True,
+            "message": "Preview — chưa lưu dữ liệu",
+            "semesters": transcript.semesters_found,
+            "created": preview_created,
+            "updated": preview_updated,
+            "skipped": 0,
+            "total_courses": len(transcript.courses),
+            "courses": [
+                {
+                    "course_code": pc.course_code,
+                    "name": pc.name,
+                    "credits": pc.credits,
+                    "semester": pc.semester,
+                    "total_score": pc.total_score,
+                    "grade_letter": pc.grade_letter,
+                    "status": pc.status,
+                    "action": "create" if (pc.course_code, pc.semester) not in existing_codes_sems else "update",
+                }
+                for pc in transcript.courses
+            ],
+        }
 
     created_count = 0
     updated_count = 0
@@ -625,3 +702,214 @@ async def import_mybk(
         "skipped": skipped_count,
         "total_courses": len(transcript.courses),
     }
+
+
+# ═══════════════════════════════════════════════════════════════════
+# M9: Schedule (TKB + Lịch thi + Sự kiện cá nhân)
+# ═══════════════════════════════════════════════════════════════════
+
+@router.get("/me/timetable", response_model=TimetableResponse)
+async def get_my_timetable(
+    student: Student = Depends(get_current_student),
+):
+    data = student.timetable_json or {}
+    return TimetableResponse(
+        semester=data.get("semester", ""),
+        sessions=data.get("sessions", []),
+        week_1_monday=data.get("week_1_monday"),
+        updated_at=data.get("updated_at"),
+    )
+
+
+@router.post("/me/timetable/import", response_model=TimetableImportResponse)
+async def import_timetable(
+    payload: TimetableImportRequest,
+    student: Student = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+):
+    """Parse pasted TKB from myBK, store + create enrollments for the semester."""
+    try:
+        parsed = parse_tkb(payload.paste_text)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    timetable_data = parsed.to_dict()
+    timetable_data["updated_at"] = datetime.now(_tz.utc).isoformat()
+    student.timetable_json = timetable_data
+    flag_modified(student, "timetable_json")
+
+    enrollments_created = 0
+    enrollments_skipped = 0
+    semester = parsed.semester
+
+    for course_info in parsed.courses():
+        code = course_info["course_code"]
+        name = course_info["course_name"]
+        credits = max(1, course_info["credits"])  # courses with 0 credits still need 1 to satisfy NOT NULL constraint
+
+        # Find or create the course record
+        course = (await db.execute(select(Course).where(Course.course_code == code))).scalar_one_or_none()
+        if course is None:
+            course = Course(
+                course_code=code,
+                name=name,
+                credits=credits,
+                faculty=student.faculty,
+            )
+            db.add(course)
+            await db.flush()
+
+        # Check existing enrollment
+        existing = (
+            await db.execute(
+                select(Enrollment).where(
+                    Enrollment.student_id == student.id,
+                    Enrollment.course_id == course.id,
+                    Enrollment.semester == semester,
+                )
+            )
+        ).scalar_one_or_none()
+
+        if existing is not None:
+            if existing.is_finalized:
+                enrollments_skipped += 1
+                continue
+            # Refresh metadata but keep any component scores the student already entered
+            existing.status = EnrollmentStatus.enrolled
+            existing.source = "timetable_import"
+            enrollments_skipped += 1
+        else:
+            db.add(
+                Enrollment(
+                    student_id=student.id,
+                    course_id=course.id,
+                    semester=semester,
+                    status=EnrollmentStatus.enrolled,
+                    is_finalized=False,
+                    source="timetable_import",
+                )
+            )
+            enrollments_created += 1
+
+    await db.commit()
+    await db.refresh(student)
+
+    return TimetableImportResponse(
+        semester=semester,
+        sessions_count=len(parsed.sessions),
+        enrollments_created=enrollments_created,
+        enrollments_skipped=enrollments_skipped,
+        timetable=TimetableResponse(
+            semester=semester,
+            sessions=parsed.to_dict()["sessions"],
+            week_1_monday=parsed.week_1_monday,
+            updated_at=timetable_data["updated_at"],
+        ),
+    )
+
+
+@router.delete("/me/timetable", status_code=204)
+async def clear_timetable(
+    student: Student = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+):
+    student.timetable_json = None
+    flag_modified(student, "timetable_json")
+    await db.commit()
+
+
+@router.get("/me/exam-schedule", response_model=ExamScheduleResponse)
+async def get_my_exam_schedule(
+    student: Student = Depends(get_current_student),
+):
+    data = student.exam_schedule_json or {}
+    return ExamScheduleResponse(
+        semester=data.get("semester", ""),
+        exams=data.get("exams", []),
+        updated_at=data.get("updated_at"),
+    )
+
+
+@router.post("/me/exam-schedule/import", response_model=ExamScheduleImportResponse)
+async def import_exam_schedule(
+    payload: ExamScheduleImportRequest,
+    student: Student = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        parsed = parse_exam_schedule(payload.paste_text)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    data = parsed.to_dict()
+    data["updated_at"] = datetime.now(_tz.utc).isoformat()
+    student.exam_schedule_json = data
+    flag_modified(student, "exam_schedule_json")
+    await db.commit()
+
+    return ExamScheduleImportResponse(
+        semester=parsed.semester,
+        exams_count=len(parsed.exams),
+        exam_schedule=ExamScheduleResponse(
+            semester=parsed.semester,
+            exams=data["exams"],
+            updated_at=data["updated_at"],
+        ),
+    )
+
+
+@router.delete("/me/exam-schedule", status_code=204)
+async def clear_exam_schedule(
+    student: Student = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+):
+    student.exam_schedule_json = None
+    flag_modified(student, "exam_schedule_json")
+    await db.commit()
+
+
+@router.get("/me/personal-events", response_model=PersonalEventListResponse)
+async def list_personal_events(
+    student: Student = Depends(get_current_student),
+):
+    items = (student.personal_events_json or {}).get("items", [])
+    return PersonalEventListResponse(items=items)
+
+
+@router.post("/me/personal-events", response_model=PersonalEventOut, status_code=201)
+async def create_personal_event(
+    payload: PersonalEventCreate,
+    student: Student = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+):
+    container = dict(student.personal_events_json or {"items": []})
+    items = list(container.get("items", []))
+    new_event = {
+        "id": str(_uuid4()),
+        "title": payload.title,
+        "start_time": payload.start_time.isoformat(),
+        "end_time": payload.end_time.isoformat() if payload.end_time else None,
+        "description": payload.description,
+        "color": payload.color or "purple",
+        "created_at": datetime.now(_tz.utc).isoformat(),
+    }
+    items.append(new_event)
+    container["items"] = items
+    student.personal_events_json = container
+    flag_modified(student, "personal_events_json")
+    await db.commit()
+    return new_event
+
+
+@router.delete("/me/personal-events/{event_id}", status_code=204)
+async def delete_personal_event(
+    event_id: UUID,
+    student: Student = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+):
+    container = dict(student.personal_events_json or {"items": []})
+    items = [i for i in container.get("items", []) if i.get("id") != str(event_id)]
+    container["items"] = items
+    student.personal_events_json = container
+    flag_modified(student, "personal_events_json")
+    await db.commit()

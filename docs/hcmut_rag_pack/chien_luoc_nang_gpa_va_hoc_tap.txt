@@ -1,0 +1,132 @@
+CHIẾN LƯỢC NÂNG GPA VÀ CẢI THIỆN HỌC TẬP - HƯỚNG DẪN DÀNH CHO SINH VIÊN HCMUT
+
+=== I. HIỂU VỀ GPA VÀ CÁC NGƯỠNG QUAN TRỌNG ===
+
+1. GPA tích lũy được tính như thế nào:
+   - GPA = Tổng(điểm môn × số TC môn) / Tổng(số TC đã học)
+   - Mỗi môn chỉ tính 1 lần: nếu học lại, dùng điểm CAO NHẤT
+   - Môn RT (rút), MT (miễn), DT không ảnh hưởng GPA
+
+2. Các ngưỡng GPA cần nhớ:
+   - ≥ 3.60: Xuất sắc — học bổng cao nhất, tốt nghiệp xuất sắc
+   - ≥ 3.20: Giỏi — học bổng loại B, tốt nghiệp giỏi
+   - ≥ 2.50: Khá — ổn định, không lo cảnh báo
+   - ≥ 2.00: Trung bình — an toàn tối thiểu để tốt nghiệp
+   - < 1.20: Vùng nguy hiểm — cảnh báo mức 1
+   - < 1.00: Cảnh báo mức 2
+   - < 0.80: Nguy cơ buộc thôi học
+
+=== II. TÍNH TOÁN GPA CẦN ĐẠT ĐỂ PHỤC HỒI ===
+
+1. Công thức tính GPA cần đạt trong học kỳ tới:
+   GPA_kỳ_tới = (GPA_mục_tiêu × TC_tổng_tương_lai - GPA_hiện_tại × TC_hiện_tại) / TC_sẽ_học
+
+   Ví dụ:
+   - Hiện tại: GPA = 1.5, TC đã học = 40
+   - Mục tiêu: GPA = 2.0 sau khi học thêm 20 TC
+   - GPA kỳ tới cần: (2.0 × 60 - 1.5 × 40) / 20 = (120 - 60) / 20 = 3.0
+   → Cần đạt GPA học kỳ ≥ 3.0 để kéo GPA tích lũy lên 2.0
+
+2. Công thức ước lượng GPA tích lũy sau khi học lại môn F:
+   Nếu môn F có X TC, điểm F = 0, học lại đạt Y điểm:
+   Điểm cộng thêm = (Y - 0) × X = Y × X điểm-TC
+   GPA_mới ≈ (GPA_cũ × TC_cũ + Y × X) / TC_cũ
+
+=== III. CHIẾN LƯỢC KHI GPA THẤP (< 2.0) ===
+
+1. ƯU TIÊN HỌC LẠI MÔN F TRƯỚC:
+   - Mỗi môn F kéo GPA xuống nhiều → học lại và đạt điểm tốt có hiệu ứng đòn bẩy lớn nhất.
+   - Ưu tiên môn F có nhiều tín chỉ nhất: Vì GPA được tính theo tín chỉ, môn 4 TC có ảnh hưởng gấp đôi môn 2 TC.
+   - Môn F bắt buộc học lại, môn tự chọn có thể đổi sang môn khác phù hợp hơn.
+
+2. ĐĂNG KÝ SỐ TÍN CHỈ VỪA PHẢI:
+   - Khi đang ở vùng GPA thấp, không đăng ký quá nhiều TC trong 1 học kỳ.
+   - Tốt hơn: 14–16 TC và đạt điểm tốt, hơn là 21 TC và điểm trung bình/kém.
+   - Chất lượng quan trọng hơn số lượng khi GPA đang thấp.
+
+3. TRÁNH RÚT MÔN NHIỀU:
+   - RT ít hơn để không vi phạm số TC tối thiểu.
+   - Nếu thực sự quá tải, rút môn ít TC hơn để tập trung vào môn quan trọng/nhiều TC.
+
+4. TẬP TRUNG VÀO MÔN NHIỀU TÍN CHỈ:
+   - Môn 4–5 TC: Cải thiện điểm 1 bậc (từ C lên B) tác động GPA nhiều hơn môn 2 TC.
+   - Ưu tiên ôn luyện và đầu tư thời gian cho các môn nhiều TC.
+
+=== IV. CHIẾN LƯỢC KHI GPA Ở MỨC TRUNG BÌNH (2.0 – 2.5) ===
+
+1. Ổn định trước, nâng cao sau:
+   - Đảm bảo không có F trong học kỳ hiện tại.
+   - Đạt ít nhất C+ (2.5) hoặc B (3.0) cho tất cả môn.
+
+2. Học cải thiện môn điểm thấp:
+   - Nếu có môn cũ đang ở D/D+ (1.0–1.5), xem xét học cải thiện để nâng lên C hoặc B.
+   - Ưu tiên cải thiện môn nhiều TC.
+
+3. Không đăng ký quá nhiều môn khó cùng 1 lúc:
+   - Phân bổ đều môn khó và môn dễ trong học kỳ.
+   - Tránh 3+ môn khó trong cùng 1 học kỳ.
+
+=== V. CHIẾN LƯỢC KHI GPA CAO (≥ 3.2) — DUY TRÌ VÀ ĐỐI VỚI HỌC BỔNG ===
+
+1. Duy trì số TC đăng ký và điểm số:
+   - Đủ điều kiện đăng ký 25 TC/kỳ — có thể học vượt để ra trường sớm.
+   - Cẩn thận không chọn quá nhiều môn khó khiến điểm trung bình giảm.
+
+2. Chuẩn bị cho học bổng:
+   - Duy trì GPA học kỳ ≥ 3.2 (Giỏi) hoặc ≥ 3.6 (Xuất sắc).
+   - Duy trì Điểm rèn luyện ≥ 80.
+   - Không để có F trong học kỳ xét học bổng.
+
+3. Định hướng tốt nghiệp xuất sắc/giỏi:
+   - Kiểm tra tiến độ xếp loại tốt nghiệp ngay từ năm 3.
+   - Tránh bị cảnh báo học vụ dù chỉ 1 lần (vì sẽ bị hạ bậc xếp loại).
+
+=== VI. QUẢN LÝ THỜI GIAN VÀ PHƯƠNG PHÁP HỌC ===
+
+1. Lập kế hoạch học kỳ ngay từ đầu:
+   - Xác định môn nào khó, môn nào cần nhiều thời gian.
+   - Phân bổ thời gian theo tín chỉ: Môn 3 TC = khoảng 9 giờ/tuần tự học.
+   - Lịch thi: Xác định sớm để không bị chồng chéo hoặc gần nhau quá.
+
+2. Theo dõi điểm thường xuyên:
+   - Kiểm tra điểm giữa kỳ sau khi có kết quả.
+   - Nếu điểm giữa kỳ thấp: Tính toán điểm cuối kỳ cần đạt để qua môn.
+   - Liên hệ giảng viên sớm nếu có vấn đề.
+
+3. Sử dụng công thức what-if:
+   Điểm tổng kết = GK × 0.3 + CK × 0.7 (công thức phổ biến nhất tại HCMUT)
+   Để đạt D (4.0/10): CK_cần = (4.0 - GK × 0.3) / 0.7
+   Để đạt C (5.5/10): CK_cần = (5.5 - GK × 0.3) / 0.7
+   Ví dụ: GK = 5.0 → CK cần ≥ (5.5 - 1.5) / 0.7 = 5.71 để đạt C
+
+=== VII. KHI NÀO CẦN GẶP CỐ VẤN HỌC TẬP ===
+
+Sinh viên nên gặp cố vấn học tập (CVHT) khi:
+   - GPA tích lũy dưới 2.0
+   - Bị cảnh báo học vụ (bất kỳ mức nào)
+   - Không biết lựa chọn môn học học kỳ tới
+   - Gặp khó khăn về tài chính, sức khỏe ảnh hưởng học tập
+   - Muốn chuyển ngành hoặc thay đổi chương trình học
+   - Sắp tốt nghiệp và cần kiểm tra điều kiện
+
+CVHT có thể giúp:
+   - Lập kế hoạch học tập phục hồi GPA
+   - Xin miễn giảm trong trường hợp đặc biệt
+   - Hỗ trợ thủ tục bảo lưu, chuyển ngành
+   - Tư vấn học bổng và cơ hội học bổng
+
+=== VIII. TÀI NGUYÊN HỌC TẬP TẠI HCMUT ===
+
+1. Thư viện Đại học Bách Khoa:
+   - Mở cửa từ 7:00 – 21:00, thứ 2 – thứ 7.
+   - Tài nguyên sách điện tử, tạp chí khoa học quốc tế.
+
+2. Hỗ trợ học thuật:
+   - Câu lạc bộ học thuật các khoa (có thể nhờ đàn anh/chị hướng dẫn).
+   - Phòng lab mở để thực hành thêm ngoài giờ.
+
+3. Phần mềm và tài nguyên kỹ thuật:
+   - Sinh viên HCMUT được dùng miễn phí một số phần mềm (MATLAB, Microsoft Office, Autodesk...).
+   - Hỏi bộ phận CNTT của trường để biết danh sách đầy đủ.
+
+Nguồn: Kinh nghiệm thực tế từ sinh viên HCMUT, Phòng Đào tạo HCMUT, mybk.hcmut.edu.vn

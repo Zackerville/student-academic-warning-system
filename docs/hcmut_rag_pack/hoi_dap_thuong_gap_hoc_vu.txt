@@ -1,0 +1,118 @@
+HỎI ĐÁP THƯỜNG GẶP VỀ HỌC VỤ - TRƯỜNG ĐẠI HỌC BÁCH KHOA TP.HCM (HCMUT)
+
+=== Q&A VỀ GPA VÀ ĐIỂM SỐ ===
+
+Q: GPA tích lũy được tính như thế nào?
+A: GPA tích lũy = Tổng(điểm GPA môn × số tín chỉ môn) ÷ Tổng(số tín chỉ tất cả môn đã học, trừ RT/MT/DT). Mỗi môn chỉ tính điểm 1 lần theo quy tắc "điểm cao nhất thắng" khi học lại.
+
+Q: Nếu học lại môn F, điểm nào được dùng để tính GPA?
+A: Điểm CAO NHẤT trong tất cả các lần học sẽ được dùng. Nếu lần đầu F (0.0) và học lại được B (3.0), GPA dùng 3.0. Quy tắc này áp dụng cả cho học cải thiện.
+
+Q: Tôi cần GPA bao nhiêu để thoát cảnh báo học vụ mức 1?
+A: Cần GPA tích lũy ≥ 1.20 VÀ GPA học kỳ gần nhất ≥ 0.80. Cần đáp ứng cả hai điều kiện.
+
+Q: GPA tích lũy của tôi là 1.5. Tôi cần đạt GPA học kỳ bao nhiêu để kéo lên 2.0 sau khi học thêm 20 tín chỉ nếu hiện tôi đã học 40 TC?
+A: GPA kỳ tới cần = (2.0 × 60 - 1.5 × 40) ÷ 20 = (120 - 60) ÷ 20 = 3.0. Cần đạt GPA học kỳ ≥ 3.0.
+
+Q: Điểm RT (rút môn) có ảnh hưởng GPA không?
+A: Không. Môn RT không tính vào GPA, không tính tín chỉ tích lũy, nhưng vẫn xuất hiện trên bảng điểm.
+
+Q: Điểm MT (miễn học) có được tính vào GPA không?
+A: Không tính vào GPA nhưng được công nhận tín chỉ. Ví dụ: miễn môn tiếng Anh 3TC, bạn được +3TC mà không ảnh hưởng GPA.
+
+Q: Điểm DT là gì?
+A: DT = "Điểm đạt không có điểm số". Áp dụng cho môn đặc biệt như GDTC, GDQP. Được công nhận hoàn thành nhưng không tính GPA.
+
+Q: Điểm B+ có GPA point là bao nhiêu?
+A: B+ tương ứng 3.5 GPA point. Bảng đầy đủ: A+ = A = 4.0, B+ = 3.5, B = 3.0, C+ = 2.5, C = 2.0, D+ = 1.5, D = 1.0, F = 0.0.
+
+=== Q&A VỀ CẢNH BÁO HỌC VỤ ===
+
+Q: Các mức cảnh báo học vụ là gì?
+A: Mức 1 (cảnh báo): GPA tích lũy < 1.20 hoặc GPA học kỳ < 0.80. Mức 2 (cảnh báo nghiêm trọng): GPA tích lũy < 1.00 hoặc 2 HK liên tiếp bị cảnh báo mức 1. Mức 3 (buộc thôi học): GPA tích lũy < 0.80 hoặc 3 HK liên tiếp cảnh báo hoặc 2 lần cảnh báo mức 2.
+
+Q: Tôi bị cảnh báo mức 1 rồi. Nếu học kỳ sau GPA học kỳ là 2.5 nhưng GPA tích lũy vẫn là 1.1, tôi có bị cảnh báo tiếp không?
+A: Có thể vẫn bị cảnh báo mức 1 vì GPA tích lũy 1.1 < 1.20. Cần kéo GPA tích lũy ≥ 1.20 để thoát cảnh báo.
+
+Q: Buộc thôi học có nghĩa là gì? Có thể khiếu nại không?
+A: Nhà trường ra quyết định cho sinh viên thôi học. Sinh viên có quyền khiếu nại trong vòng 15 ngày làm việc kể từ ngày nhận thông báo bằng cách nộp đơn kèm lý do và bằng chứng tại Phòng Đào tạo.
+
+Q: Cảnh báo học vụ có ảnh hưởng đến xếp loại tốt nghiệp không?
+A: Có. Nếu từng bị cảnh báo học vụ ít nhất 1 lần, xếp loại tốt nghiệp sẽ bị hạ 1 bậc. Ví dụ: GPA đủ Xuất sắc nhưng từng bị cảnh báo → xếp loại Giỏi.
+
+=== Q&A VỀ HỌC LẠI VÀ HỌC CẢI THIỆN ===
+
+Q: Môn F có bắt buộc phải học lại không?
+A: Nếu là môn bắt buộc (core subject) thì BẮT BUỘC học lại. Nếu là môn tự chọn, có thể học lại hoặc thay bằng môn tự chọn khác được khoa chấp nhận.
+
+Q: Học lại bao nhiêu lần thì không được học nữa?
+A: Không có giới hạn số lần học lại, miễn là còn trong thời gian đào tạo tối đa (thường 2 × thời gian chuẩn).
+
+Q: Điểm cũ có bị xóa khi học lại không?
+A: Không. Tất cả các lần học đều xuất hiện trên bảng điểm (transcript). Nhưng để tính GPA, chỉ dùng điểm cao nhất.
+
+Q: Học cải thiện khác học lại như thế nào?
+A: Học lại: Dành cho môn F (chưa qua). Học cải thiện: Dành cho môn đã đạt (từ D trở lên) nhưng muốn nâng điểm. Cả hai đều lấy điểm cao nhất để tính GPA.
+
+=== Q&A VỀ ĐĂNG KÝ MÔN HỌC ===
+
+Q: Tối đa được đăng ký bao nhiêu tín chỉ mỗi học kỳ?
+A: Thông thường tối đa 21 TC. Nếu GPA tích lũy ≥ 3.20 (thang 4) thì được tối đa 25 TC.
+
+Q: Tối thiểu phải đăng ký bao nhiêu tín chỉ?
+A: Tối thiểu 14 TC với sinh viên bình thường. Nếu đang bị cảnh báo hoặc học lực yếu/kém, tối thiểu 10 TC.
+
+Q: Rút môn đến khi nào được?
+A: Thường đến hết tuần thứ 8 của học kỳ chính. Sau đó không thể rút — nếu không thi hoặc bỏ môn sẽ bị điểm F.
+
+Q: Tôi rút môn thì có được hoàn học phí không?
+A: Tùy thời điểm. Tuần 1–2: hoàn 100%. Tuần 3–4: hoàn 50%. Sau tuần 4: không hoàn.
+
+Q: Môn tiên quyết là gì?
+A: Là môn phải học và đạt trước khi được đăng ký môn tiếp theo. Ví dụ: Cấu trúc dữ liệu yêu cầu đã qua Lập trình căn bản. Hệ thống mybk sẽ tự kiểm tra và không cho đăng ký nếu chưa đủ điều kiện.
+
+=== Q&A VỀ HỌC BỔNG ===
+
+Q: Điều kiện nhận học bổng khuyến khích học tập là gì?
+A: GPA học kỳ ≥ 3.20 (Giỏi), Điểm rèn luyện ≥ 80 (Tốt), hoàn thành ≥ 14 TC, không có môn F, không bị kỷ luật từ cảnh cáo trở lên trong học kỳ xét.
+
+Q: GPA tích lũy cao nhưng GPA học kỳ thấp, có được học bổng không?
+A: Không. Học bổng KKHT xét theo GPA học kỳ vừa qua, không phải GPA tích lũy.
+
+Q: Tôi có môn F nhưng sau đó phúc khảo được sửa lên D. Học kỳ đó có được xét học bổng không?
+A: Sau khi phúc khảo, nếu không còn F và điều kiện khác đủ, có thể được xem xét. Cần liên hệ Phòng Đào tạo để xác nhận.
+
+=== Q&A VỀ TỐT NGHIỆP ===
+
+Q: GPA tối thiểu để được xét tốt nghiệp là bao nhiêu?
+A: GPA tích lũy ≥ 2.00 (thang 4).
+
+Q: Cần bao nhiêu tín chỉ để tốt nghiệp?
+A: Phụ thuộc vào chương trình đào tạo của ngành, thường từ 145–160 TC. Xem chi tiết trong sổ tay sinh viên hoặc chương trình đào tạo ngành trên mybk.
+
+Q: Tôi đang học ngành CNTT, cần chứng chỉ tiếng Anh gì để tốt nghiệp?
+A: Tối thiểu IELTS 5.0 hoặc TOEIC 500 hoặc chứng chỉ tương đương (bậc 3/6 khung NLNN Việt Nam / B1 CEFR).
+
+Q: Nếu GPA đủ Xuất sắc (≥ 3.60) nhưng tốt nghiệp trễ 1 học kỳ, xếp loại tốt nghiệp có bị ảnh hưởng không?
+A: Có thể bị hạ 1 bậc (từ Xuất sắc xuống Giỏi) do tốt nghiệp trễ so với kế hoạch chuẩn. Tuy nhiên, các trường hợp có lý do đặc biệt có thể được xem xét.
+
+=== Q&A VỀ BẢO LƯU VÀ NGHỈ HỌC ===
+
+Q: Bảo lưu học tập có ảnh hưởng GPA không?
+A: Không. Bảo lưu chỉ là tạm dừng học, không thay đổi GPA tích lũy hiện có. Nhưng thời gian bảo lưu vẫn tính vào thời gian đào tạo tối đa.
+
+Q: Tối đa được bảo lưu bao nhiêu lần?
+A: Tổng thời gian bảo lưu không quá 4 học kỳ chính trong toàn khóa học. Mỗi lần bảo lưu tối đa 2 học kỳ liên tiếp.
+
+Q: Khi nào bảo lưu không được chấp nhận?
+A: Khi đang trong diện bị buộc thôi học, hoặc chưa tích lũy đủ số TC tối thiểu theo quy định.
+
+=== Q&A VỀ HỌC PHÍ ===
+
+Q: Học lại có phải đóng học phí lại không?
+A: Có. Học lại môn tính học phí bình thường theo số TC môn đó.
+
+Q: Nếu bị F và rơi vào mùa thi, có thi lại trong học kỳ không?
+A: Một số môn có tổ chức thi lại trong cùng học kỳ (thi lần 2). Nhưng không phải tất cả. Nếu không có thi lại, phải chờ đăng ký lại ở học kỳ sau.
+
+Nguồn tham khảo: Phòng Đào tạo HCMUT, mybk.hcmut.edu.vn, Sổ tay sinh viên HCMUT 2025-2026, kinh nghiệm từ sinh viên HCMUT

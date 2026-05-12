@@ -1,0 +1,141 @@
+ĐĂNG KÝ MÔN HỌC, HỌC LẠI VÀ CÁC QUY ĐỊNH LIÊN QUAN - TRƯỜNG ĐẠI HỌC BÁCH KHOA TP.HCM (HCMUT)
+
+=== I. ĐĂNG KÝ MÔN HỌC ===
+
+1. GIỚI HẠN TÍN CHỈ ĐĂNG KÝ MỖI HỌC KỲ:
+
+   a) Tối đa tín chỉ:
+      - Sinh viên bình thường: Tối đa 21 tín chỉ mỗi học kỳ chính (HK1, HK2)
+      - Sinh viên có GPA tích lũy tốt (ĐTBTL ≥ 3.20 thang 4, tương đương ≥ 7.5 thang 10): Có thể đăng ký tối đa 25 tín chỉ
+      - Học kỳ hè: Tối đa 14 tín chỉ (học kỳ hè ngắn hơn)
+
+   b) Tối thiểu tín chỉ:
+      - Sinh viên bình thường: Tối thiểu 14 tín chỉ mỗi học kỳ chính
+      - Sinh viên bị cảnh báo học vụ hoặc học lực yếu/kém: Tối thiểu 10 tín chỉ
+      - Sinh viên năm cuối hoặc sắp tốt nghiệp: Có thể đăng ký ít hơn nếu còn ít môn
+
+2. THỜI GIAN ĐĂNG KÝ:
+   - Đăng ký môn học qua hệ thống mybk.hcmut.edu.vn
+   - Mở đăng ký theo từng nhóm (theo số tín chỉ tích lũy, sinh viên nhiều TC được đăng ký trước)
+   - Có 2 đợt: Đăng ký sơ bộ và Đăng ký bổ sung/điều chỉnh
+
+3. MÔN TIÊN QUYẾT (Prerequisites):
+   - Một số môn yêu cầu phải đã hoàn thành (đạt) một hoặc nhiều môn khác trước khi đăng ký.
+   - Hệ thống sẽ tự động kiểm tra điều kiện tiên quyết.
+   - Ví dụ: Muốn học Cấu trúc dữ liệu phải đã qua Lập trình căn bản.
+
+4. MÔN HỌC TRƯỚC (Co-requisites):
+   - Một số môn yêu cầu đang học song song với môn khác.
+   - Ít phổ biến hơn môn tiên quyết.
+
+=== II. RÚT MÔN HỌC (RT - Rút Thêm) ===
+
+1. Điều kiện và thời hạn rút môn:
+   - Sinh viên được rút môn học trong vòng 8 tuần đầu của học kỳ chính (thường đến tuần 8).
+   - Sau tuần 8 thì không thể rút môn; nếu không thi hoặc bỏ học sẽ bị điểm F.
+   - Học kỳ hè: Thời hạn rút môn ngắn hơn (thường tuần 3–4).
+
+2. Kết quả khi rút môn:
+   - Ký hiệu "RT" trên bảng điểm.
+   - Không tính vào GPA.
+   - Không được hoàn học phí nếu đã qua hạn hoàn phí (thường tuần 2–3).
+   - Không bị tính là môn F.
+
+3. Lưu ý khi rút môn:
+   - Việc rút môn làm giảm số TC trong học kỳ, có thể dẫn đến vi phạm số TC tối thiểu.
+   - Nếu số TC sau rút xuống dưới 14 (hoặc 10 với SV yếu/kém), cần xin phép đặc biệt.
+   - Môn bắt buộc bị rút vẫn phải đăng ký và hoàn thành ở học kỳ sau.
+
+=== III. HỌC LẠI (Retake) ===
+
+1. Khi nào phải/được học lại:
+   - BẮT BUỘC học lại: Khi bị điểm F ở môn học bắt buộc (core/required courses).
+   - TÙY CHỌN học lại: Có thể học lại môn tự chọn hoặc thay bằng môn tự chọn khác.
+
+2. Điểm khi học lại:
+   - Quy tắc ĐIỂM CAO NHẤT: Lấy điểm cao nhất trong TẤT CẢ các lần học để tính GPA.
+   - Ví dụ: Lần 1 được D (1.0), học lại lần 2 được B (3.0) → GPA dùng B (3.0).
+   - Tất cả các lần học vẫn xuất hiện trên transcript, nhưng chỉ lần cao nhất được tính GPA.
+
+3. Số lần học lại:
+   - Không giới hạn số lần học lại (cho đến hết thời gian đào tạo tối đa).
+   - Tuy nhiên, học lại nhiều lần là dấu hiệu cần cải thiện phương pháp học.
+
+4. Xếp hạng tốt nghiệp và học lại:
+   - Việc phải học lại nhiều môn bắt buộc có thể ảnh hưởng đến xếp hạng tốt nghiệp (bị hạ bậc).
+
+=== IV. HỌC CẢI THIỆN ĐIỂM (Grade Improvement) ===
+
+1. Điều kiện học cải thiện:
+   - Đã qua môn (điểm D trở lên) nhưng muốn học lại để nâng điểm.
+   - Chỉ áp dụng cho một số môn theo quy định của từng khoa.
+   - Phải được Phòng Đào tạo và khoa quản lý môn học chấp thuận.
+
+2. Điểm khi học cải thiện:
+   - Tương tự học lại: Lấy điểm cao nhất giữa lần gốc và lần cải thiện.
+   - Nếu lần cải thiện điểm thấp hơn lần gốc: Vẫn giữ điểm lần gốc (không bị hại).
+
+3. Lưu ý:
+   - Không phải tất cả môn đều cho học cải thiện.
+   - Học cải thiện chiếm suất đăng ký tín chỉ của học kỳ đó.
+
+=== V. HỦY KẾT QUẢ HỌC TẬP ===
+
+1. Trường hợp hủy kết quả:
+   - Gian lận thi cử, đạo văn.
+   - Sử dụng tài liệu không cho phép trong thi cử.
+
+2. Hậu quả:
+   - Điểm môn học bị hủy, có thể bị điểm F.
+   - Bị xử lý kỷ luật từ cảnh cáo đến đình chỉ học tập.
+
+=== VI. ĐĂNG KÝ TỐT NGHIỆP SỚM / HỌC VƯỢT ===
+
+1. Điều kiện học vượt:
+   - GPA tích lũy ≥ 3.20/4 (xếp loại Giỏi hoặc Xuất sắc)
+   - Được đăng ký tối đa 25 TC/HK thay vì 21 TC
+   - Phải có sự đồng ý của cố vấn học tập
+
+2. Ảnh hưởng của học vượt:
+   - Có thể giảm thời gian đào tạo từ 1–2 học kỳ.
+   - Tuy nhiên, phải hoàn thành đủ tất cả chuẩn đầu ra (ngoại ngữ, CNTT, GDTC, GDQP).
+
+=== VII. CHUYỂN NGÀNH / CHUYỂN CHƯƠNG TRÌNH ===
+
+1. Điều kiện chuyển ngành nội bộ HCMUT:
+   - Kết thúc học kỳ 1 năm nhất trở đi.
+   - GPA tích lũy ≥ mức yêu cầu của ngành muốn chuyển sang (thường ≥ 2.0–2.5).
+   - Còn chỉ tiêu tiếp nhận của ngành đích.
+   - Nộp đơn trong thời gian quy định (đầu học kỳ).
+
+2. Công nhận tín chỉ khi chuyển ngành:
+   - Các môn học chung được công nhận tương đương.
+   - Các môn chuyên ngành cần xét từng trường hợp.
+
+=== VIII. MIỄN HỌC, MIỄN THI ===
+
+1. Miễn học (MT):
+   - Áp dụng cho môn học sinh viên đã có kiến thức tương đương từ trình độ cao hơn hoặc chứng chỉ quốc tế được công nhận.
+   - Ví dụ: Miễn môn tiếng Anh cơ bản nếu có IELTS 6.5+.
+   - Không tính vào GPA nhưng được công nhận tín chỉ.
+
+2. Miễn thi (điểm đặc biệt):
+   - Một số môn cho phép miễn thi cuối kỳ nếu điểm giữa kỳ và quá trình đạt chuẩn.
+   - Điều kiện cụ thể do giảng viên/bộ môn quy định.
+
+=== IX. LỊCH HỌC KỲ HCMUT (THAM KHẢO) ===
+
+   - Học kỳ 1 (HK1): Tháng 9 – tháng 12/Tháng 1
+   - Học kỳ 2 (HK2): Tháng 2 – tháng 5/Tháng 6
+   - Học kỳ hè (HKH): Tháng 6 – tháng 8 (tùy ngành, không bắt buộc)
+
+Ký hiệu học kỳ trên mybk:
+   - 231 = HK1 năm học 2023-2024
+   - 232 = HK2 năm học 2023-2024
+   - 233 = HKH năm học 2023-2024
+   - 241 = HK1 năm học 2024-2025
+   - 242 = HK2 năm học 2024-2025
+   - 251 = HK1 năm học 2025-2026
+   - 252 = HK2 năm học 2025-2026
+
+Nguồn tham khảo: mybk.hcmut.edu.vn (Đăng ký môn học, Hướng dẫn chung), Sổ tay sinh viên HCMUT 2025-2026, Phòng Đào tạo HCMUT

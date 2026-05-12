@@ -5,22 +5,28 @@ Endpoints:
   GET  /predictions/me                — Risk score + factors + course predict (latest)
   GET  /predictions/me/history        — Lịch sử risk score (cho chart)
   POST /predictions/me/refresh        — Force re-predict cho chính SV
+  POST /predictions/me/simulate       — What-if: predict với điểm giả định (không lưu)
   POST /predictions/batch-run         — [Admin] Trigger batch predict tất cả
 """
 from __future__ import annotations
 
+import copy
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.ai.prediction.features import FEATURE_NAMES, FEATURE_VERSION, extract_features
-from app.ai.prediction.model import prediction_service
+from app.ai.prediction.model import prediction_service, risk_score_to_level, _apply_early_warning_calibration
 from app.core.deps import get_current_student, get_db, require_admin
-from app.models.enrollment import Enrollment
+from app.models.enrollment import Enrollment, EnrollmentStatus
 from app.models.prediction import Prediction
 from app.models.student import Student
 from app.services import warning_engine
+from app.services.gpa_calculator import score_to_grade_letter
 
 router = APIRouter(prefix="/predictions", tags=["predictions"])
 
@@ -163,6 +169,84 @@ async def refresh_my_prediction(
             detail="Chưa đủ dữ liệu để dự đoán",
         )
     return _serialize_prediction(pred)
+
+
+class SimulateItem(BaseModel):
+    enrollment_id: UUID
+    hypothetical_score: float
+
+
+@router.post("/me/simulate")
+async def simulate_prediction(
+    items: list[SimulateItem],
+    student: Student = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    What-if risk simulation — nhận danh sách điểm giả định cho các môn đang học,
+    trả về risk score mô phỏng. Không lưu vào DB.
+    """
+    if not prediction_service.is_loaded:
+        raise HTTPException(status_code=503, detail="AI model chưa load")
+
+    # Fetch enrollments
+    result = await db.execute(
+        select(Enrollment)
+        .where(Enrollment.student_id == student.id)
+        .options(selectinload(Enrollment.course))
+    )
+    enrollments = list(result.scalars().all())
+    if not enrollments:
+        raise HTTPException(status_code=422, detail="Chưa đủ dữ liệu để mô phỏng")
+
+    # Get current risk score from latest prediction (for delta)
+    latest_pred = await db.execute(
+        select(Prediction)
+        .where(Prediction.student_id == student.id)
+        .order_by(Prediction.created_at.desc())
+        .limit(1)
+    )
+    current = latest_pred.scalar_one_or_none()
+    original_risk_score = round(current.risk_score, 4) if current else None
+    original_risk_level = current.risk_level.value if current else None
+
+    # Build override map {enrollment_id → hypothetical_score}
+    override_map = {str(item.enrollment_id): item.hypothetical_score for item in items}
+
+    # Deep-copy enrollments and apply hypothetical scores
+    simulated = []
+    for e in enrollments:
+        if str(e.id) in override_map:
+            score = override_map[str(e.id)]
+            score = max(0.0, min(10.0, score))
+            sim_e = copy.copy(e)
+            sim_e.total_score = score
+            sim_e.grade_letter = score_to_grade_letter(score)
+            sim_e.status = (
+                EnrollmentStatus.passed if score >= 4.0 else EnrollmentStatus.failed
+            )
+            simulated.append(sim_e)
+        else:
+            simulated.append(e)
+
+    # Extract features from simulated enrollments
+    import pandas as pd
+    features = await extract_features(student, simulated)
+    X = pd.DataFrame([features], columns=FEATURE_NAMES).astype(float)
+    raw_proba = float(prediction_service._model.predict_proba(X)[0, 1])
+    simulated_score, _, _ = _apply_early_warning_calibration(raw_proba, student, features)
+    simulated_score = round(simulated_score, 4)
+    simulated_level = risk_score_to_level(simulated_score).value
+
+    delta = round(simulated_score - (original_risk_score or simulated_score), 4)
+
+    return {
+        "original_risk_score": original_risk_score,
+        "original_risk_level": original_risk_level,
+        "simulated_risk_score": simulated_score,
+        "simulated_risk_level": simulated_level,
+        "delta_risk_score": delta,
+    }
 
 
 @router.post("/batch-run", dependencies=[Depends(require_admin)])

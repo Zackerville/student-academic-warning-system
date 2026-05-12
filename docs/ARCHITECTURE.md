@@ -403,5 +403,10 @@ docker compose exec backend python -m app.ai.prediction.train
 
 - [`CLAUDE.md`](../CLAUDE.md) — Master spec + milestone tracker (source of truth)
 - [`ROADMAP.md`](../ROADMAP.md) — Step-by-step plan từng milestone (M1→M9)
+- [`docs/DATABASE_SCHEMA.md`](./DATABASE_SCHEMA.md) — Schema chi tiết 11 bảng
+- [`docs/AI_MODELS.md`](./AI_MODELS.md) — XGBoost features, training, metrics; RAG hybrid retrieval
+- [`docs/API_REFERENCE.md`](./API_REFERENCE.md) — Tất cả API endpoints với request/response mẫu
+- [`docs/SETUP.md`](./SETUP.md) — Hướng dẫn cài đặt Win/macOS/Linux từ đầu
+- [`docs/TEST_FLOWS.md`](./TEST_FLOWS.md) — E2E test 4 flows + smoke test
 - [`docs/SLIDES.md`](./SLIDES.md) — Marp slide deck cho báo cáo
 - [`docs/DATABASE_SCHEMA.md`](./DATABASE_SCHEMA.md) — ER diagram + per-table docs

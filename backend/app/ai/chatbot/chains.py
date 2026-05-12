@@ -28,11 +28,7 @@ async def ask_chatbot(
 ) -> ChatResponse:
     history = await _recent_history(db, student)
     student_context = await build_student_context(student, db)
-    hits = (
-        dedupe_hits_by_source(await search_documents(db, question))
-        if _should_search_documents(question)
-        else []
-    )
+    hits = dedupe_hits_by_source(await search_documents(db, question))
     citations = [
         ChatCitation(
             index=index,
@@ -87,7 +83,10 @@ async def get_chat_history(db: AsyncSession, student: Student, limit: int = 50) 
     result = await db.execute(
         select(ChatMessage)
         .where(ChatMessage.student_id == student.id)
-        .order_by(ChatMessage.created_at.desc())
+        # Secondary sort by role ASC: "assistant" (a) before "user" (u) within same timestamp.
+        # After reversed(), user always precedes assistant — stable even when both share
+        # the same created_at (server_default=now() = transaction start).
+        .order_by(ChatMessage.created_at.desc(), ChatMessage.role.asc())
         .limit(limit)
     )
     return list(reversed(result.scalars().all()))
@@ -100,15 +99,85 @@ async def clear_chat_history(db: AsyncSession, student: Student) -> int:
 
 
 def default_suggestions(student: Student) -> list[str]:
-    suggestions = [
-        "Em đang ở mức cảnh báo nào và nên ưu tiên gì?",
-        "Nếu rớt một môn bắt buộc thì có ảnh hưởng GPA như thế nào?",
-        "Em nên học lại hay cải thiện điểm môn nào trước?",
-        "Điều kiện bị cảnh báo học vụ theo tài liệu hiện có là gì?",
+    """
+    Smart context-aware suggestions — chọn câu hỏi phù hợp nhất với tình trạng học vụ của SV.
+    Priority: warning_level cao → câu hỏi khẩn cấp hơn; GPA thấp/tốt → câu hỏi tương ứng.
+    """
+    gpa = float(student.gpa_cumulative or 0.0)
+    level = int(student.warning_level or 0)
+    credits = int(student.credits_earned or 0)
+
+    pool: list[tuple[int, str]] = []  # (priority, question) — lower = higher priority
+
+    # === Theo warning level ===
+    if level >= 3:
+        pool += [
+            (0, "Em đang bị buộc thôi học, còn cơ hội nào để tiếp tục không?"),
+            (0, "Quy trình khiếu nại hoặc xin xem xét lại quyết định buộc thôi học là gì?"),
+        ]
+    elif level == 2:
+        pool += [
+            (0, "Với cảnh báo mức 2, em cần GPA tối thiểu bao nhiêu để thoát cảnh báo?"),
+            (0, "Em nên đăng ký bao nhiêu tín chỉ trong học kỳ tới để cải thiện GPA an toàn?"),
+        ]
+    elif level == 1:
+        pool += [
+            (0, "Với cảnh báo mức 1, em cần làm gì trong học kỳ tới để không bị cảnh báo mức 2?"),
+            (1, "Em nên ưu tiên học lại môn nào trước để cải thiện GPA nhanh nhất?"),
+        ]
+    else:
+        pool += [
+            (3, "Làm sao duy trì GPA ổn định và tránh bị cảnh báo học vụ?"),
+        ]
+
+    # === Theo GPA tích lũy ===
+    if gpa < 1.2:
+        pool += [
+            (0, f"GPA em đang là {gpa:.1f}, ngưỡng tối thiểu để không bị buộc thôi học là bao nhiêu?"),
+        ]
+    elif gpa < 2.0:
+        pool += [
+            (1, f"GPA tích lũy {gpa:.1f} thì cần đạt GPA học kỳ bao nhiêu để kéo lên 2.0?"),
+            (2, "Em nên học lại hay cải thiện điểm môn nào để tăng GPA hiệu quả nhất?"),
+        ]
+    elif gpa < 2.5:
+        pool += [
+            (2, "Chiến lược nào giúp nâng GPA từ vùng 2.0-2.5 lên trên 2.5?"),
+        ]
+    elif gpa >= 3.2:
+        pool += [
+            (3, "Em cần điều kiện gì để được xét học bổng hoặc khen thưởng?"),
+            (3, "Quy định về học vượt hoặc rút ngắn thời gian đào tạo là gì?"),
+        ]
+
+    # === Theo số tín chỉ ===
+    if credits < 30:
+        pool += [
+            (2, "Trong những học kỳ đầu, em nên đăng ký bao nhiêu tín chỉ là phù hợp?"),
+        ]
+    elif credits >= 100:
+        pool += [
+            (3, "Em sắp tốt nghiệp, điều kiện xét tốt nghiệp theo quy chế là gì?"),
+        ]
+
+    # === Câu hỏi chung luôn có ===
+    pool += [
+        (4, "Điều kiện bị cảnh báo học vụ theo quy chế Bách Khoa là gì?"),
+        (4, "Quy định học lại và học cải thiện điểm tại HCMUT như thế nào?"),
+        (5, "Nếu rớt một môn bắt buộc thì ảnh hưởng thế nào đến tiến độ tốt nghiệp?"),
+        (5, "Chatbot có thể tư vấn gì dựa trên tình trạng học vụ hiện tại của em?"),
     ]
-    if student.warning_level > 0:
-        suggestions.insert(0, "Với mức cảnh báo hiện tại, em nên làm gì trong học kỳ tới?")
-    return suggestions[:5]
+
+    # Sort by priority, deduplicate, take top 5
+    seen: set[str] = set()
+    result: list[str] = []
+    for _, q in sorted(pool, key=lambda x: x[0]):
+        if q not in seen:
+            seen.add(q)
+            result.append(q)
+        if len(result) == 5:
+            break
+    return result
 
 
 async def stream_chatbot_response(
@@ -129,11 +198,7 @@ async def stream_chatbot_response(
     """
     history = await _recent_history(db, student)
     student_context = await build_student_context(student, db)
-    hits = (
-        dedupe_hits_by_source(await search_documents(db, question))
-        if _should_search_documents(question)
-        else []
-    )
+    hits = dedupe_hits_by_source(await search_documents(db, question))
     citations = [
         ChatCitation(
             index=index,
@@ -225,34 +290,5 @@ def _format_retrieved_context(citations: list[ChatCitation]) -> str:
         )
     return "\n\n".join(lines)
 
-
-def _should_search_documents(question: str) -> bool:
-    q = question.lower()
-    regulation_keywords = [
-        "quy chế",
-        "quy định",
-        "nội quy",
-        "điều kiện",
-        "điều khoản",
-        "bao nhiêu thì",
-        "mức 1",
-        "mức 2",
-        "mức 3",
-        "buộc thôi học",
-        "cảnh báo học vụ",
-        "học phí",
-        "hoàn trả",
-        "tốt nghiệp",
-        "đăng ký môn",
-        "hủy môn",
-        "rút môn",
-        "bảo lưu",
-        "miễn",
-        "tương đương",
-        "thay thế",
-        "theo trường",
-        "theo hcmut",
-    ]
-    return any(keyword in q for keyword in regulation_keywords)
 
 

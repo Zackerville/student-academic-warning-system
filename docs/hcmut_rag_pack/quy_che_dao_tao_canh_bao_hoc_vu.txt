@@ -1,0 +1,138 @@
+QUY CHẾ ĐÀO TẠO VÀ CẢNH BÁO HỌC VỤ - TRƯỜNG ĐẠI HỌC BÁCH KHOA TP.HCM (HCMUT)
+(Theo Quyết định số 728/QĐ-ĐHBK-ĐT và các văn bản bổ sung, áp dụng từ khóa 2021 trở đi)
+
+=== I. ĐIỂM TRUNG BÌNH TÍCH LŨY VÀ XẾP LOẠI HỌC LỰC ===
+
+1. Thang điểm áp dụng: Thang 4 (GPA 0.0 – 4.0)
+
+2. Xếp loại học lực theo điểm trung bình tích lũy (ĐTBTL):
+   - Xuất sắc  : ĐTBTL từ 3.60 đến 4.00
+   - Giỏi      : ĐTBTL từ 3.20 đến cận 3.60 (3.20 ≤ ĐTBTL < 3.60)
+   - Khá       : ĐTBTL từ 2.50 đến cận 3.20 (2.50 ≤ ĐTBTL < 3.20)
+   - Trung bình: ĐTBTL từ 2.00 đến cận 2.50 (2.00 ≤ ĐTBTL < 2.50)
+   - Yếu       : ĐTBTL từ 1.00 đến cận 2.00 (1.00 ≤ ĐTBTL < 2.00)
+   - Kém       : ĐTBTL dưới 1.00
+
+3. Cách tính điểm trung bình tích lũy (ĐTBTL / GPA tích lũy):
+   - Tính trên tất cả các môn học đã học, mỗi môn lấy điểm cao nhất nếu học lại hoặc học cải thiện.
+   - Quy tắc "ĐIỂM CAO NHẤT THẮNG": Khi sinh viên học lại hoặc học cải thiện một môn, điểm được sử dụng để tính GPA là điểm cao nhất trong các lần học đó.
+   - Môn được miễn học (MT) hoặc có ký hiệu đặc biệt (DT - điểm đạt không có điểm số) không tính vào GPA nhưng vẫn được công nhận tín chỉ.
+   - Công thức: ĐTBTL = Tổng(điểm môn × số tín chỉ môn) / Tổng(số tín chỉ các môn tính GPA)
+
+4. Điểm trung bình học kỳ (ĐTBHK / GPA học kỳ):
+   - Tính riêng cho từng học kỳ, không áp dụng quy tắc điểm cao nhất.
+   - Phản ánh kết quả thực tế học kỳ đó.
+
+=== II. CẢNH BÁO HỌC VỤ ===
+
+1. Điều kiện bị cảnh báo học vụ MỨC 1:
+   - GPA tích lũy (ĐTBTL) dưới 1.20 (thang 4), HOẶC
+   - GPA học kỳ (ĐTBHK) trong học kỳ đó dưới 0.80 (thang 4), HOẶC
+   - Số tín chỉ tích lũy ít hơn mức tối thiểu theo quy định từng năm học (thường tính theo tiến độ chuẩn).
+
+2. Điều kiện bị cảnh báo học vụ MỨC 2:
+   - GPA tích lũy (ĐTBTL) dưới 1.00 (thang 4), HOẶC
+   - Hai (2) học kỳ liên tiếp bị cảnh báo mức 1, HOẶC
+   - Bị cảnh báo mức 1 kết hợp với GPA học kỳ dưới 0.80 trong học kỳ tiếp theo.
+
+3. Điều kiện BUỘC THÔI HỌC (cảnh báo mức 3 / mức nặng nhất):
+   - GPA tích lũy (ĐTBTL) dưới 0.80 (thang 4), HOẶC
+   - Ba (3) học kỳ liên tiếp bị cảnh báo học vụ (ở bất kỳ mức nào), HOẶC
+   - Hai (2) lần bị cảnh báo mức 2 (không nhất thiết liên tiếp), HOẶC
+   - Vượt quá thời gian đào tạo tối đa cho phép.
+
+4. Thời điểm xét cảnh báo:
+   - Sau khi kết thúc mỗi học kỳ chính (HK1 và HK2), khi đã có đủ điểm các môn học.
+   - Học kỳ hè không tính cảnh báo học vụ riêng nhưng điểm học kỳ hè được cộng vào GPA tích lũy.
+
+5. Hậu quả và xử lý:
+   - Cảnh báo mức 1: Nhà trường thông báo bằng văn bản, sinh viên được tiếp tục học nhưng cần tư vấn học vụ.
+   - Cảnh báo mức 2: Sinh viên phải gặp cố vấn học tập và Phòng Đào tạo để lập kế hoạch học tập phục hồi. Số tín chỉ đăng ký học kỳ sau bị giới hạn.
+   - Buộc thôi học: Nhà trường ra quyết định buộc thôi học. Sinh viên có quyền khiếu nại trong vòng 15 ngày làm việc kể từ ngày nhận thông báo.
+
+=== III. THỜI GIAN ĐÀO TẠO ===
+
+1. Chương trình chuẩn:
+   - Đại học chính quy: 4 – 5 năm (tùy ngành)
+   - Kỹ sư chương trình tiêu chuẩn: 5 năm
+   - Kỹ sư chương trình tiên tiến/PFIEV: 5 – 5.5 năm
+
+2. Thời gian tối đa:
+   - Không được vượt quá 2 lần thời gian đào tạo tiêu chuẩn (tức là tối đa 8 – 10 năm).
+   - Sinh viên bảo lưu học tập vẫn tính vào thời gian tối đa.
+
+3. Gia hạn thời gian đào tạo:
+   - Sinh viên có lý do chính đáng (bệnh tật, hoàn cảnh đặc biệt) có thể xin gia hạn thêm tối đa 1 học kỳ, phải được Phòng Đào tạo và Ban Giám hiệu phê duyệt.
+
+=== IV. BẢO LƯU HỌC TẬP ===
+
+1. Điều kiện bảo lưu:
+   - Sinh viên có lý do chính đáng (ốm đau dài ngày, sự cố gia đình nghiêm trọng, đi nghĩa vụ quân sự...) có thể xin bảo lưu.
+   - Phải có đủ số tín chỉ tối thiểu theo quy định (thường ≥ 30 TC đã tích lũy).
+   - Không đang trong diện bị buộc thôi học.
+
+2. Thời gian bảo lưu:
+   - Tối đa 2 học kỳ chính liên tiếp trong một lần bảo lưu.
+   - Tổng thời gian bảo lưu trong toàn khóa học không quá 4 học kỳ chính.
+
+3. Thủ tục: Nộp đơn xin bảo lưu tại Phòng Đào tạo trước tuần thứ 4 của học kỳ muốn bảo lưu.
+
+=== V. HỌC LẠI VÀ HỌC CẢI THIỆN ===
+
+1. Học lại (Retake):
+   - Áp dụng khi sinh viên không đạt môn học (điểm F hoặc dưới điểm tối thiểu để qua môn).
+   - Môn bắt buộc: bắt buộc phải học lại.
+   - Môn tự chọn: có thể học lại hoặc đăng ký môn tự chọn khác thay thế (nếu khoa cho phép).
+   - Điểm học lại: Lấy điểm cao nhất trong các lần học để tính GPA (không phải điểm mới nhất).
+
+2. Học cải thiện (Grade Improvement):
+   - Áp dụng khi sinh viên đã qua môn nhưng muốn nâng điểm GPA.
+   - Chỉ áp dụng cho một số môn theo quy định từng khoa.
+   - Điểm cải thiện: Lấy điểm cao nhất giữa lần cũ và lần mới.
+   - Lưu ý: Không phải tất cả các môn đều cho phép học cải thiện.
+
+3. Điểm tối thiểu để qua môn: 4.0 (thang 10) hoặc 1.0 (thang 4) tương đương chữ D.
+
+=== VI. THANG ĐIỂM VÀ QUY ĐỔI ===
+
+Bảng quy đổi điểm số – chữ – GPA point:
+   - A+: 9.5 – 10.0  → 4.0
+   - A : 8.5 – 9.4   → 4.0
+   - B+: 8.0 – 8.4   → 3.5
+   - B : 7.0 – 7.9   → 3.0
+   - C+: 6.5 – 6.9   → 2.5
+   - C : 5.5 – 6.4   → 2.0
+   - D+: 5.0 – 5.4   → 1.5
+   - D : 4.0 – 4.9   → 1.0
+   - F : Dưới 4.0    → 0.0 (Không đạt)
+
+Ký hiệu đặc biệt:
+   - RT (Rút môn): Sinh viên rút khỏi môn học trong thời hạn cho phép. Không tính GPA, không tính TC.
+   - MT (Miễn điểm / Miễn học): Được công nhận TC nhưng không tính vào GPA.
+   - DT (Điểm đạt không có điểm số): Được công nhận TC, không tính GPA (dành cho môn đặc biệt như GDTC, GDQP...).
+   - CT, VT, CH, KD, VP, HT: Các ký hiệu tình trạng đặc biệt khác, không tính GPA.
+
+=== VII. CÁC MỐC NGƯỠNG GPA QUAN TRỌNG ===
+
+   - GPA < 0.80: Nguy cơ buộc thôi học ngay
+   - GPA 0.80 – 0.99: Vùng nguy hiểm cảnh báo mức 2
+   - GPA 1.00 – 1.19: Vùng cảnh báo mức 1 (nếu bị cảnh báo mức 1 thêm lần nữa → mức 2)
+   - GPA 1.20 – 1.99: Vùng yếu, cần cải thiện gấp
+   - GPA 2.00 – 2.49: Vùng trung bình, an toàn tối thiểu
+   - GPA 2.50 – 3.19: Xếp loại Khá, ổn định
+   - GPA 3.20 – 3.59: Xếp loại Giỏi, đủ điều kiện học bổng
+   - GPA 3.60 – 4.00: Xếp loại Xuất sắc
+
+=== VIII. KHIẾU NẠI VÀ PHÚC KHẢO ===
+
+1. Phúc khảo bài thi:
+   - Sinh viên có quyền đăng ký phúc khảo bài thi cuối kỳ trong vòng 7 ngày làm việc kể từ ngày công bố điểm chính thức.
+   - Nộp đơn và lệ phí phúc khảo tại Phòng Đào tạo.
+   - Kết quả phúc khảo là kết quả cuối cùng.
+
+2. Khiếu nại cảnh báo/buộc thôi học:
+   - Trong vòng 15 ngày làm việc kể từ khi nhận thông báo cảnh báo hoặc quyết định buộc thôi học.
+   - Nộp đơn khiếu nại kèm bằng chứng và lý do tại Phòng Đào tạo.
+   - Hội đồng xét khiếu nại họp trong vòng 30 ngày.
+
+Nguồn tham khảo: Quy chế đào tạo ĐHBK TP.HCM (QĐ 728/QĐ-ĐHBK-ĐT), Sổ tay sinh viên HCMUT 2025-2026

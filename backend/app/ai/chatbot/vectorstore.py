@@ -91,12 +91,15 @@ async def search_documents(
         task_type="retrieval_query",
     )
     limit = top_k or settings.RAG_TOP_K
+    # Fetch a wider candidate pool (4× final limit) so that documents with many
+    # chunks don't monopolise the top-K slots before per-source capping kicks in.
+    candidate_limit = limit * 4
     distance_expr = Document.embedding.cosine_distance(embedding)
     result = await db.execute(
         select(Document, distance_expr.label("distance"))
         .where(Document.is_active.is_(True), Document.embedding.is_not(None))
         .order_by(distance_expr)
-        .limit(limit)
+        .limit(candidate_limit)
     )
     vector_hits = [
         SearchHit(
@@ -106,7 +109,7 @@ async def search_documents(
         )
         for document, distance in result.all()
     ]
-    keyword_hits = await _search_documents_by_keywords(db, question, limit=limit)
+    keyword_hits = await _search_documents_by_keywords(db, question, limit=candidate_limit)
     return _merge_hits(keyword_hits + vector_hits, limit)
 
 
@@ -130,13 +133,15 @@ async def _search_documents_by_keywords(
     if not terms:
         return []
 
+    # Fetch ALL matching documents — no arbitrary limit here so that documents
+    # inserted later (e.g. .txt files added after PDFs) are not silently dropped.
+    # Scoring + final limit happen below.
     result = await db.execute(
         select(Document)
         .where(
             Document.is_active.is_(True),
             or_(*(Document.content.ilike(f"%{term}%") for term in terms)),
         )
-        .limit(40)
     )
     scored = []
     for document in result.scalars().all():
@@ -152,31 +157,41 @@ async def _search_documents_by_keywords(
     return hits
 
 
+_STOPWORDS = {
+    "theo", "mới", "nhất", "phòng", "đào", "tạo", "không", "nhiêu",
+    "được", "bao", "thì", "khi", "nào", "nếu", "như", "với", "cho",
+    "cũng", "vẫn", "đang", "đều", "hoặc", "hoặc", "những", "các",
+    "một", "này", "đó", "sẽ", "cần", "phải", "muốn", "hỏi", "biết",
+    "mình", "tôi", "bạn", "sinh", "viên", "giải", "thích", "thêm",
+}
+
+_PHRASE_TERMS = [
+    "điểm trung bình tích lũy", "trung bình tích lũy", "trung bình học kỳ",
+    "xếp loại học lực", "hạng tốt nghiệp", "xếp loại tốt nghiệp",
+    "tốt nghiệp", "điều kiện tốt nghiệp", "xuất sắc", "giỏi", "khá",
+    "cảnh báo học vụ", "buộc thôi học", "học lại", "học cải thiện",
+    "đăng ký môn", "hủy môn", "rút môn", "bảo lưu", "miễn học",
+    "học bổng", "khen thưởng", "tín chỉ", "học phí", "hoàn trả",
+    "quy chế", "quy định", "nội quy", "điều kiện", "điều khoản",
+    "thời gian đào tạo", "gia hạn", "tương đương", "thay thế",
+    "môn tiên quyết", "môn học trước", "điểm tối thiểu", "gpa",
+    "cảnh báo mức 1", "cảnh báo mức 2", "mức 1", "mức 2", "mức 3",
+]
+
+
 def _keyword_terms(question: str) -> list[str]:
     q = question.lower()
-    base_terms = [
-        "điểm trung bình tích lũy",
-        "trung bình tích lũy",
-        "xếp loại học lực",
-        "hạng tốt nghiệp",
-        "xếp loại tốt nghiệp",
-        "tốt nghiệp",
-        "xuất sắc",
-        "giỏi",
-        "khá",
-        "gpa",
-    ]
-    terms = [term for term in base_terms if term in q]
-    for token in q.replace("/", " ").replace(".", " ").replace(",", " ").split():
+    terms: list[str] = [phrase for phrase in _PHRASE_TERMS if phrase in q]
+    for token in q.replace("/", " ").replace(".", " ").replace(",", " ").replace("?", " ").split():
         token = token.strip()
-        if len(token) >= 4 and token not in {"theo", "mới", "nhất", "phòng", "đào", "tạo", "không", "nhiêu"}:
+        if len(token) >= 4 and token not in _STOPWORDS:
             terms.append(token)
 
     unique_terms: list[str] = []
     for term in terms:
         if term and term not in unique_terms:
             unique_terms.append(term)
-    return unique_terms[:10]
+    return unique_terms[:15]
 
 
 def _keyword_score(content: str, terms: list[str]) -> float:
@@ -194,12 +209,17 @@ def _keyword_score(content: str, terms: list[str]) -> float:
     return score
 
 
+_MAX_CHUNKS_PER_SOURCE = 3
+
+
 def _merge_hits(hits: list[SearchHit], limit: int) -> list[SearchHit]:
     """
     Dedup theo document_id. Nếu cùng doc xuất hiện ở cả vector và keyword:
     - giữ hit có score cao hơn để xếp hạng
     - nhưng đánh dấu match_type="merged" để FE phân biệt với hit single-source
-      (giải tỏa confusion "score keyword 0.9 vs score vector 0.4 không cùng thang")
+
+    Sau khi dedup by doc_id, giới hạn tối đa _MAX_CHUNKS_PER_SOURCE chunks/source_file
+    để tránh 1 tài liệu nhiều trang chiếm hết top-K, đẩy tài liệu khác ra ngoài.
     """
     merged: OrderedDict[str, SearchHit] = OrderedDict()
     sources_seen: dict[str, set[MatchType]] = {}
@@ -214,7 +234,16 @@ def _merge_hits(hits: list[SearchHit], limit: int) -> list[SearchHit]:
         sources = sources_seen.get(key, set())
         if {"vector", "keyword"}.issubset(sources):
             hit.match_type = "merged"
-    return list(merged.values())[:limit]
+
+    # Cap chunks per source_file to ensure diverse sources in top-K
+    source_count: dict[str, int] = {}
+    capped: list[SearchHit] = []
+    for hit in merged.values():
+        sf = hit.document.source_file
+        if source_count.get(sf, 0) < _MAX_CHUNKS_PER_SOURCE:
+            capped.append(hit)
+            source_count[sf] = source_count.get(sf, 0) + 1
+    return capped[:limit]
 
 
 async def list_document_groups(db: AsyncSession) -> list[dict]:
@@ -265,8 +294,12 @@ async def delete_document_group(db: AsyncSession, source_file: str) -> int:
 
 
 def dedupe_hits_by_source(hits: list[SearchHit]) -> list[SearchHit]:
-    seen: OrderedDict[str, SearchHit] = OrderedDict()
+    """Keep best 2 chunks per source_file to ensure diverse citations."""
+    source_count: dict[str, int] = {}
+    result: list[SearchHit] = []
     for hit in hits:
-        key = f"{hit.document.source_file}:{hit.document.chunk_index}"
-        seen.setdefault(key, hit)
-    return list(seen.values())
+        sf = hit.document.source_file
+        if source_count.get(sf, 0) < 2:
+            result.append(hit)
+            source_count[sf] = source_count.get(sf, 0) + 1
+    return result

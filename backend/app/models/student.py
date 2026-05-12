@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -43,6 +43,12 @@ class Student(Base):
     )
     credits_earned: Mapped[int] = mapped_column(sa.Integer, nullable=False, default=0)
     warning_level: Mapped[int] = mapped_column(sa.Integer, nullable=False, default=0)
+
+    # ─── Schedule (M9) ──────────────────────────────────────
+    timetable_json: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    exam_schedule_json: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    personal_events_json: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(
         sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()
     )

@@ -1,0 +1,133 @@
+CHƯƠNG TRÌNH ĐÀO TẠO NGÀNH CÔNG NGHỆ THÔNG TIN - TRƯỜNG ĐẠI HỌC BÁCH KHOA TP.HCM (HCMUT)
+
+=== I. TỔNG QUAN CHƯƠNG TRÌNH ĐÀO TẠO IT ===
+
+Khoa Khoa học và Kỹ thuật Máy tính (CSE) thuộc HCMUT đào tạo nhiều ngành liên quan CNTT:
+
+1. Các ngành/chương trình đào tạo:
+   - Khoa học Máy tính (Computer Science - CS)
+   - Kỹ thuật Máy tính (Computer Engineering - CE)
+   - Công nghệ Phần mềm (Software Engineering - SE)
+   - Kỹ thuật Điện – Điện tử (EE, một số chuyên ngành liên quan CNTT)
+   - Trí tuệ Nhân tạo (AI) — chương trình mới từ 2021
+   - Chương trình Kỹ sư Chất lượng cao (CLC) — dạy bằng tiếng Anh
+
+2. Thời gian đào tạo: 4.5 – 5 năm (9 – 10 học kỳ chính)
+
+3. Tổng tín chỉ cần tích lũy: thường từ 145 – 160 TC tùy chương trình
+
+=== II. CẤU TRÚC CHƯƠNG TRÌNH ĐIỂN HÌNH (NGÀNH CS/SE) ===
+
+1. Khối kiến thức đại cương (~30–40 TC):
+   - Toán học: Giải tích, Đại số tuyến tính, Xác suất thống kê, Toán rời rạc
+   - Khoa học: Vật lý đại cương
+   - Kinh tế – Xã hội: Triết học, Kinh tế chính trị, Lịch sử Đảng CSVN, Tư tưởng HCM...
+   - Ngoại ngữ: Tiếng Anh (nhiều cấp độ)
+
+2. Khối kiến thức cơ sở ngành (~40–50 TC):
+   - Lập trình căn bản (C/C++ hoặc Python)
+   - Cấu trúc dữ liệu và Giải thuật
+   - Kiến trúc máy tính
+   - Hệ điều hành
+   - Mạng máy tính
+   - Cơ sở dữ liệu
+   - Kỹ thuật phần mềm
+   - Lý thuyết tính toán
+   - An toàn thông tin cơ bản
+
+3. Khối kiến thức chuyên ngành (~40–50 TC):
+   - Tùy chuyên ngành: AI/ML, Web, Hệ thống nhúng, Bảo mật, Điện toán đám mây...
+   - Đồ án chuyên ngành
+   - Thực tập doanh nghiệp
+
+4. Khối tốt nghiệp (~10–15 TC):
+   - Đồ án tốt nghiệp (Khóa luận tốt nghiệp)
+
+5. Khối giáo dục thể chất và quốc phòng:
+   - GDTC: 3 học phần (không tính vào GPA nhưng bắt buộc)
+   - GDQP: 1 học phần (bắt buộc)
+
+=== III. MÔN HỌC QUAN TRỌNG VÀ LỘ TRÌNH HỌC ===
+
+1. Năm 1 (Học kỳ 1, 2):
+   - Giải tích 1, Giải tích 2, Đại số tuyến tính
+   - Vật lý đại cương 1
+   - Lập trình căn bản (C/C++)
+   - Tiếng Anh cơ bản
+   - Giáo dục thể chất 1, Giáo dục quốc phòng
+
+2. Năm 2 (Học kỳ 3, 4):
+   - Toán rời rạc, Xác suất thống kê
+   - Cấu trúc dữ liệu và giải thuật
+   - Lập trình hướng đối tượng
+   - Kiến trúc máy tính / Hệ điều hành
+   - Tiếng Anh nâng cao
+
+3. Năm 3 (Học kỳ 5, 6):
+   - Cơ sở dữ liệu
+   - Mạng máy tính
+   - Kỹ thuật phần mềm
+   - Bắt đầu môn chuyên ngành
+   - Thực hành: Lab Mạng, Lab OS...
+
+4. Năm 4–5 (Học kỳ 7–9/10):
+   - Môn chuyên ngành nâng cao
+   - Thực tập doanh nghiệp
+   - Đồ án tốt nghiệp
+
+=== IV. ĐIỂM SỐ VÀ ĐÁNH GIÁ CÁC MÔN CNTT ===
+
+1. Cấu trúc điểm phổ biến:
+   - Lý thuyết thuần (Toán, Lý thuyết...) : GK 30% + CK 70%
+   - Môn có Lab (Mạng, OS, Vật lý...) : GK 30% + Lab 20% + CK 50%
+   - Môn có Đồ án/BTL (Lập trình, CSDL...) : GK 30% + BTL/Đồ án 30% + CK 40%
+   - Đồ án thuần : BTL/Đồ án 100%
+
+2. Điểm tối thiểu để qua môn: 4.0/10 (tương đương D thang 4, 1.0 GPA point)
+
+3. Môn điều kiện / Điều kiện thi:
+   - Một số môn yêu cầu điểm danh ≥ 75% để được vào thi cuối kỳ.
+   - Nếu vắng > 25% buổi học → tự động không đủ điều kiện dự thi → điểm F.
+
+=== V. ĐỒ ÁN TỐT NGHIỆP ===
+
+1. Hình thức:
+   - Khóa luận tốt nghiệp (đề tài nghiên cứu hoặc ứng dụng thực tiễn)
+   - Thực hiện trong 1–2 học kỳ cuối (thường kỳ 9–10)
+
+2. Yêu cầu:
+   - Đăng ký đề tài đồ án với giảng viên hướng dẫn.
+   - Nộp đề cương, báo cáo giữa kỳ, báo cáo cuối.
+   - Bảo vệ trước hội đồng (thường bao gồm 2–3 giảng viên).
+   - Điểm đồ án: Điểm trình bày + phản biện + hướng dẫn.
+
+3. Điểm tối thiểu: 5.0/10 để được công nhận tốt nghiệp.
+
+=== VI. THỰC TẬP DOANH NGHIỆP ===
+
+1. Thời gian: Thường học kỳ 7 hoặc 8 (năm 3–4)
+2. Thời lượng: 8–12 tuần tại doanh nghiệp
+3. Yêu cầu:
+   - Báo cáo thực tập
+   - Nhận xét của doanh nghiệp
+   - Buổi seminar tại trường
+
+4. Tìm nơi thực tập:
+   - Qua kết nối của khoa với doanh nghiệp đối tác
+   - Tự tìm và được phê duyệt bởi khoa
+   - Phòng Hỗ trợ Việc làm & Thực tập (Career Center) HCMUT
+
+=== VII. CHUẨN ĐẦU RA ===
+
+1. Chuẩn ngoại ngữ:
+   - Bậc 3/6 khung năng lực ngoại ngữ Việt Nam (tương đương B1 CEFR)
+   - Chứng chỉ được chấp nhận: IELTS ≥ 5.0, TOEIC ≥ 500, TOEFL iBT ≥ 46, hoặc chứng chỉ tương đương
+   - Chương trình CLC/Tiên tiến: IELTS ≥ 6.0 hoặc TOEIC ≥ 650
+
+2. Chuẩn CNTT:
+   - Chứng chỉ tin học cơ bản (IC3, MOS hoặc tương đương)
+   - Hoặc đạt bài kiểm tra CNTT của HCMUT
+
+3. Điểm rèn luyện: Tối thiểu đạt mức "Trung bình" (từ 50 điểm trở lên)
+
+Nguồn tham khảo: Website Khoa CSE HCMUT, mybk.hcmut.edu.vn (Chương trình đào tạo), Sổ tay sinh viên 2025-2026

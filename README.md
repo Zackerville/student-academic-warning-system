@@ -262,14 +262,14 @@ docker compose ps         # check db status = "healthy"
 
 | Milestone | Mục tiêu | Trạng thái |
 |-----------|----------|-----------|
-| **M1** | Foundation Setup | ✅ Done |
-| **M2** | Auth End-to-End + FE Setup | ✅ Done |
-| **M3** | Student Profile & Grades + myBK paste | ✅ Done |
-| **M4** | AI XGBoost Prediction | ✅ Done (v2 explainability fix) |
-| **M5** | RAG Chatbot (Gemini) | ⬜ Pending |
-| **M6** | Warnings, Study Plan, Events | ⬜ Pending |
-| **M7** | Admin Minimal Tools | ⬜ Pending |
-| **M8** | Integration & Polish | ⬜ Pending |
+| **M1** | Foundation Setup | ✅ Done (2026-04-28) |
+| **M2** | Auth End-to-End + FE Setup | ✅ Done (2026-04-29) |
+| **M3** | Student Profile & Grades + myBK paste | ✅ Done (2026-04-29 → polish 2026-05-02) |
+| **M4** | AI XGBoost Prediction | ✅ Done (2026-05-02 → architecture refactor 2026-05-05) |
+| **M5** | RAG Chatbot (Gemini) | ✅ Done (2026-05-05 → FE polish 2026-05-08, còn sample PDF user tự upload) |
+| **M6** | Warnings, Study Plan, Events | ✅ Done (2026-05-06) |
+| **M7** | Admin Minimal Tools | ✅ Done (2026-05-06, demo-grade) |
+| **M8** | Integration & Polish | ✅ Done (2026-05-08 — skeleton loaders, error boundaries, K5/G4/I5 gap features, sonner toast toàn app, chatbot order fix, 69/69 tests pass, docs/) |
 | **M9** | Wow Features (optional) | ⬜ Pending |
 
 ---

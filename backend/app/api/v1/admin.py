@@ -765,6 +765,48 @@ def _semester_gpa_from_enrollments(enrollments: list[Enrollment]) -> Optional[fl
     return calculate_semester_gpa(grades)
 
 
+# ─── Export warned students (I5) ───────────────────────────
+
+@router.get("/reports/warned-students")
+async def export_warned_students(
+    format: Literal["xlsx", "pdf"] = Query(default="xlsx"),
+    min_level: int = Query(default=1, ge=1, le=3),
+    db: AsyncSession = Depends(get_db),
+):
+    """Export danh sách SV đang bị cảnh báo (warning_level >= min_level)."""
+    students = (
+        await db.execute(
+            select(Student)
+            .where(Student.warning_level >= min_level)
+            .order_by(Student.warning_level.desc(), Student.mssv)
+        )
+    ).scalars().all()
+
+    generated_at = datetime.now(timezone.utc)
+    title = f"Danh sach sinh vien canh bao hoc vu (muc >= {min_level})"
+    columns = ["MSSV", "Ho ten", "Khoa", "Nganh", "Khoa hoc", "GPA tich luy", "Tin chi dat", "Muc canh bao"]
+    rows = [
+        [s.mssv, s.full_name, s.faculty, s.major, s.cohort,
+         round(s.gpa_cumulative or 0.0, 2), s.credits_earned, s.warning_level]
+        for s in students
+    ]
+    stem = f"warned_students_{generated_at.strftime('%Y%m%d_%H%M%S')}"
+
+    if format == "xlsx":
+        data = _build_xlsx_report(title, columns, rows, generated_at)
+        return Response(
+            content=data,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f'attachment; filename="{stem}.xlsx"'},
+        )
+    data = _build_pdf_report(title, columns, rows, generated_at)
+    return Response(
+        content=data,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{stem}.pdf"'},
+    )
+
+
 # ─── Report export ─────────────────────────────────────────
 
 @router.get("/reports/export")
@@ -1087,10 +1129,23 @@ def _assemble_pdf(objects: list[bytes]) -> bytes:
     return bytes(data)
 
 
-# ─── Threshold (read-only) ──────────────────────────────────
+# ─── Threshold config ───────────────────────────────────────
+
+_threshold_override: dict = {}
+
 
 @router.get("/threshold", response_model=ThresholdConfig)
 async def get_threshold():
     return ThresholdConfig(
-        ai_early_warning_threshold=settings.AI_EARLY_WARNING_THRESHOLD,
+        ai_early_warning_threshold=_threshold_override.get(
+            "ai_early_warning_threshold", settings.AI_EARLY_WARNING_THRESHOLD
+        ),
     )
+
+
+@router.put("/threshold", response_model=ThresholdConfig)
+async def update_threshold(payload: ThresholdConfig):
+    if not (0.0 < payload.ai_early_warning_threshold <= 1.0):
+        raise HTTPException(status_code=400, detail="ai_early_warning_threshold must be in (0, 1]")
+    _threshold_override["ai_early_warning_threshold"] = payload.ai_early_warning_threshold
+    return payload
