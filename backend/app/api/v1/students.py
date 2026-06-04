@@ -4,7 +4,8 @@ Endpoints: profile, dashboard, grades, enrollments, GPA, myBK import
 """
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
+from typing import Optional
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -733,8 +734,24 @@ async def import_timetable(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
-    timetable_data = parsed.to_dict()
-    timetable_data["updated_at"] = datetime.now(_tz.utc).isoformat()
+    new_sessions = parsed.to_dict()["sessions"]
+    if payload.merge and student.timetable_json:
+        existing_data = student.timetable_json
+        existing_sessions = existing_data.get("sessions", [])
+        def _session_key(s: dict) -> tuple:
+            return (s.get("course_code"), s.get("group"), s.get("day_of_week"), s.get("start_period"))
+        new_keys = {_session_key(s) for s in new_sessions}
+        kept = [s for s in existing_sessions if _session_key(s) not in new_keys]
+        merged_sessions = kept + new_sessions
+        timetable_data = {
+            "semester": parsed.semester,
+            "sessions": merged_sessions,
+            "week_1_monday": parsed.week_1_monday or existing_data.get("week_1_monday"),
+            "updated_at": datetime.now(_tz.utc).isoformat(),
+        }
+    else:
+        timetable_data = parsed.to_dict()
+        timetable_data["updated_at"] = datetime.now(_tz.utc).isoformat()
     student.timetable_json = timetable_data
     flag_modified(student, "timetable_json")
 
@@ -796,13 +813,13 @@ async def import_timetable(
 
     return TimetableImportResponse(
         semester=semester,
-        sessions_count=len(parsed.sessions),
+        sessions_count=len(timetable_data["sessions"]),
         enrollments_created=enrollments_created,
         enrollments_skipped=enrollments_skipped,
         timetable=TimetableResponse(
             semester=semester,
-            sessions=parsed.to_dict()["sessions"],
-            week_1_monday=parsed.week_1_monday,
+            sessions=timetable_data["sessions"],
+            week_1_monday=timetable_data.get("week_1_monday"),
             updated_at=timetable_data["updated_at"],
         ),
     )
@@ -816,6 +833,36 @@ async def clear_timetable(
     student.timetable_json = None
     flag_modified(student, "timetable_json")
     await db.commit()
+
+
+@router.delete("/me/timetable/sessions", status_code=200)
+async def delete_timetable_sessions(
+    course_code: str = Query(..., description="Mã môn học cần xoá"),
+    group: Optional[str] = Query(None, description="Nhóm cụ thể — bỏ trống để xoá mọi nhóm"),
+    day_of_week: Optional[int] = Query(None, description="Thứ (2-8) — bỏ trống để xoá mọi ngày"),
+    start_period: Optional[int] = Query(None, description="Tiết bắt đầu — bỏ trống để xoá mọi tiết"),
+    student: Student = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+):
+    """Xoá một buổi học cụ thể hoặc toàn bộ buổi của một môn khỏi TKB."""
+    data = dict(student.timetable_json or {})
+    sessions = data.get("sessions", [])
+    original_count = len(sessions)
+    sessions = [
+        s for s in sessions
+        if not (
+            s.get("course_code") == course_code
+            and (group is None or s.get("group") == group)
+            and (day_of_week is None or s.get("day_of_week") == day_of_week)
+            and (start_period is None or s.get("start_period") == start_period)
+        )
+    ]
+    data["sessions"] = sessions
+    data["updated_at"] = datetime.now(_tz.utc).isoformat()
+    student.timetable_json = data
+    flag_modified(student, "timetable_json")
+    await db.commit()
+    return {"removed": original_count - len(sessions), "remaining": len(sessions)}
 
 
 @router.get("/me/exam-schedule", response_model=ExamScheduleResponse)
@@ -866,6 +913,34 @@ async def clear_exam_schedule(
     student.exam_schedule_json = None
     flag_modified(student, "exam_schedule_json")
     await db.commit()
+
+
+@router.delete("/me/exam-schedule/exams", status_code=200)
+async def delete_exam_entries(
+    course_code: str = Query(..., description="Mã môn học"),
+    exam_date: Optional[str] = Query(None, description="Ngày thi ISO (YYYY-MM-DD) — bỏ trống để xoá mọi lần thi"),
+    exam_type: Optional[str] = Query(None, description="GK hoặc CK — bỏ trống để xoá cả hai loại"),
+    student: Student = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+):
+    """Xoá một lịch thi cụ thể hoặc toàn bộ lịch thi của một môn."""
+    data = dict(student.exam_schedule_json or {})
+    exams = data.get("exams", [])
+    original_count = len(exams)
+    exams = [
+        e for e in exams
+        if not (
+            e.get("course_code") == course_code
+            and (exam_date is None or e.get("exam_date") == exam_date)
+            and (exam_type is None or e.get("exam_type") == exam_type)
+        )
+    ]
+    data["exams"] = exams
+    data["updated_at"] = datetime.now(_tz.utc).isoformat()
+    student.exam_schedule_json = data
+    flag_modified(student, "exam_schedule_json")
+    await db.commit()
+    return {"removed": original_count - len(exams), "remaining": len(exams)}
 
 
 @router.get("/me/personal-events", response_model=PersonalEventListResponse)

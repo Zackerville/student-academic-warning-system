@@ -34,6 +34,7 @@ class TimetableResponse(BaseModel):
 
 class TimetableImportRequest(BaseModel):
     paste_text: str = Field(..., min_length=20)
+    merge: bool = False  # True → gộp vào TKB hiện có thay vì xoá trắng
 
 
 class TimetableImportResponse(BaseModel):

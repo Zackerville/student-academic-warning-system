@@ -125,7 +125,7 @@ export default function SchedulePage() {
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-primary flex items-center gap-2">
-            <CalendarDays className="h-6 w-6" /> Thời khóa biểu và lịch
+            <CalendarDays className="h-6 w-6" /> Thời khóa biểu và
           </h1>
           <p className="text-muted-foreground text-sm mt-0.5">
             Quản lý thời khóa biểu, lịch thi và các sự kiện học vụ {semester && <Badge variant="outline" className="ml-2">HK {semester}</Badge>}

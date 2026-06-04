@@ -4,10 +4,12 @@ APScheduler setup — chạy job định kỳ trong-process.
 Jobs:
   - predictions_batch:   02:00 AM mỗi ngày, predict cho mọi SV → lưu predictions table
   - deadline_reminders:  07:00 AM mỗi ngày, gửi nhắc nhở SV cho event bắt buộc trong 24h tới
+  - exam_reminders:      07:00 AM mỗi ngày, gửi nhắc nhở thi từ exam_schedule_json trong 24h tới
 """
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -19,6 +21,8 @@ from app.db.session import AsyncSessionLocal
 from app.models.event import Event, TargetAudience
 from app.models.notification import Notification, NotificationType
 from app.models.student import Student
+
+_VN_TZ = ZoneInfo("Asia/Ho_Chi_Minh")
 
 
 async def run_predictions_batch():
@@ -89,6 +93,87 @@ async def run_deadline_reminders():
         logger.info(f"Deadline reminders sent for {len(events)} event(s)")
 
 
+async def run_exam_reminders():
+    """Job: gửi notification nhắc SV về lịch thi (từ exam_schedule_json) trong 24h tới.
+
+    Window: bây giờ → +25h (job 07:00 VN → bắt kịp thi cùng ngày lẫn sáng hôm sau).
+    Dedup: skip nếu đã gửi notification cùng title trong 23h gần nhất (tránh spam).
+    """
+    now_utc = datetime.now(tz=timezone.utc)
+    window_end_utc = now_utc + timedelta(hours=25)
+    dedup_cutoff = now_utc - timedelta(hours=23)
+
+    async with AsyncSessionLocal() as db:
+        # Lấy mọi SV có exam_schedule_json
+        result = await db.execute(
+            select(Student).where(Student.exam_schedule_json.isnot(None))
+        )
+        students = list(result.scalars().all())
+
+        notification_count = 0
+        for student in students:
+            exams = (student.exam_schedule_json or {}).get("exams", [])
+            for exam in exams:
+                exam_date_str: str | None = exam.get("exam_date")   # "2026-05-25"
+                start_time_str: str | None = exam.get("start_time") # "07:00"
+                if not exam_date_str or not start_time_str:
+                    continue
+
+                try:
+                    y, mo, d = map(int, exam_date_str.split("-"))
+                    h, mi = map(int, start_time_str.split(":"))
+                    exam_dt_utc = datetime(y, mo, d, h, mi, tzinfo=_VN_TZ).astimezone(timezone.utc)
+                except Exception:
+                    continue
+
+                if not (now_utc <= exam_dt_utc <= window_end_utc):
+                    continue
+
+                course_code = exam.get("course_code", "")
+                exam_type = exam.get("exam_type", "")
+                type_label = "Cuối kỳ" if exam_type == "CK" else "Giữa kỳ"
+                room = exam.get("room", "")
+                campus = exam.get("campus", "")
+                duration = exam.get("duration_min", 0)
+                course_name = exam.get("course_name", "")
+                title = f"Nhắc thi {type_label}: {course_code}"
+
+                # Dedup — skip nếu đã gửi cùng title gần đây
+                dup = (await db.execute(
+                    select(Notification).where(
+                        and_(
+                            Notification.student_id == student.id,
+                            Notification.title == title,
+                            Notification.sent_at >= dedup_cutoff,
+                        )
+                    )
+                )).scalar_one_or_none()
+                if dup:
+                    continue
+
+                content_parts = [
+                    f"Bạn có lịch thi {type_label} môn {course_code}"
+                    + (f" — {course_name}" if course_name else ""),
+                    f"🕐 {start_time_str} ngày {exam_date_str}",
+                ]
+                if room:
+                    content_parts.append(f"📍 Phòng {room}" + (f" ({campus})" if campus else ""))
+                if duration:
+                    content_parts.append(f"⏱ Thời gian thi: {duration} phút")
+                content_parts.append("Chúc bạn thi tốt! 💪")
+
+                db.add(Notification(
+                    student_id=student.id,
+                    type=NotificationType.reminder,
+                    title=title,
+                    content="\n".join(content_parts),
+                ))
+                notification_count += 1
+
+        await db.commit()
+        logger.info(f"Exam reminders: {notification_count} notification(s) sent to {len(students)} student(s)")
+
+
 def setup_scheduler() -> AsyncIOScheduler:
     """Tạo scheduler + register jobs. Caller phải gọi .start() và .shutdown()."""
     scheduler = AsyncIOScheduler(timezone="Asia/Ho_Chi_Minh")
@@ -106,6 +191,15 @@ def setup_scheduler() -> AsyncIOScheduler:
         run_deadline_reminders,
         trigger=CronTrigger(hour=7, minute=0),
         id="deadline_reminders_daily",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
+
+    scheduler.add_job(
+        run_exam_reminders,
+        trigger=CronTrigger(hour=7, minute=0),
+        id="exam_reminders_daily",
         replace_existing=True,
         max_instances=1,
         coalesce=True,
